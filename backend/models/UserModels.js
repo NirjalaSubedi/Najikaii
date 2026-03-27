@@ -30,3 +30,5 @@ const userSchema=new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     shopName: { type: String }
 }, {timestamps: true})
+
+module.exports = mongoose.model('User', userSchema);
