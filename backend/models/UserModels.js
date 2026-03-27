@@ -26,5 +26,7 @@ const userSchema=new mongoose.Schema({
         city: { type: String, default: 'Jhumka' }, // Default making local area
         province: { type: String, default: 'Koshi' }
     },
-    
-})
+    // Vendor specific fields
+    isVerified: { type: Boolean, default: false },
+    shopName: { type: String }
+}, {timestamps: true})
