@@ -14,6 +14,17 @@ const userSchema=new mongoose.Schema({
         required:true,
     },
     role:{
-        
-    }
+        type:String,
+        enum:['Customer','Vendor','Admin'],
+        default:'Customer'
+    },
+    PhoneNumber:{
+        type:String
+    },
+    Address:{
+        street: String,
+        city: { type: String, default: 'Jhumka' }, // Default making local area
+        province: { type: String, default: 'Koshi' }
+    },
+    
 })
