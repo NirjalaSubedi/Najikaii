@@ -15,7 +15,7 @@ exports.register=async(req,res)=>{
 
         //Hash password
         const salt = await bcryptjs.genSalt(10);
-        const hashpassword= await bycriptjs.hash(password,salt);
+        const hashpassword= await bcryptjs.hash(password,salt);
 
         //save user
         user =new user({name,email,password:hashpassword,role});
