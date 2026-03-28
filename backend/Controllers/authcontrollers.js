@@ -35,7 +35,15 @@ exports.register=async(req,res)=>{
 
 exports.login= async (req,res)=>{
     try{
+        const {email,password}=req.body;
 
+        //find user
+        const user = await user.findOne('email');
+        if(!user){
+            return res.status(404).json({
+                message:"user is not register"
+            })
+        }
     }catch(e){
 
     }
