@@ -12,7 +12,19 @@ exports.register=async(req,res)=>{
                 message:"user already exist"
             })
         }
+
+        //Hash password
+        const salt = await bcryptjs.genSalt(10);
+        const hashpassword= await bycriptjs.hash(password,salt);
+
+        //save user
+        user =new user({name,email,password:hashpassword,role});
+        await user.save();
+
     }catch(e){
+        res.status(500).json({
+            error:e.message
+        })
 
     }
 }
