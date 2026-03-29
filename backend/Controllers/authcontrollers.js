@@ -52,6 +52,14 @@ exports.login= async (req,res)=>{
                 message:"invalid password"
             })
         }
+
+        //create jwt token
+        const token=JsonWebTokenError.sign({
+            id:user.id,
+            role:user.role
+        },
+        process.env.JWT_SECRET,
+        {expiresIn:'1d'})
     }catch(e){
 
     }
