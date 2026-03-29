@@ -44,6 +44,14 @@ exports.login= async (req,res)=>{
                 message:"user is not register"
             })
         }
+
+        //check password 
+        const ismatch = await bcryptjs.compare(password,hashpassword);
+        if(!ismatch){
+            return res.status(400).json({
+                message:"invalid password"
+            })
+        }
     }catch(e){
 
     }
