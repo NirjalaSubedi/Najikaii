@@ -38,15 +38,15 @@ exports.login= async (req,res)=>{
         const {email,password}=req.body;
 
         //find user
-        const user = await user.findOne('email');
-        if(!user){
+        const founduser = await user.findOne('email');
+        if(!founduser){
             return res.status(404).json({
                 message:"user is not register"
             })
         }
 
         //check password 
-        const ismatch = await bcryptjs.compare(password,newuser.password);
+        const ismatch = await bcryptjs.compare(passwor,founduser.password);
         if(!ismatch){
             return res.status(400).json({
                 message:"invalid password"
@@ -55,8 +55,8 @@ exports.login= async (req,res)=>{
 
         //create jwt token
         const token=JsonWebTokenError.sign({
-            id:user.id,
-            role:user.role
+            id:founduser._id,
+            role:founduser.role
         },
         process.env.JWT_SECRET,
         {expiresIn:'1d'})
@@ -65,9 +65,9 @@ exports.login= async (req,res)=>{
             success: true,
             token: token, 
             user: {
-                id: user.id,
-                name: user.name,
-                role: user.role
+                id: founduser._id,
+                name: founduser.name,
+                role: founduser.role
             }
         });
     }catch(e){
