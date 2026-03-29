@@ -38,7 +38,7 @@ exports.login= async (req,res)=>{
         const {email,password}=req.body;
 
         //find user
-        const founduser = await user.findOne('email');
+        const founduser = await user.findOne({email});
         if(!founduser){
             return res.status(404).json({
                 message:"user is not register"
@@ -46,7 +46,7 @@ exports.login= async (req,res)=>{
         }
 
         //check password 
-        const ismatch = await bcryptjs.compare(passwor,founduser.password);
+        const ismatch = await bcryptjs.compare(password,founduser.password);
         if(!ismatch){
             return res.status(400).json({
                 message:"invalid password"
@@ -54,7 +54,7 @@ exports.login= async (req,res)=>{
         }
 
         //create jwt token
-        const token=JsonWebTokenError.sign({
+        const token=jwt.sign({
             id:founduser._id,
             role:founduser.role
         },
