@@ -17,4 +17,4 @@ const authmiddlewares = async (req, res, next)=>{
         })
     }
 }
-exports.module=authmiddlewares;
+module.exports=authmiddlewares;
