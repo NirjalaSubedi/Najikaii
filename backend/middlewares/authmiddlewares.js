@@ -25,6 +25,7 @@ const authorizeRoles= (...roles)=>{
                 message:`Role (${req.user.roles}) not allowed to use this resources`,
             })
         }
+        next();
     }
 }
 module.exports={authmiddlewares,authorizeRoles};
