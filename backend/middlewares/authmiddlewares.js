@@ -17,4 +17,10 @@ const authmiddlewares = async (req, res, next)=>{
         })
     }
 }
-module.exports={authmiddlewares};
+
+const authorizeRoles= (...roles)=>{
+    return(req,res,next)=>{
+
+}
+}
+module.exports={authmiddlewares,authorizeRoles};
