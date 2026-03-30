@@ -7,10 +7,14 @@ const authmiddlewares = async (req, res, next)=>{
                 message:"token invalid"
             })
         }
-        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user=decoded;
+        next();
 
     }catch(e){
-
+        res.status(500).json({
+            message:e.message
+        })
     }
 }
 exports.module=authmiddlewares;
