@@ -14,9 +14,10 @@ router.get('/test',authmiddlewares,(req,res)=>{
 });
 
 router.get('/add-product',authmiddlewares,authorizeRoles('Vendor'),(req,res)=>{
-    res.status(403).json({
-        message:"product haalna mildaiina"
-    })
+    res.status(200).json({
+        success: true,
+        message: "Vendor verified! Product haalna milo."
+    });
 });
 
 module.exports=router;
