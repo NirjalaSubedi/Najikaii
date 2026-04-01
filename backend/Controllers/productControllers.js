@@ -1,4 +1,6 @@
 const product = require ('../models/ProductModels');
+
+//for adding new product
 exports.Addproduct= async (req,res)=>{
     try{
         const{name, description, price, category, unitType, stock, image}=req.body;
@@ -28,3 +30,5 @@ exports.Addproduct= async (req,res)=>{
         })
     }
 }
+
+
