@@ -68,4 +68,13 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+//only product owner can upadte product
+exports.updateProducts = async (req,res)=>{
+    try{
+
+    }catch(error){
+        
+    }
+}
+
 
