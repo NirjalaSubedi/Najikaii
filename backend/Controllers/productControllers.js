@@ -35,11 +35,11 @@ exports.Addproduct= async (req,res)=>{
 exports.getmyProduct= async(req,res)=>{
     try{
         //searching only the logedin user product from database
-        const products = await product.find({Vendor:req.user.id});
+        const products = await product.find({vendor:req.user.id});
         res.status(200).json({
             success:true,
             message:"logedin vendor ko registerd product haru",
-            product:products
+            products
         })
     }catch(error){
         res.status(500).json({
