@@ -80,17 +80,23 @@ exports.updateProducts = async (req,res)=>{
             })
         }
 
-        if (productData.vendor.toString() !== req.user.id) {
+        if (productdata.vendor.toString() !== req.user.id) {
             return res.status(403).json({ 
                 success: false, 
                 message: "Timi yo product ko owner hoinau, update garna mildaina!" 
             });
         }
-        
+
         //when we get the product id to update
-        productData = await product.findByIdAndUpdate(req.params.id, req.body, {
+        productdata = await product.findByIdAndUpdate(req.params.id, req.body, {
             new: true, // Naya updated data return garna
             runValidators: true // Model ko validation check garna
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully!",
+            product: productdata
         });
 
     }catch(error){
