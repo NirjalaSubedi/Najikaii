@@ -4,7 +4,7 @@ const bcryptjs= require('bcryptjs');
 
 exports.register=async(req,res)=>{
     try{
-        const {name,email,password,role}=req.body;
+        const {name,email,password,role,PhoneNumber,Address}=req.body;
         //check if user alredy exist
         let existinguser = await user.findOne({email});
         if(existinguser){
@@ -18,11 +18,11 @@ exports.register=async(req,res)=>{
         const hashpassword= await bcryptjs.hash(password,salt);
 
         //save user
-        const newuser =new user({name,email,password:hashpassword,role});
+        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address});
         await newuser.save();
         res.status(201).json({
             message:"user created success",
-            user:{name,email,role}
+            user:{name,email,role,PhoneNumber,Address}
         })
 
     }catch(e){
