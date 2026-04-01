@@ -50,4 +50,22 @@ exports.getmyProduct= async(req,res)=>{
     }
 }
 
+//displaying all product 
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await product.find().populate('vendor', 'name email');
+
+        res.status(200).json({
+            success: true,
+            count: products.length,
+            products
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 
