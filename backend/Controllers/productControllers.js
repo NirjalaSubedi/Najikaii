@@ -2,7 +2,7 @@ const product = require ('../models/ProductModels');
 exports.Addproduct= async (req,res)=>{
     try{
         const{name, description, price, category, unitType, stock, image}=req.body;
-        const newProduct= new Product({
+        const newProduct= new product({
             vendor:req.user.id,
             name,
             description,
