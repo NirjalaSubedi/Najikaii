@@ -2,7 +2,7 @@ const express =require('express');
 const router= express.Router();
 const {register,login}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const{Addproduct}= require("../Controllers/productControllers");
+const{Addproduct, getmyProduct}= require("../Controllers/productControllers");
 
 router.post('/register',register);
 router.post('/login',login);
@@ -15,5 +15,8 @@ router.get('/test',authmiddlewares,(req,res)=>{
 });
 
 router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
+
+// Display only my products
+router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduct);
 
 module.exports=router;
