@@ -18,7 +18,8 @@ exports.Addproduct()= async (req,res)=>{
         
         res.status(201).json({
             success:true,
-            message:"Product successdully database ma create vayo"
+            message:"Product successdully database ma create vayo",
+            product:newProduct
         })
     }catch(error){
         res.status(500).json({

@@ -2,6 +2,7 @@ const express =require('express');
 const router= express.Router();
 const {register,login}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
+const{Addproduct}= require("../Controllers/productControllers");
 
 router.post('/register',register);
 router.post('/login',login);
@@ -13,11 +14,6 @@ router.get('/test',authmiddlewares,(req,res)=>{
     })
 });
 
-router.get('/add-product',authmiddlewares,authorizeRoles('Vendor'),(req,res)=>{
-    res.status(200).json({
-        success: true,
-        message: "Vendor verified! Product haalna milo."
-    });
-});
+router.get('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
 
 module.exports=router;
