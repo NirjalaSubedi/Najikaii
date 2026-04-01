@@ -71,6 +71,15 @@ exports.getAllProducts = async (req, res) => {
 //only product owner can upadte product
 exports.updateProducts = async (req,res)=>{
     try{
+        //taking product id from URL
+        let productdata= await product.findById(req.params.id);
+        if(!productdata){
+            return res.status(404).json({
+                success:false,
+                message:"product update garna ko lagi id milena"
+            })
+        }
+        
 
     }catch(error){
         res.status(500).json({
