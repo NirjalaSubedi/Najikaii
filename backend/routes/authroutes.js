@@ -2,7 +2,7 @@ const express =require('express');
 const router= express.Router();
 const {register,login}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const{Addproduct, getmyProduct}= require("../Controllers/productControllers");
+const{Addproduct, getmyProduct, getAllProducts}= require("../Controllers/productControllers");
 
 router.post('/register',register);
 router.post('/login',login);
@@ -19,4 +19,6 @@ router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
 // Display only my products
 router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduct);
 
+// Displaying all product to customer and Admin 
+router.get('/all-products', authmiddlewares, authorizeRoles('Customer', 'Admin'), );
 module.exports=router;
