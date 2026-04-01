@@ -14,6 +14,6 @@ router.get('/test',authmiddlewares,(req,res)=>{
     })
 });
 
-router.get('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
+router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
 
 module.exports=router;
