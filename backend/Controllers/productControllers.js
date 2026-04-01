@@ -80,6 +80,10 @@ exports.updateProducts = async (req,res)=>{
             })
         }
         //when we get the product id to update
+        productData = await product.findByIdAndUpdate(req.params.id, req.body, {
+            new: true, // Naya updated data return garna
+            runValidators: true // Model ko validation check garna
+        });
 
     }catch(error){
         res.status(500).json({
