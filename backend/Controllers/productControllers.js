@@ -1,5 +1,5 @@
 const product = require ('../models/ProductModels');
-exports.Addproduct()= async (req,res)=>{
+exports.Addproduct= async (req,res)=>{
     try{
         const{name, description, price, category, unitType, stock, image}=req.body;
         const newProduct= new Product({
@@ -28,4 +28,3 @@ exports.Addproduct()= async (req,res)=>{
         })
     }
 }
-module.exports= product;
