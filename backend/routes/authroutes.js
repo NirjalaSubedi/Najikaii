@@ -20,5 +20,5 @@ router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
 router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduct);
 
 // Displaying all product to customer and Admin 
-router.get('/all-products', authmiddlewares, authorizeRoles('Customer', 'Admin'), );
+router.get('/all-products', authmiddlewares, authorizeRoles('Customer', 'Admin'),getAllProducts );
 module.exports=router;
