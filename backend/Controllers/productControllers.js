@@ -79,7 +79,7 @@ exports.updateProducts = async (req,res)=>{
                 message:"product update garna ko lagi id milena"
             })
         }
-        
+        //when we get the product id to update
 
     }catch(error){
         res.status(500).json({
