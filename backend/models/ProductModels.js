@@ -26,4 +26,4 @@ const ProductSchema= new mongoose.Schema({
     }, // This is for your Atomic Check
     image: String
 }, { timestamps: true})
-module.exports=mongoose.ProductSchema('Product',ProductSchema);
+module.exports = mongoose.model('Product', ProductSchema);
