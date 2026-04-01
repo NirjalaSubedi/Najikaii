@@ -79,6 +79,14 @@ exports.updateProducts = async (req,res)=>{
                 message:"product update garna ko lagi id milena"
             })
         }
+
+        if (productData.vendor.toString() !== req.user.id) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Timi yo product ko owner hoinau, update garna mildaina!" 
+            });
+        }
+        
         //when we get the product id to update
         productData = await product.findByIdAndUpdate(req.params.id, req.body, {
             new: true, // Naya updated data return garna
