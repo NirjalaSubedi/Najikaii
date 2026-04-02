@@ -110,7 +110,7 @@ exports.updateProducts = async (req,res)=>{
 //deleting products
 exports.deleteProduct = async (req,res)=>{
     try{
-        const productdata= await product(req.params.id);
+        const productdata= await product.findById(req.params.id);
         if(!productdata){
             return res.status(404).json({
                 success:false,
@@ -119,7 +119,7 @@ exports.deleteProduct = async (req,res)=>{
             })
         }
         const isAdmin= req.user.role === 'Admin';
-        const isOwner = productdata.vendor.toString() === req.user.role;
+        const isOwner = productdata.vendor.toString() === req.user.id;
 
         if(!isAdmin && !isOwner){
             return res.status(403).json({
