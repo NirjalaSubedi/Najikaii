@@ -110,6 +110,15 @@ exports.updateProducts = async (req,res)=>{
 //deleting products
 exports.deleteProduct = async (req,res)=>{
     try{
+        const productdata= await product(req.params.id);
+        if(!productdata){
+            return res.status(404).json({
+                success:false,
+                message:"delete garna ko lagi product vetiyana"
+            
+            })
+        }
+        
 
     }catch(error){
         res.status(500).json({
