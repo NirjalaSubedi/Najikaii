@@ -128,6 +128,12 @@ exports.deleteProduct = async (req,res)=>{
             })
         }
 
+        await product.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            success:true,
+            message:isAdmin?"Admin le product delete gardiyo !": "Vendor le aafnu product delete garo"
+        })
     }catch(error){
         res.status(500).json({
             success:false,
