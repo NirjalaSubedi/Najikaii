@@ -23,5 +23,5 @@ router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduc
 router.get('/all-products', authmiddlewares, authorizeRoles('Customer', 'Admin'),getAllProducts );
 
 //only owner can upadte their product
-router.patch('/updateProduct',authmiddlewares,authorizeRoles('Vendor'),updateProducts);
+router.put('/updateProduct/:id',authmiddlewares,authorizeRoles('Vendor'),updateProducts);
 module.exports=router;
