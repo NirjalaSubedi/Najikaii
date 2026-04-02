@@ -118,7 +118,15 @@ exports.deleteProduct = async (req,res)=>{
             
             })
         }
-        
+        const isAdmin= req.user.role === 'Admin';
+        const isOwner = productdata.vendor.toString() === req.user.role;
+
+        if(!isAdmin && !isOwner){
+            return res.status(403).json({
+                success:false,
+                message:"Timi saga yo product delete garne authorization xaiina"
+            })
+        }
 
     }catch(error){
         res.status(500).json({
