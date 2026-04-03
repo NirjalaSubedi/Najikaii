@@ -70,10 +70,14 @@ exports.login= async (req,res)=>{
 
         //check password 
         const ismatch = await bcryptjs.compare(password,founduser.password);
-        if(!ismatch){
-            return res.status(400).json({
-                message:"invalid password"
-            })
+        if(ismatch){
+
+            if (!user.isVerified) {
+                return res.status(401).json({ 
+                message: "Please verify your email before logging in." 
+                });
+            }
+
         }
 
         //create jwt token
