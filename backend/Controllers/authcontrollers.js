@@ -20,7 +20,7 @@ exports.register=async(req,res)=>{
         const hashpassword= await bcryptjs.hash(password,salt);
 
         //otp generating
-        const otp= Crypto.randomInt(100000,999999).toString();
+        const otp= crypto.randomInt(100000,999999).toString();
         const otpExpire = Date.now() + 10 * 60 * 1000;
 
         //save user
