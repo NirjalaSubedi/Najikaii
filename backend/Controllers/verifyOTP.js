@@ -27,7 +27,16 @@ exports.verifyOtp= async (req,res)=>{
                 message:"otp already expired"
             })
         }
-    }catch(error){
+        isVerified = true;
+        otp = undefined;
+        otpExpires = undefined;
 
+        return res.status(200).json({
+            success:true,
+            message:"otp validate success"
+        })
+
+    }catch(error){
+        
     }
 }
