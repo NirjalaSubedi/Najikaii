@@ -30,10 +30,6 @@ const userSchema=new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     shopName: { type: String },
 
-    isVerified: {
-        type: Boolean,
-        default: false
-    },
     otp: {
         type: String
     },
