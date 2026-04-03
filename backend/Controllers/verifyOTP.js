@@ -15,7 +15,13 @@ exports.verifyOtp= async (req,res)=>{
                 message:"User is already verified"
             })
         }
-        
+        //if otp doesnot validate
+        if(user.otp!== otp){
+            return res.status(400).json({
+                message:"invalid otp"
+            })
+        }
+        //
     }catch(error){
 
     }
