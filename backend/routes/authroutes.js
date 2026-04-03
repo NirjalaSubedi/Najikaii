@@ -3,8 +3,12 @@ const router= express.Router();
 const {register,login}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
+const {verifyOtp}= require("../Controllers/verifyOTP");
 
 router.post('/register',register);
+
+//verify otp
+router.post('/verify-Otp',verifyOtp);
 router.post('/login',login);
 router.get('/test',authmiddlewares,(req,res)=>{
     res.status(200).json({
