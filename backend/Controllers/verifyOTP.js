@@ -21,7 +21,12 @@ exports.verifyOtp= async (req,res)=>{
                 message:"invalid otp"
             })
         }
-        //
+        //if otp is already expires
+        if(user.otpExpires < Date.now()){
+            return res.status(400).json({
+                message:"otp already expired"
+            })
+        }
     }catch(error){
 
     }
