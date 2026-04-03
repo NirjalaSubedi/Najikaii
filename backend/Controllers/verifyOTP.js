@@ -9,6 +9,13 @@ exports.verifyOtp= async (req,res)=>{
                 message:"email doesnot exist"
             })
         }
+        //checking if user is already register or not
+        if(user.isVerified){
+            return res.status(400).json({
+                message:"User is already verified"
+            })
+        }
+        
     }catch(error){
 
     }
