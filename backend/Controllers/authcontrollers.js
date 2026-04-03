@@ -72,7 +72,7 @@ exports.login= async (req,res)=>{
         const ismatch = await bcryptjs.compare(password,founduser.password);
         if(ismatch){
 
-            if (!user.isVerified) {
+            if (!founduser.isVerified) {
                 return res.status(401).json({ 
                 message: "Please verify your email before logging in." 
                 });
