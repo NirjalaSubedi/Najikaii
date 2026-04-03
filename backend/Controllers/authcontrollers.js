@@ -20,15 +20,33 @@ exports.register=async(req,res)=>{
         const hashpassword= await bcryptjs.hash(password,salt);
 
         //otp generating
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otp= Crypto.randomInt(100000,999999).toString();
+        const otpExpire = Date.now() + 10 * 60 * 1000;
 
         //save user
-        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address});
+        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address,otp,otpExpire,isVerified: false});
         await newuser.save();
-        res.status(201).json({
-            message:"user created success",
-            user:{name,email,role,PhoneNumber,Address}
-        })
+
+        //sending email
+        try {
+            await sendEmail({
+                email: newuser.email,
+                subject: 'Najikai App - Email Verification Code',
+                message: `Namaste ${name}, timro verification code ${otp} ho. Yo 10 minute pachi expire hunecha.`
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "User registered! email ma aayeko OTP check garnuhos.",
+                email: newuser.email
+            });
+
+        } catch (mailError) {
+            console.log("Email error: ", mailError);
+            return res.status(500).json({
+                 message: "Email pathauna sakiyena, tara user create bhayo." 
+                });
+        }
 
     }catch(e){
         res.status(500).json({
