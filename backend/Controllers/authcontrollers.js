@@ -1,6 +1,8 @@
 const user=require('../models/UserModels');
 const jwt = require('jsonwebtoken');
 const bcryptjs= require('bcryptjs');
+const crypto = require('crypto');
+const sendEmail= require('../utils/sendEmail');
 
 exports.register=async(req,res)=>{
     try{
@@ -16,6 +18,9 @@ exports.register=async(req,res)=>{
         //Hash password
         const salt = await bcryptjs.genSalt(10);
         const hashpassword= await bcryptjs.hash(password,salt);
+
+        //otp generating
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         //save user
         const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address});
