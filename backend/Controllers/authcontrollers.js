@@ -132,3 +132,32 @@ exports.updateProfile = async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 };
+
+//user delete garne logic
+exports.deleteUser = async (req, res) => {
+    try {
+        const targetUserId = req.params.id; 
+        const loggedInUser = req.user;    
+
+        if (loggedInUser.role !== 'Admin' && loggedInUser.id !== targetUserId) {
+            return res.status(403).json({
+                success: false,
+                message: "Tapaile aruko account delete garna paunu hunna!"
+            });
+        }
+
+        const deletedUser = await user.findByIdAndDelete(targetUserId);
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User bhetiyena!" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Account safaltapurwak delete bhayo!"
+        });
+
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
