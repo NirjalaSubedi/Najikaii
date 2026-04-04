@@ -106,8 +106,11 @@ exports.login= async (req,res)=>{
 exports.updateProfile = async (req, res) => {
     try {
         const { name, PhoneNumber, Address } = req.body;
-        const userId = req.user._id; 
+        if (!req.user) {
+            return res.status(401).json({ message: "Unauthorized: No user found in request" });
+        }
 
+        const userId = req.user.id; 
         // 1. User khojne ra update garne
         const updatedUser = await user.findByIdAndUpdate(
             userId,
