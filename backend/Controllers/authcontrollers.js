@@ -154,7 +154,7 @@ exports.deleteuser = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Account safaltapurwak delete bhayo!"
+            message: "Account delete bhayo!"
         });
 
     } catch (e) {
