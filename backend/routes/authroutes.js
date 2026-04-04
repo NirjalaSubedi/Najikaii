@@ -10,7 +10,7 @@ router.post('/register',register);
 //verify otp
 router.post('/verify-Otp',verifyOtp);
 router.post('/login',login);
-router.put('/update-userProfile/:id',authmiddlewares,updateProfile);
+router.put('/update-userProfile',authmiddlewares,updateProfile);
 
 router.get('/test',authmiddlewares,(req,res)=>{
     res.status(200).json({
