@@ -134,7 +134,7 @@ exports.updateProfile = async (req, res) => {
 };
 
 //user delete garne logic
-exports.deleteUser = async (req, res) => {
+exports.deleteuser = async (req, res) => {
     try {
         const targetUserId = req.params.id; 
         const loggedInUser = req.user;    
