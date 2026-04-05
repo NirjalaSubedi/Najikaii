@@ -1,8 +1,8 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct,GetMyProfileInfo}= require("../Controllers/productControllers");
+const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
 
 router.post('/register',register);
@@ -11,7 +11,7 @@ router.post('/register',register);
 router.post('/verify-Otp',verifyOtp);
 router.post('/login',login);
 router.put('/update-userProfile',authmiddlewares,updateProfile);
-router.get('/GetMyProfileInfo',authmiddlewares,GetMyProfileInfo);
+router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.delete('/delete-user/:id', authmiddlewares, deleteuser);
 
 router.get('/test',authmiddlewares,(req,res)=>{
