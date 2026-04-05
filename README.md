@@ -20,6 +20,7 @@ To digitize local marketplaces and provide an "Atomic Inventory" system that ens
 - **Status Workflow:** Manual order tracking (Pending -> Confirmed -> Delivered).
 
 ## Project Structure
+```text
 najikaii/
 ├── backend/
 │   ├── config/             # Database connection, Cloudinary, etc.
