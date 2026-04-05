@@ -42,6 +42,9 @@ exports.register=async(req,res)=>{
             });
 
         } catch (mailError) {
+            if(newuser){
+                await user.findByIdAndDelete(newuser.id)
+            }
             console.log("Email error: ", mailError);
             return res.status(500).json({
                  message: "Email pathauna sakiyena, tara user create bhayo." 
