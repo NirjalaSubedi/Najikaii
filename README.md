@@ -21,7 +21,6 @@ To digitize local marketplaces and provide an "Atomic Inventory" system that ens
 
 ## Project Structure
 ```text
-najikaii/
 ├── backend/
 │   ├── config/             # Database connection, Cloudinary, etc.
 │   ├── controllers/        # Logic for routes (auth, products, users)
