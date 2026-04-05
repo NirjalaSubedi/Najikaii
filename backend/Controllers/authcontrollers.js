@@ -169,8 +169,16 @@ exports.deleteuser = async (req, res) => {
 //display logedin user info
 exports.GetMyProfileInfo= async (req,res)=>{
     try{
-        const userid=req.params.id
-        const userInfo= await user.find(userid);
+        const userid=req.user.id
+        const userInfo= await user.findById(userid);
+
+        if (!userInfo) {
+            return res.status(404).json({
+                success: false,
+                message: "User bhetiyena"
+            });
+        }
+
         res.status(200).json({
             success:true,
             message:"success in fetching logedin user info",
