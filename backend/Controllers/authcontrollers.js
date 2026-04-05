@@ -183,3 +183,15 @@ exports.GetMyProfileInfo= async (req,res)=>{
         })
     }
 }
+
+//display all user info in admin pannel
+exports.getAllUserInfo = async (req,res)=>{
+    try{
+        
+    }catch(error){
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
