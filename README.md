@@ -20,10 +20,16 @@ To digitize local marketplaces and provide an "Atomic Inventory" system that ens
 - **Status Workflow:** Manual order tracking (Pending -> Confirmed -> Delivered).
 
 ## Project Structure
-```text
 najikaii/
-├── backend/           # Node.js & Express API
-│   ├── models/        # Database Schemas (Mongoose)
-│   ├── routes/        # API Endpoints
-│   └── server.js      # Entry point
-└── frontend/          # React App (To be initialized)
+├── backend/
+│   ├── config/             # Database connection, Cloudinary, etc.
+│   ├── controllers/        # Logic for routes (auth, products, users)
+│   ├── middlewares/        # Auth check, Role check, Error handler
+│   ├── models/             # Mongoose Schemas (User, Product, Order)
+│   ├── routes/             # Express Route definitions
+│   ├── utils/              # helper functions (sendEmail, jwtToken)
+│   ├── .env                # Environment variables (Secrets)
+│   ├── server.js           # Main entry point
+│   └── package.json
+└── frontend/
+    
