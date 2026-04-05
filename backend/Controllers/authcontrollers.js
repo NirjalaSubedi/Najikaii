@@ -165,9 +165,17 @@ exports.deleteuser = async (req, res) => {
     }
 };
 
-exports.displayProfileInfo= async (req,res)=>{
+//display logedin user info
+exports.GetMyProfileInfo= async (req,res)=>{
     try{
-        
+        const userid=req.params.id
+        const userInfo= await user.find(userid);
+        res.status(200).json({
+            success:true,
+            message:"success in fetching logedin user info",
+            userInfo
+        })
+
     }catch(error){
         res.status(500).json({
             success:false,
