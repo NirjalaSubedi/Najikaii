@@ -164,3 +164,14 @@ exports.deleteuser = async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 };
+
+exports.displayProfileInfo= async (req,res)=>{
+    try{
+
+    }catch(error){
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
