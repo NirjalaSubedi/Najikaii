@@ -188,13 +188,13 @@ exports.GetMyProfileInfo= async (req,res)=>{
 //display all user info in admin pannel
 exports.getAllUserInfo = async (req,res)=>{
     try{
-        if(req.user.id !== 'Admin'){
+        if(req.user.role !== 'Admin'){
             return res.status(403).json({
                 success:false,
                 message:"all user display access admin saga matraii xa "
             })
         }
-        const userinfo= await find.user({})
+        const userinfo= await user.find({})
         res.status(200).json({
             success:true,
             data:userinfo

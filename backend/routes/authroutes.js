@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
@@ -12,6 +12,7 @@ router.post('/verify-Otp',verifyOtp);
 router.post('/login',login);
 router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
+router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
 router.delete('/delete-user/:id', authmiddlewares, deleteuser);
 
 router.get('/test',authmiddlewares,(req,res)=>{
