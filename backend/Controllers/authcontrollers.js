@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcryptjs= require('bcryptjs');
 const crypto = require('crypto');
 const sendEmail= require('../utils/sendEmail');
+const { find } = require('../models/ProductModels');
 
 exports.register=async(req,res)=>{
     try{
@@ -187,7 +188,17 @@ exports.GetMyProfileInfo= async (req,res)=>{
 //display all user info in admin pannel
 exports.getAllUserInfo = async (req,res)=>{
     try{
-        
+        if(req.user.id !== 'Admin'){
+            return res.status(403).json({
+                success:false,
+                message:"all user display access admin saga matraii xa "
+            })
+        }
+        const userinfo= await find.user({})
+        res.status(200).json({
+            success:true,
+            data:userinfo
+        })
     }catch(error){
         res.status(500).json({
             success:false,
