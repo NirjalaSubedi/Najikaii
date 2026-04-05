@@ -47,7 +47,7 @@ exports.register=async(req,res)=>{
             }
             console.log("Email error: ", mailError);
             return res.status(500).json({
-                 message: "Email pathauna sakiyena, tara user create bhayo." 
+                 message: "Email pathauna sakiyena." 
                 });
         }
 
