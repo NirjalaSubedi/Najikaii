@@ -232,7 +232,6 @@ exports.getAllUserInfo = async (req,res)=>{
     }
 }
 
-//approve vendor garne logic 
 // Admin le Vendor ko status update garne (Approved ya Rejected)
 exports.updateVendorStatus = async (req, res) => {
     try {
@@ -248,6 +247,13 @@ exports.updateVendorStatus = async (req, res) => {
             { status: status }, 
             { new: true }
         );
+
+        if (!updatedVendor) {
+            return res.status(404).json({ 
+            success: false, 
+            message: "Yo ID vaye ko user bhetiye na!" 
+            });
+}
 
         res.status(200).json({
             success: true,
