@@ -30,13 +30,14 @@ const userSchema=new mongoose.Schema({
         type: Boolean, 
         default: false 
     },
-    
+
     // Vendor specific fields
-    isApproved: { 
-        type: Boolean, 
-        default: function() {
-           return this.role !== 'Vendor'; 
-        }
+    status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: function() {
+        return this.role === 'Vendor' ? 'Pending' : 'Approved';
+    }
     },
     shopName: { type: String },
 
