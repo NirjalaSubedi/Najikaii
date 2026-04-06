@@ -84,6 +84,14 @@ exports.login= async (req,res)=>{
 
         }
 
+        //admin approval for vendor
+        if (founduser.role === 'Vendor' && !founduser.isApproved) {
+        return res.status(403).json({ 
+            success: false,
+            message: "Tapai ko account Admin le approve gareko chhaina. Kripaya parkhinuhos." 
+        });
+    }
+
         //create jwt token
         const token=jwt.sign({
             id:founduser._id,
@@ -214,3 +222,29 @@ exports.getAllUserInfo = async (req,res)=>{
         })
     }
 }
+
+//approve vendor garne logic 
+exports.approveVendor = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        const updatedVendor = await user.findByIdAndUpdate(
+            id, 
+            { isApproved: true }, 
+            { new: true }
+        );
+
+        if (!updatedVendor) {
+            return res.status(404).json({ message: "Vendor bhetiyena!" });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `${updatedVendor.name} aba approved bhayo!`,
+            data: updatedVendor
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
