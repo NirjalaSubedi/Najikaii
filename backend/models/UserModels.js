@@ -27,7 +27,12 @@ const userSchema=new mongoose.Schema({
         province: { type: String, default: 'Koshi' }
     },
     // Vendor specific fields
-    isVerified: { type: Boolean, default: false },
+    isApproved: { 
+        type: Boolean, 
+        default: function() {
+           return this.role !== 'Vendor'; 
+        }
+    },
     shopName: { type: String },
 
     otp: {
