@@ -74,15 +74,17 @@ exports.login= async (req,res)=>{
 
         //check password 
         const ismatch = await bcryptjs.compare(password,founduser.password);
-        if(ismatch){
+        if(!ismatch){
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
 
-            if (!founduser.isVerified) {
+        if(!founduser.isVerified) {
                 return res.status(401).json({ 
                 message: "Please verify your email before logging in." 
                 });
-            }
-
         }
+
+        
 
         //admin approval for vendor
         if (founduser.role === 'Vendor') {
@@ -109,6 +111,16 @@ exports.login= async (req,res)=>{
         process.env.JWT_SECRET,
         {expiresIn:'1d'})
 
+       //send email if successfull login 
+       try {
+            await sendEmail({
+                email: founduser.email, 
+                subject: 'Najikai App - Login Success',
+                message: `Namaste, you logged in as ${founduser.name}` 
+            });
+        } catch (mailError) {
+            console.log("Email pathauna sakiyena, tara login success bhayo.");
+        }
         res.status(200).json({
             success: true,
             token: token, 
