@@ -265,7 +265,25 @@ exports.updateVendorStatus = async (req, res) => {
             success: false, 
             message: "Yo ID vaye ko user bhetiye na!" 
             });
-}
+        }
+
+        //approve vayo ki reject vanerw mail ma msg jane 
+        let emailMessage = "";
+        if (status === 'Approved') {
+            emailMessage = `Namaste ${updatedVendor.name}, Tapai ko Vendor account Approved bhayeko chha. Aba tapai login garera saman haru bechna saknu hunchha!`;
+        } else {
+            emailMessage = `Namaste ${updatedVendor.name}, Tapai ko Vendor application hami le Reject gareka chhau. Thap jankari ko lagi support ma samparka garnus.`;
+        }
+
+        try {
+            await sendEmail({
+                email: updatedVendor.email,
+                subject: `Najikai App - Account Status: ${status}`,
+                message: emailMessage
+            });
+        } catch (mailError) {
+            console.log("Status update bhayo tara email gayena:", mailError.message);
+        }
 
         res.status(200).json({
             success: true,
