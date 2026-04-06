@@ -85,12 +85,21 @@ exports.login= async (req,res)=>{
         }
 
         //admin approval for vendor
-        if (founduser.role === 'Vendor' && !founduser.isApproved) {
-        return res.status(403).json({ 
-            success: false,
-            message: "Tapai ko account Admin le approve gareko chhaina. Kripaya parkhinuhos." 
-        });
+        if (founduser.role === 'Vendor') {
+        if (founduser.status === 'Pending') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Tapai ko account Admin approval ko lagi 'Pending' ma chha." 
+            });
+        }
+        if (founduser.status === 'Rejected') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Tapai ko account Admin le 'Rejected' gareko chha. Kripaya support ma contact garnus." 
+            });
+        }
     }
+    
 
         //create jwt token
         const token=jwt.sign({
@@ -224,23 +233,25 @@ exports.getAllUserInfo = async (req,res)=>{
 }
 
 //approve vendor garne logic 
-exports.approveVendor = async (req, res) => {
+// Admin le Vendor ko status update garne (Approved ya Rejected)
+exports.updateVendorStatus = async (req, res) => {
     try {
-        const { id } = req.params; 
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['Approved', 'Rejected'].includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
 
         const updatedVendor = await user.findByIdAndUpdate(
             id, 
-            { isApproved: true }, 
+            { status: status }, 
             { new: true }
         );
 
-        if (!updatedVendor) {
-            return res.status(404).json({ message: "Vendor bhetiyena!" });
-        }
-
         res.status(200).json({
             success: true,
-            message: `${updatedVendor.name} aba approved bhayo!`,
+            message: `Vendor status aba '${status}' bhayo.`,
             data: updatedVendor
         });
 

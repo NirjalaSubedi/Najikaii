@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,approveVendor}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
@@ -12,7 +12,7 @@ router.post('/verify-Otp',verifyOtp);
 router.post('/login',login);
 
 //aprove vendor
-router.put('/approve-vendor/:id', authmiddlewares, authorizeRoles('Admin'), approveVendor);
+router.put('/approve-vendor/:id', authmiddlewares, authorizeRoles('Admin'), updateVendorStatus);
 router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
