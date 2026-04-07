@@ -15,6 +15,16 @@ exports.AddToCart = async(req,res)=>{
                 message:"user vetiyana"
             })
         }
+
+        //product exist garxa ki gardaiina check garne
+        const product = await productmodel.findById(productid);
+        if(!product){
+            return res.status(404).json({
+                success:false,
+                message:"product vetiyana"
+            })
+        }
+        
     }catch(error){
         res.status(500).json({
             success:false,
