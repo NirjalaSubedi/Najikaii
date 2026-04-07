@@ -24,7 +24,23 @@ exports.AddToCart = async(req,res)=>{
                 message:"product vetiyana"
             })
         }
-        
+
+        //checking product stock
+        if (product.stock < quantity) {
+            return res.status(400).json({ message: "Stock ma yeti saman chhaina!" });
+        }
+
+        //checking if product already exist in cart or not
+        const isItemExist = user.cart.find(
+            (item) => item.product.toString() === productId
+        );
+
+        if (isItemExist) {
+            isItemExist.quantity += Number(quantity);
+        } else {
+            user.cart.push({ product: productId, quantity });
+        }
+
     }catch(error){
         res.status(500).json({
             success:false,
