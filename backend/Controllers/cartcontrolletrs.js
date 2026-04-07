@@ -41,6 +41,14 @@ exports.AddToCart = async(req,res)=>{
             user.cart.push({ product: productId, quantity });
         }
 
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Cart updated successfully!",
+            cart: user.cart
+        });
+
     }catch(error){
         res.status(500).json({
             success:false,
