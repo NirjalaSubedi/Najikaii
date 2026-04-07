@@ -17,7 +17,9 @@ exports.AddToCart = async(req,res)=>{
         }
 
         //product exist garxa ki gardaiina check garne
-        const product = await productmodel.findById(productid);
+        console.log("Searching for Product ID:", productid);
+        const product = await productmodel.findById(productid.trim());
+        //const product = await productmodel.findById(productid);
         if(!product){
             return res.status(404).json({
                 success:false,
@@ -32,13 +34,13 @@ exports.AddToCart = async(req,res)=>{
 
         //checking if product already exist in cart or not
         const isItemExist = user.cart.find(
-            (item) => item.product.toString() === productId
+            (item) => item.product.toString() === productid
         );
 
         if (isItemExist) {
             isItemExist.quantity += Number(quantity);
         } else {
-            user.cart.push({ product: productId, quantity });
+            user.cart.push({ product: productid, quantity });
         }
 
         await user.save();
