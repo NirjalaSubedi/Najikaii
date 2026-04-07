@@ -4,7 +4,7 @@ const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,u
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
-const {AddToCart}= require("../Controllers/cartcontrolletrs");
+const {AddToCart,GetCart}= require("../Controllers/cartcontrolletrs");
 
 router.post('/register',register);
 
@@ -43,5 +43,7 @@ router.delete('/delete-product/:id',authmiddlewares,authorizeRoles('Vendor','Adm
 
 //add to cart 
 router.post('/AddToCart',authmiddlewares,authorizeRoles('Customer'),AddToCart);
+//get Cart product details
+router.get('/GetCart',authmiddlewares,authorizeRoles('Customer'),GetCart);
 
 module.exports=router;

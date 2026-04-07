@@ -58,3 +58,28 @@ exports.AddToCart = async(req,res)=>{
         })
     }
 }
+
+//view cart
+exports.GetCart = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await usermodel.findById(userId).populate({
+            path: 'cart.product',
+            select: 'name price image stock' 
+        });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User bhetiyena" });
+        }
+
+        res.status(200).json({
+            success: true,
+            count: user.cart.length,
+            cart: user.cart
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
