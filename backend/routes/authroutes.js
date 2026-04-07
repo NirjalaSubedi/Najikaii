@@ -4,6 +4,7 @@ const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,u
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
+const {AddToCart}= require("../Controllers/cartcontrolletrs");
 
 router.post('/register',register);
 
@@ -39,4 +40,8 @@ router.put('/updateProduct/:id',authmiddlewares,authorizeRoles('Vendor'),updateP
 
 //product owner and vendor can only delete products 
 router.delete('/delete-product/:id',authmiddlewares,authorizeRoles('Vendor','Admin'),deleteProduct);
+
+//add to cart 
+router.post('/AddToCart',authmiddlewares,authorizeRoles('Customer'),AddToCart);
+
 module.exports=router;
