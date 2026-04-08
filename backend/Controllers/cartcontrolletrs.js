@@ -83,3 +83,38 @@ exports.GetCart = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Remove single item from cart
+exports.RemoveFromCart = async (req, res) => {
+    try {
+        const { productid } = req.params; // or req.body
+        const userId = req.user.id;
+
+        const user = await usermodel.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User bhetiyena" });
+        }
+
+        // Filter garera tyo product bahek aru sabai lai naya array ma rakhne
+        const initialCartLength = user.cart.length;
+        user.cart = user.cart.filter(
+            (item) => item.product.toString() !== productid
+        );
+
+        if (user.cart.length === initialCartLength) {
+            return res.status(404).json({ success: false, message: "Yo product cart ma chhaina" });
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Product cart bata hatayo!",
+            cart: user.cart
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
