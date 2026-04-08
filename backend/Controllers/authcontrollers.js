@@ -1,4 +1,5 @@
 const user=require('../models/UserModels');
+const product = require('../models/ProductModels');
 const jwt = require('jsonwebtoken');
 const bcryptjs= require('bcryptjs');
 const crypto = require('crypto');
@@ -183,6 +184,10 @@ exports.deleteuser = async (req, res) => {
 
         if (!deletedUser) {
             return res.status(404).json({ message: "User bhetiyena!" });
+        }
+
+        if(deletedUser.role==='Vendor'){
+            await user.f
         }
 
         res.status(200).json({
