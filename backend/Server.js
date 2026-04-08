@@ -4,9 +4,6 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes=require('./routes/authroutes');
 
-//MONGO_URI=mongodb+srv://nirjalasubedi944:nirjala66@cluster0.zni3nwp.mongodb.net/najikai_db?retryWrites=true&w=majority&appName=Cluster0
-
-
 dotenv.config();
 
 const app = express();
