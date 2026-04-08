@@ -1,5 +1,5 @@
 const user=require('../models/UserModels');
-const product = require('../models/ProductModels');
+const Product = require('../models/ProductModels');
 const jwt = require('jsonwebtoken');
 const bcryptjs= require('bcryptjs');
 const crypto = require('crypto');
@@ -173,6 +173,7 @@ exports.deleteuser = async (req, res) => {
         const targetUserId = req.params.id; 
         const loggedInUser = req.user;    
 
+        // 1. Authorization Check
         if (loggedInUser.role !== 'Admin' && loggedInUser.id !== targetUserId) {
             return res.status(403).json({
                 success: false,
@@ -180,23 +181,33 @@ exports.deleteuser = async (req, res) => {
             });
         }
 
-        const deletedUser = await user.findByIdAndDelete(targetUserId);
+        const userToDelete = await user.findById(targetUserId);
 
-        if (!deletedUser) {
-            return res.status(404).json({ message: "User bhetiyena!" });
+        if (!userToDelete) {
+            return res.status(404).json({ 
+                success: false,
+                message: "User bhetiyena!" 
+            });
         }
 
-        if(deletedUser.role==='Vendor'){
-            await user.f
+        if (userToDelete.role === 'Vendor') {
+            await Product.deleteMany({ vendor: targetUserId }); 
         }
+
+        await user.findByIdAndDelete(targetUserId);
 
         res.status(200).json({
             success: true,
-            message: "Account delete bhayo!"
+            message: userToDelete.role === 'Vendor' 
+                ? "Vendor account ra sabai products delete bhayo!" 
+                : "User account delete bhayo!"
         });
 
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        res.status(500).json({ 
+            success: false,
+            error: e.message 
+        });
     }
 };
 
