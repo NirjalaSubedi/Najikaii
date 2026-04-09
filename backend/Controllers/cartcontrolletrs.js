@@ -19,7 +19,7 @@ exports.AddToCart = async(req,res)=>{
         //product exist garxa ki gardaiina check garne
         console.log("Searching for Product ID:", productid);
         const product = await productmodel.findById(productid.trim());
-        //const product = await productmodel.findById(productid);
+        
         if(!product){
             return res.status(404).json({
                 success:false,
