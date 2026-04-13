@@ -5,33 +5,56 @@ const Product = require('../models/ProductModels');
 exports.PlaceOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        // User ko cart populate garera tanne
-        const user = await User.findById(userId).populate('cart.product');
+        const { items, paymentMethod } = req.body; 
 
-        if (!user || user.cart.length === 0) {
-            return res.status(400).json({ success: false, message: "Cart khali chha!" });
-        }
-
+        let orderItems = [];
         let totalAmount = 0;
-        const orderItems = [];
+        let isCartOrder = false;
 
-        // Cart items lai order items format ma lane ra total calculate garne
-        for (const item of user.cart) {
-            const price = item.product.price * item.quantity;
-            totalAmount += price;
-            
-            orderItems.push({
-                product: item.product._id,
-                quantity: item.quantity,
-                price: item.product.price
-            });
+        if (items && items.length > 0) {
+            for (const item of items) {
+                const product = await Product.findById(item.product);
+                if (!product) continue;
 
-            // Stock ghataune logic
-            await Product.findByIdAndUpdate(item.product._id, {
-                $inc: { stock: -item.quantity }
-            });
+                const price = product.price * item.quantity;
+                totalAmount += price;
+
+                orderItems.push({
+                    product: product._id,
+                    quantity: item.quantity,
+                    price: product.price
+                });
+
+                // Stock update
+                await Product.findByIdAndUpdate(product._id, {
+                    $inc: { stock: -item.quantity }
+                });
+            }
+        } 
+        else {
+            const user = await User.findById(userId).populate('cart.product');
+            if (!user || user.cart.length === 0) {
+                return res.status(400).json({ success: false, message: "Order garna items pathaunus wa cart use garnus!" });
+            }
+
+            isCartOrder = true;
+            for (const item of user.cart) {
+                const price = item.product.price * item.quantity;
+                totalAmount += price;
+
+                orderItems.push({
+                    product: item.product._id,
+                    quantity: item.quantity,
+                    price: item.product.price
+                });
+
+                await Product.findByIdAndUpdate(item.product._id, {
+                    $inc: { stock: -item.quantity }
+                });
+            }
         }
 
+        // Commission Logic
         const adminCommission = totalAmount * 0.10;
         const vendorEarnings = totalAmount * 0.90;
 
@@ -41,13 +64,15 @@ exports.PlaceOrder = async (req, res) => {
             totalAmount,
             adminCommission,
             vendorEarnings,
-            paymentMethod: req.body.paymentMethod || 'COD'
+            paymentMethod: paymentMethod || 'COD'
         });
 
         await newOrder.save();
 
-        user.cart = [];
-        await user.save();
+        // Cart khali garne (yedi cart bata order aako ho bhane matra)
+        if (isCartOrder) {
+            await User.findByIdAndUpdate(userId, { $set: { cart: [] } });
+        }
 
         res.status(201).json({
             success: true,
