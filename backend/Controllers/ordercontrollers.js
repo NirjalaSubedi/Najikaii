@@ -84,3 +84,14 @@ exports.PlaceOrder = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.getorders = async(req,res)=>{
+    try{
+
+    }catch(error){
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
