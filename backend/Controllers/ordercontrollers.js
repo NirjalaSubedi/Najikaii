@@ -140,3 +140,29 @@ exports.UpdateOrderStatus = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.CancelOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findById(orderId);
+
+        if (!order) return res.status(404).json({ success: false, message: "Order vettiyena!" });
+
+        if (order.status === 'Delivered' || order.status === 'Cancelled') {
+            return res.status(400).json({ success: false, message: "Yo order cancel garna mildaina!" });
+        }
+
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(item.product, {
+                $inc: { stock: item.quantity }
+            });
+        }
+
+        order.status = 'Cancelled';
+        await order.save();
+
+        res.status(200).json({ success: true, message: "Order cancel bhayo ani stock update bhayo!" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
