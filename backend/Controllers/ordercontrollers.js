@@ -95,6 +95,24 @@ exports.getorders = async(req,res)=>{
         if (userRole === 'admin') {
             query = {}; 
         }
+        else if (userRole === 'customer') {
+            query = { customer: userId };
+        } 
+        
+        else if (userRole === 'vendor') {
+            query = { "items.product": { $in: await getVendorProductIds(userId) } };
+            
+            query = { "items.vendor": userId }; 
+        }
+        const orders = await Order.find(query)
+            .populate('customer', 'name email')
+            .populate('items.product', 'name price image');
+
+        res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders
+        });
 
     }catch(error){
         res.status(500).json({
