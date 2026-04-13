@@ -87,7 +87,14 @@ exports.PlaceOrder = async (req, res) => {
 
 exports.getorders = async(req,res)=>{
     try{
-    
+    const userId = req.user.id;
+        const userRole = req.user.role;
+
+        let query = {};
+
+        if (userRole === 'admin') {
+            query = {}; 
+        }
 
     }catch(error){
         res.status(500).json({
