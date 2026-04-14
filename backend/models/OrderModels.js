@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-    customer:{
+    customer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', required: true
+        ref: 'User',
+        required: true
     },
     items: [{
         product: {
@@ -11,26 +12,32 @@ const orderSchema = new mongoose.Schema({
             ref: 'Product'
         },
         quantity: Number,
-        price: Number
+        price: Number,
+        vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     }],
-    totalAmount:{
+    totalAmount: {
         type: Number,
         required: true 
     },
-    adminCommission:{
-        type: Number
-    }, // 10% logic
-    vendorEarnings: {
-        type: Number
-    },  // 90% logic
-    status:{ 
+    adminCommission: { type: Number },
+    vendorEarnings: { type: Number },
+    status: { 
         type: String, 
         enum: ['Pending', 'Confirmed', 'Delivered', 'Cancelled'], 
         default: 'Pending' 
     },
-    paymentMethod:{
+    paymentMethod: {
         type: String,
-        enum: ['COD', 'eSewa'], default: 'COD' 
+        enum: ['COD', 'esewa'], 
+        default: 'COD' 
+    },
+    paymentInfo: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Payment' 
+    },
+    isPaid: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

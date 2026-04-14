@@ -22,7 +22,7 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['esewa', 'khalti', 'cod'],
+        enum: ['esewa', 'cod'],
         default: 'esewa'
     },
     status: {
