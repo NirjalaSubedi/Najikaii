@@ -99,28 +99,38 @@ exports.PlaceOrder = async (req, res) => {
     }
 };
 
-exports.getorders = async(req,res)=>{
-    try{
-    const userId = req.user.id;
-        const userRole = req.user.role;
+exports.getorders = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userRole = req.user.role.toLowerCase();
 
         let query = {};
 
         if (userRole === 'admin') {
-            query = {}; 
-        }
-        else if (userRole === 'customer') {
+            query = {};
+        } else if (userRole === 'customer') {
             query = { customer: userId };
-        } 
-        
-        else if (userRole === 'vendor') {
-            query = { "items.product": { $in: await getVendorProductIds(userId) } };
-            
-            query = { "items.vendor": userId }; 
+        } else if (userRole === 'vendor') {
+            // Pura order herne query
+            query = { "items.vendor": userId };
         }
-        const orders = await Order.find(query)
+
+        let orders = await Order.find(query)
             .populate('customer', 'name email')
             .populate('items.product', 'name price image');
+
+        if (userRole === 'vendor') {
+            orders = orders.map(order => {
+                const orderObj = order.toObject();
+                orderObj.items = orderObj.items.filter(item => 
+                    item.vendor.toString() === userId.toString()
+                );
+                
+                orderObj.vendorSpecificTotal = orderObj.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                
+                return orderObj;
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -128,13 +138,10 @@ exports.getorders = async(req,res)=>{
             orders
         });
 
-    }catch(error){
-        res.status(500).json({
-            success:false,
-            message:error.message
-        })
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-}
+};
 
 exports.UpdateOrderStatus = async (req, res) => {
     try {
