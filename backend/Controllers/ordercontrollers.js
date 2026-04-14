@@ -5,7 +5,7 @@ const Product = require('../models/ProductModels');
 exports.PlaceOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { items, paymentMethod } = req.body; 
+        const { items, paymentMethod } = req.body;
 
         let orderItems = [];
         let totalAmount = 0;
@@ -14,7 +14,14 @@ exports.PlaceOrder = async (req, res) => {
         if (items && items.length > 0) {
             for (const item of items) {
                 const product = await Product.findById(item.product);
-                if (!product) continue;
+                
+                if (!product) {
+                    return res.status(404).json({ success: false, message: `Product ID ${item.product} valid chhaina!` });
+                }
+
+                if (product.stock < item.quantity) {
+                    return res.status(400).json({ success: false, message: `${product.name} ko stock pugena!` });
+                }
 
                 const price = product.price * item.quantity;
                 totalAmount += price;
@@ -22,7 +29,8 @@ exports.PlaceOrder = async (req, res) => {
                 orderItems.push({
                     product: product._id,
                     quantity: item.quantity,
-                    price: product.price
+                    price: product.price,
+                    vendor: product.vendor
                 });
 
                 // Stock update
@@ -39,13 +47,16 @@ exports.PlaceOrder = async (req, res) => {
 
             isCartOrder = true;
             for (const item of user.cart) {
+                if (!item.product) continue; 
+
                 const price = item.product.price * item.quantity;
                 totalAmount += price;
 
                 orderItems.push({
                     product: item.product._id,
                     quantity: item.quantity,
-                    price: item.product.price
+                    price: item.product.price,
+                    vendor: item.product.vendor 
                 });
 
                 await Product.findByIdAndUpdate(item.product._id, {
@@ -54,7 +65,11 @@ exports.PlaceOrder = async (req, res) => {
             }
         }
 
-        // Commission Logic
+        
+        if (orderItems.length === 0) {
+            return res.status(400).json({ success: false, message: "Kunai pani valid items bhetiyena!" });
+        }
+
         const adminCommission = totalAmount * 0.10;
         const vendorEarnings = totalAmount * 0.90;
 
@@ -69,7 +84,6 @@ exports.PlaceOrder = async (req, res) => {
 
         await newOrder.save();
 
-        // Cart khali garne (yedi cart bata order aako ho bhane matra)
         if (isCartOrder) {
             await User.findByIdAndUpdate(userId, { $set: { cart: [] } });
         }
