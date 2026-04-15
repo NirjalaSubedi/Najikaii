@@ -4,6 +4,6 @@ const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares'
 const {PlaceOrder,getorders}=require('../Controllers/ordercontrollers');
 
 router.post('/placeorder',authmiddlewares,authorizeRoles('Customer'),PlaceOrder);
-router.get('/vieworders',authmiddlewares,authorizeRoles('Customer','admin','Vendor'),getorders)
+router.get('/vieworders',authmiddlewares,authorizeRoles('Customer','Admin','Vendor'),getorders)
 
 module.exports=router;
