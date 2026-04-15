@@ -6,7 +6,7 @@ const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder}=require('../Controlle
 router.post('/placeorder',authmiddlewares,authorizeRoles('Customer'),PlaceOrder);
 router.get('/vieworders',authmiddlewares,authorizeRoles('Customer','Admin','Vendor'),getorders);
 // Status update ko lagi
-router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('admin', 'vendor', 'Admin', 'Vendor'), UpdateOrderStatus);
+router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('vendor','Vendor'), UpdateOrderStatus);
 
 // Cancel ko lagi
 router.put('/cancel/:orderId', authmiddlewares, authorizeRoles('Customer', 'admin', 'Admin'), CancelOrder);

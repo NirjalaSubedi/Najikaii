@@ -146,17 +146,36 @@ exports.getorders = async (req, res) => {
 exports.UpdateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { status } = req.body; 
+        const { status } = req.body;
+        const userId = req.user.id;
+        const userRole = req.user.role.toLowerCase(); 
 
-        const order = await Order.findByIdAndUpdate(
-            orderId, 
-            { status: status }, 
-            { new: true }
-        );
+        const order = await Order.findById(orderId);
 
-        if (!order) return res.status(404).json({ success: false, message: "Order vettiyena!" });
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order vettiyena!" });
+        }
 
-        res.status(200).json({ success: true, message: "Order status update bhayo!", order });
+        if (userRole === 'vendor') {
+            const isOwner = order.items.some(item => item.vendor.toString() === userId.toString());
+            
+            if (!isOwner) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: "Tapaile aru vendor ko order status update garna mil daina!" 
+                });
+            }
+        }
+
+        order.status = status;
+        await order.save();
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Order status successfully update bhayo!", 
+            order 
+        });
+
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
