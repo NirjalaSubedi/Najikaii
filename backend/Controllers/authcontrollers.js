@@ -8,7 +8,7 @@ const { find } = require('../models/ProductModels');
 
 exports.register=async(req,res)=>{
     try{
-        const {name,email,password,role,PhoneNumber,Address}=req.body;
+        const {name,email,password,role,PhoneNumber,Address,location}=req.body;
         //check if user alredy exist
         let existinguser = await user.findOne({email});
         if(existinguser){
@@ -26,7 +26,7 @@ exports.register=async(req,res)=>{
         const otpExpire = Date.now() + 10 * 60 * 1000;
 
         //save user
-        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address,otp,otpExpire,isVerified: false});
+        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address,location,otp,otpExpire,isVerified: false});
         await newuser.save();
 
         //sending email
@@ -139,7 +139,7 @@ exports.login= async (req,res)=>{
 //update user profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, PhoneNumber, Address } = req.body;
+        const { name, PhoneNumber, Address,location } = req.body;
         if (!req.user) {
             return res.status(401).json({ message: "Unauthorized: No user found in request" });
         }
@@ -148,7 +148,7 @@ exports.updateProfile = async (req, res) => {
         // 1. User khojne ra update garne
         const updatedUser = await user.findByIdAndUpdate(
             userId,
-            { name, PhoneNumber, Address },
+            { name, PhoneNumber, Address,location},
             { new: true, runValidators: true } 
         );
 
