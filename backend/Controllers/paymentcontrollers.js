@@ -10,7 +10,7 @@ exports.esewaPayment= async (req,res)=>{
         //data decode gareko
         const decoded = JSON.parse(Buffer.from(data,'base64').toString('utf-8'));
 
-        if (decodedData.status !== 'COMPLETE') {
+        if (decoded.status !== 'COMPLETE') {
             return res.status(400).json({
                 success: false,
                 message: "Payment incomplete bhayo!"
