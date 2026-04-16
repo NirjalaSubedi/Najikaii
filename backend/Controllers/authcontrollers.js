@@ -311,3 +311,55 @@ exports.updateVendorStatus = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.getNearbyShops = async (req, res) => {
+    try {
+        const { lng, lat, distance = 5 } = req.query; 
+
+        if (!lng || !lat) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Location (longitude ra latitude) pathaunu hos!" 
+            });
+        }
+
+        const shops = await User.aggregate([
+            {
+                $geoNear: {
+                    near: {
+                        type: "Point",
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
+                    },
+                    distanceField: "distanceFromMe", // Naya field jaha distance calculate hunchha
+                    maxDistance: distance * 1000, // KM lai meters ma badaleko
+                    query: { role: 'Vendor', status: 'Approved' }, // Khali approved vendors matra
+                    spherical: true
+                }
+            },
+            {
+                // Distance meters ma hunchha, teslai KM ma lagna 1000 le divide gareko
+                $addFields: {
+                    distanceInKm: { $divide: ["$distanceFromMe", 1000] }
+                }
+            },
+            {
+                // Output ma k k dekhaune filter gareko
+                $project: {
+                    name: 1,
+                    shopName: 1,
+                    Address: 1,
+                    distanceInKm: { $round: ["$distanceInKm", 2] } // 2 decimal digit ma round gareko
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            totalShops: shops.length,
+            shops
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
