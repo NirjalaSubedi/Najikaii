@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes=require('./routes/authroutes');
 const orderRoutes=require('./routes/orderroutes');
+const paymentRoutes= require('./routes/Paymentroute');
 
 dotenv.config();
 
@@ -34,3 +35,4 @@ app.listen(PORT, () => {
 });
 app.use('/api/auth', authRoutes);
 app.use('/api/order',orderRoutes);
+app.use('/api/payment',paymentRoutes);
