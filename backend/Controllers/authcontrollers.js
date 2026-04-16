@@ -323,7 +323,7 @@ exports.getNearbyShops = async (req, res) => {
             });
         }
 
-        const shops = await User.aggregate([
+        const shops = await user.aggregate([
             {
                 $geoNear: {
                     near: {
