@@ -27,6 +27,12 @@ exports.esewaPayment= async (req,res)=>{
                 message: "Order bhetiyena!"
             });
         }
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Payment successful ani Order confirm bhayo!", 
+            order 
+        });
     }catch(error){
         res.status(500).json({
             success:false,
