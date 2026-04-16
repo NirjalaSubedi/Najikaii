@@ -28,6 +28,33 @@ exports.esewaPayment= async (req,res)=>{
             });
         }
 
+        //Amount check garne
+        if (Number(order.totalAmount) !== Number(decodedData.total_amount.replace(/,/g, ''))) {
+            return res.status(400).json({
+                success: false,
+                message: "Amount mismatch bhayo!"
+            });
+        }
+
+        // 4. Payment record create garne
+        const newPayment = new payment({
+            order: order._id,
+            user: order.customer,
+            transactionId: decodedData.transaction_code,
+            amount: decodedData.total_amount,
+            paymentMethod: 'esewa',
+            status: 'completed',
+            paymentDetails: decodedData
+        });
+
+        await newPayment.save();
+
+        // 5. Order update garne
+        order.isPaid = true; 
+        order.paymentInfo = newPayment._id;
+        order.status = 'Confirmed';
+        await order.save();
+
         res.status(200).json({ 
             success: true, 
             message: "Payment successful ani Order confirm bhayo!", 
