@@ -20,6 +20,13 @@ exports.esewaPayment= async (req,res)=>{
         //Order Verify garne
         const orderId = decodedData.transaction_uuid; 
         const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order bhetiyena!"
+            });
+        }
     }catch(error){
         res.status(500).json({
             success:false,
