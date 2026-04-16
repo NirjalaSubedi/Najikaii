@@ -18,7 +18,7 @@ exports.esewaPayment= async (req,res)=>{
         }
 
         //Order Verify garne
-        const orderId = decodedData.transaction_uuid; 
+        const orderId = decoded.transaction_uuid; 
         const order = await Order.findById(orderId);
 
         if (!order) {
@@ -29,7 +29,7 @@ exports.esewaPayment= async (req,res)=>{
         }
 
         //Amount check garne
-        if (Number(order.totalAmount) !== Number(decodedData.total_amount.replace(/,/g, ''))) {
+        if (Number(order.totalAmount) !== Number(decoded.total_amount.replace(/,/g, ''))) {
             return res.status(400).json({
                 success: false,
                 message: "Amount mismatch bhayo!"
@@ -40,11 +40,11 @@ exports.esewaPayment= async (req,res)=>{
         const newPayment = new payment({
             order: order._id,
             user: order.customer,
-            transactionId: decodedData.transaction_code,
-            amount: decodedData.total_amount,
+            transactionId: decoded.transaction_code,
+            amount: decoded.total_amount,
             paymentMethod: 'esewa',
             status: 'completed',
-            paymentDetails: decodedData
+            paymentDetails: decoded
         });
 
         await newPayment.save();
