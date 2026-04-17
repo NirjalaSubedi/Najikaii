@@ -5,7 +5,7 @@ const Product = require('../models/ProductModels');
 exports.PlaceOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { items, paymentMethod } = req.body;
+        const { items, paymentMethod,customerCoords } = req.body;
 
         let orderItems = [];
         let totalAmount = 0;
@@ -73,10 +73,27 @@ exports.PlaceOrder = async (req, res) => {
         const adminCommission = totalAmount * 0.10;
         const vendorEarnings = totalAmount * 0.90;
 
+
+        const distance = calculateDistance(customerLoc, vendorLoc); 
+        let dCharge = 0;
+        if (distance <= 1) dCharge = 0;
+        else if (distance <= 2) dCharge = 10;
+        else if (distance <= 3) dCharge = 20;
+        else if (distance <= 4) dCharge = 30;
+        else if (distance <= 5) dCharge = 40;
+        else dCharge = 50;
+
+        const subTotal = products.reduce((acc, item) => acc + item.price, 0);
+        const finalAmount = subTotal + dCharge;
+
+
         const newOrder = new Order({
+            ...req.body,
             customer: userId,
             items: orderItems,
-            totalAmount,
+            deliveryCharge: dCharge,
+            subTotal: subTotal,
+            totalAmount: finalAmount,
             adminCommission,
             vendorEarnings,
             paymentMethod: paymentMethod || 'COD'
