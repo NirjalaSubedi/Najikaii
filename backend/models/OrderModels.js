@@ -15,10 +15,15 @@ const orderSchema = new mongoose.Schema({
         price: Number,
         vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     }],
-    
+
     deliveryCharge: {
     type: Number,
     default: 0
+    },
+
+    subTotal: {
+    type: Number,
+    required: true
     },
 
     totalAmount: {
