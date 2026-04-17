@@ -73,8 +73,16 @@ exports.PlaceOrder = async (req, res) => {
         const adminCommission = totalAmount * 0.10;
         const vendorEarnings = totalAmount * 0.90;
 
+        const vendorData = await User.findById(vendorId);
+        const vendorLoc = vendorData.location.coordinates;
+        
+        const distance = calculateDistance(
+            customerCoords.lat, 
+            customerCoords.lng, 
+            vendorLoc[1], // vendor lattitude
+            vendorLoc[0]  // vendor longittude
+        );
 
-        const distance = calculateDistance(customerLoc, vendorLoc); 
         let dCharge = 0;
         if (distance <= 1) dCharge = 0;
         else if (distance <= 2) dCharge = 10;
