@@ -15,6 +15,12 @@ const orderSchema = new mongoose.Schema({
         price: Number,
         vendor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     }],
+    
+    deliveryCharge: {
+    type: Number,
+    default: 0
+    },
+
     totalAmount: {
         type: Number,
         required: true 
