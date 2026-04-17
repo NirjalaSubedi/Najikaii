@@ -17,26 +17,35 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 exports.PlaceOrder = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { items, paymentMethod,customerCoords } = req.body;
+        const { items, paymentMethod, customerCoords } = req.body;
+
+        if (!customerCoords || !customerCoords.lat || !customerCoords.lng) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Location access milena! Please latitude ra longitude pathaunu hos." 
+            });
+        }
 
         let orderItems = [];
-        let totalAmount = 0;
+        let subTotal = 0;
         let isCartOrder = false;
+        let mainVendorId = null; 
 
         if (items && items.length > 0) {
             for (const item of items) {
                 const product = await Product.findById(item.product);
                 
                 if (!product) {
-                    return res.status(404).json({ success: false, message: `Product ID ${item.product} valid chhaina!` });
+                    return res.status(404).json({ success: false, message: `Product valid chhaina!` });
                 }
 
                 if (product.stock < item.quantity) {
                     return res.status(400).json({ success: false, message: `${product.name} ko stock pugena!` });
                 }
 
-                const price = product.price * item.quantity;
-                totalAmount += price;
+                subTotal += product.price * item.quantity;
+                
+                if (!mainVendorId) mainVendorId = product.vendor;
 
                 orderItems.push({
                     product: product._id,
@@ -45,13 +54,11 @@ exports.PlaceOrder = async (req, res) => {
                     vendor: product.vendor
                 });
 
-                // Stock update
                 await Product.findByIdAndUpdate(product._id, {
                     $inc: { stock: -item.quantity }
                 });
             }
-        } 
-        else {
+        } else {
             const user = await User.findById(userId).populate('cart.product');
             if (!user || user.cart.length === 0) {
                 return res.status(400).json({ success: false, message: "Order garna items pathaunus wa cart use garnus!" });
@@ -61,8 +68,8 @@ exports.PlaceOrder = async (req, res) => {
             for (const item of user.cart) {
                 if (!item.product) continue; 
 
-                const price = item.product.price * item.quantity;
-                totalAmount += price;
+                subTotal += item.product.price * item.quantity;
+                if (!mainVendorId) mainVendorId = item.product.vendor;
 
                 orderItems.push({
                     product: item.product._id,
@@ -77,22 +84,21 @@ exports.PlaceOrder = async (req, res) => {
             }
         }
 
-        
         if (orderItems.length === 0) {
             return res.status(400).json({ success: false, message: "Kunai pani valid items bhetiyena!" });
         }
 
-        const adminCommission = totalAmount * 0.10;
-        const vendorEarnings = totalAmount * 0.90;
+        const vendorData = await User.findById(mainVendorId);
+        if (!vendorData || !vendorData.location) {
+            return res.status(400).json({ success: false, message: "Vendor ko location details bhetiyena!" });
+        }
 
-        const vendorData = await User.findById(vendorId);
-        const vendorLoc = vendorData.location.coordinates;
-        
+        const vendorLoc = vendorData.location.coordinates; // [lng, lat]
         const distance = calculateDistance(
             customerCoords.lat, 
             customerCoords.lng, 
-            vendorLoc[1], // vendor lattitude
-            vendorLoc[0]  // vendor longittude
+            vendorLoc[1], // vendor latitude
+            vendorLoc[0]  // vendor longitude
         );
 
         let dCharge = 0;
@@ -103,12 +109,13 @@ exports.PlaceOrder = async (req, res) => {
         else if (distance <= 5) dCharge = 40;
         else dCharge = 50;
 
-        const subTotal = products.reduce((acc, item) => acc + item.price, 0);
+        // 3. Financial Calculation
         const finalAmount = subTotal + dCharge;
+        const adminCommission = subTotal * 0.10;
+        const vendorEarnings = subTotal * 0.90;
 
-
+        // 4. Order Create garne
         const newOrder = new Order({
-            ...req.body,
             customer: userId,
             items: orderItems,
             deliveryCharge: dCharge,
