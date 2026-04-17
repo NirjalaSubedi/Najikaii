@@ -230,22 +230,36 @@ exports.CancelOrder = async (req, res) => {
         const { orderId } = req.params;
         const order = await Order.findById(orderId);
 
-        if (!order) return res.status(404).json({ success: false, message: "Order vettiyena!" });
-
-        if (order.status === 'Delivered' || order.status === 'Cancelled') {
-            return res.status(400).json({ success: false, message: "Yo order cancel garna mildaina!" });
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order vettiyena!" });
         }
 
+        const restrictedStatuses = ['Delivered', 'Confirmed', 'Cancelled'];
+        
+        if (restrictedStatuses.includes(order.status)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Yo order ko status '${order.status}' vayeko le garda cancel garna mildaina!` 
+            });
+        }
+
+        // 1. Stock Restore garne
         for (const item of order.items) {
             await Product.findByIdAndUpdate(item.product, {
                 $inc: { stock: item.quantity }
             });
         }
 
-        order.status = 'Cancelled';
-        await order.save();
+        // 2. Status Update garne
+        await Order.findByIdAndUpdate(orderId, { 
+            $set: { status: 'Cancelled' } 
+        });
 
-        res.status(200).json({ success: true, message: "Order cancel bhayo ani stock update bhayo!" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Order successfully cancel bhayo ani stock update bhayo!" 
+        });
+
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
