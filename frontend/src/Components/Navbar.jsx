@@ -1,0 +1,42 @@
+import React from 'react';
+import { Search, MapPin, ShoppingCart, Heart, ChevronDown } from 'lucide-react';
+
+const Navbar = () => {
+  return (
+    <nav className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 shadow-sm">
+      {/* Logo Section */}
+      <div className="flex items-center gap-6">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Naji<span className="text-[#00B56A]">kai</span>
+        </h1>
+
+        {/* Location Picker */}
+        <button className="flex items-center gap-2 px-3 py-2 bg-orange-50 text-orange-600 rounded-full border border-orange-100 transition-hover hover:bg-orange-100">
+          <MapPin size={18} />
+          <span className="text-sm font-medium">Enable Location</span>
+          <ChevronDown size={16} />
+        </button>
+      </div>
+
+
+      {/* Wishlist, Cart, Profile*/}
+      <div className="flex items-center gap-4">
+        <button className="p-2.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+          <Heart size={24} />
+        </button>
+        
+        <button className="relative p-2.5 bg-[#00B56A] text-white rounded-xl hover:bg-[#009e5b] transition-all shadow-md shadow-[#00B56A]/20">
+          <ShoppingCart size={24} />
+          {/* Cart Count Badge*/}
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">
+            0
+          </span>
+        </button>
+
+        
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
