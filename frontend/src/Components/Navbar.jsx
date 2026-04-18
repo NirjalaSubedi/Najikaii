@@ -18,8 +18,22 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="flex-1 max-w-2xl mx-10">
+        <div className="relative group">
+          <Search 
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00B56A]" 
+            size={20} 
+          />
+          <input
+            type="text"
+            placeholder="Search products, vendors..."
+            className="w-full pl-12 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00B56A]/20 focus:border-[#00B56A] transition-all"
+          />
+        </div>
+      </div>
 
-      {/* Wishlist, Cart, Profile*/}
+      {/*Wishlist, Cart, Profile*/}
       <div className="flex items-center gap-4">
         <button className="p-2.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
           <Heart size={24} />
@@ -33,7 +47,6 @@ const Navbar = () => {
           </span>
         </button>
 
-        
       </div>
     </nav>
   );
