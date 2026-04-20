@@ -5,37 +5,41 @@ import BannerImage from '../images/indeximage.jpg';
 const ImageBanner = () => {
   return (
     <div className="px-6 py-4">
-      <div className="relative w-full h-[280px] md:h-[320px] overflow-hidden rounded-3xl shadow-lg bg-[#064e3b]">
+      <div className="relative w-full h-[220px] md:h-[250px] overflow-hidden rounded-[2rem] shadow-sm bg-gray-100">
         
         <img 
           src={BannerImage} 
           alt="Najikai Banner" 
-          className="w-full h-full object-cover object-top opacity-90 mix-blend-overlay" 
+          className="w-full h-full object-cover object-top" 
         />
 
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-[#062d24]/70 via-[#062d24]/20 to-transparent pointer-events-none"></div>
 
-        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-14 text-white">
+        <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-14">
           
-          <p className="font-bold text-xs text-[#00B56A] tracking-[0.2em] mb-2 uppercase drop-shadow-sm">
+          <p className="text-[#00FF95] font-bold text-[11px] tracking-[0.2em] mb-1 uppercase drop-shadow-md">
             Fresh & Local
           </p>
 
-          <h2 className="text-3xl md:text-5xl font-extrabold leading-tight mb-8 drop-shadow-md">
+          <h2 className="text-white text-[32px] md:text-[45px] font-extrabold leading-[1.1] mb-6 drop-shadow-md">
             Shop from vendors <br /> near you
           </h2>
 
-          <div className="flex flex-wrap gap-4">
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-black/30 backdrop-blur-md border border-white/10 rounded-full shadow-lg">
-              <Zap size={18} className="text-[#00B56A]" fill="currentColor" />
-              <p className="text-xs md:text-sm font-bold">Fast delivery in 15–30 min</p>
+          {/* Badges Section */}
+          <div className="flex flex-wrap gap-3">
+            {/* Delivery Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <Zap size={14} className="text-[#00FF95]" fill="currentColor" />
+              <span className="text-white text-[12px] font-bold">Fast delivery in 15–30 min</span>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-black/30 backdrop-blur-md border border-white/10 rounded-full shadow-lg">
-              <Store size={18} className="text-[#00B56A]" />
-              <p className="text-xs md:text-sm font-bold">500+ local vendors</p>
+            {/* Vendor Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+              <Store size={14} className="text-[#00FF95]" />
+              <span className="text-white text-[12px] font-bold">500+ local vendors</span>
             </div>
           </div>
+
         </div>
       </div>
     </div>
