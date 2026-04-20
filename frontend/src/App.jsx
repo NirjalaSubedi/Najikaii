@@ -1,6 +1,7 @@
 import Navbar from './Components/Navbar'
 import LocationBanner from './Components/LocationBanner';
 import ImageBanner from './Components/ImageBanner';
+import AllCategory from './Components/AllCategory';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Navbar />
       <LocationBanner/>
       <ImageBanner/>
+      <AllCategory/>
     </div>
   );
 }
