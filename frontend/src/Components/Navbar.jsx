@@ -51,7 +51,7 @@ const Navbar = () => {
         <button className="p-2 text-[#00B56A] hover:bg-green-50 rounded-full transition-all flex items-center justify-center">
              <UserCircle size={32} strokeWidth={1.5} />
         </button>
-
+    
       </div>
     </nav>
   );

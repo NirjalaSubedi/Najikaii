@@ -13,7 +13,7 @@ const ImageBanner = () => {
           className="w-full h-full object-cover object-top" 
         />
 
-        <div className="absolute inset-0 bg-linear-to-r from-[#062d24]/70 via-[#062d24]/20 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-linear-to-r from-[#0b603d]/70 via-[#062d24]/20 to-transparent pointer-events-none"></div>
 
         <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-14">
           
