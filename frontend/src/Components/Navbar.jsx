@@ -48,8 +48,9 @@ const Navbar = () => {
         </button>
 
         {/* Profile Icon Section*/}
-        <button className="p-2 text-[#00B56A] hover:bg-green-50 rounded-full transition-all flex items-center justify-center">
-             <User size={32} strokeWidth={1.5} />
+        <button className="flex items-center gap-2 px-5 py-2 text-[#00B56A] hover:bg-green-50 rounded-xl border border-[#00B56A] transition-all font-medium">
+          <User size={20} strokeWidth={2} />
+          <span>Login</span>
         </button>
 
       </div>
