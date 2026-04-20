@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, MapPin, ShoppingCart, Heart, ChevronDown, UserCircle } from 'lucide-react';
+import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User } from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -49,9 +49,9 @@ const Navbar = () => {
 
         {/* Profile Icon Section*/}
         <button className="p-2 text-[#00B56A] hover:bg-green-50 rounded-full transition-all flex items-center justify-center">
-             <UserCircle size={32} strokeWidth={1.5} />
+             <User size={32} strokeWidth={1.5} />
         </button>
-    
+
       </div>
     </nav>
   );
