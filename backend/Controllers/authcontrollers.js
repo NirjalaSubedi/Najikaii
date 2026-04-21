@@ -8,7 +8,7 @@ const { find } = require('../models/ProductModels');
 
 exports.register=async(req,res)=>{
     try{
-        const {name,email,password,role,PhoneNumber,Address,location}=req.body;
+        const {name,email,password,role,PhoneNumber,Address,location,shopName, shopImage}=req.body;
         //check if user alredy exist
         let existinguser = await user.findOne({email});
         if(existinguser){
@@ -26,7 +26,19 @@ exports.register=async(req,res)=>{
         const otpExpire = Date.now() + 10 * 60 * 1000;
 
         //save user
-        const newuser =new user({name,email,password:hashpassword,role,PhoneNumber,Address,location,otp,otpExpire,isVerified: false});
+        const newuser =new user({name,
+            email,
+            password:hashpassword,
+            role,
+            PhoneNumber,
+            Address,
+            location,
+            otp,
+            otpExpire,
+            isVerified:false,
+            shopName:role==='Vendor'?shopName:undefined,
+            shopImage:role==='Vendor'?shopImage:undefined
+        });
         await newuser.save();
 
         //sending email
@@ -139,7 +151,7 @@ exports.login= async (req,res)=>{
 //update user profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, PhoneNumber, Address,location } = req.body;
+        const { name, PhoneNumber, Address,location,shopName, shopImage } = req.body;
         if (!req.user) {
             return res.status(401).json({ message: "Unauthorized: No user found in request" });
         }
@@ -148,7 +160,7 @@ exports.updateProfile = async (req, res) => {
         // 1. User khojne ra update garne
         const updatedUser = await user.findByIdAndUpdate(
             userId,
-            { name, PhoneNumber, Address,location},
+            { name, PhoneNumber, Address,location,shopName, shopImage},
             { new: true, runValidators: true } 
         );
 
@@ -347,6 +359,7 @@ exports.getNearbyShops = async (req, res) => {
                 $project: {
                     name: 1,
                     shopName: 1,
+                    shopImage: 1,
                     Address: 1,
                     distanceInKm: { $round: ["$distanceInKm", 2] } // 2 decimal digit ma round gareko
                 }
