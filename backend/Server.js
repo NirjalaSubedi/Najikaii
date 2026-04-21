@@ -30,11 +30,12 @@ app.get('/', (req, res) => {
     res.send("Najikai API is running...");
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`);
-});
 app.use('/api/auth', authRoutes);
 app.use('/api/order',orderRoutes);
 app.use('/api/payment',paymentRoutes);
 app.use('/api/shops',shopRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
