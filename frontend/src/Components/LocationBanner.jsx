@@ -16,7 +16,14 @@ const LocationBanner = ({setAddress}) => {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
           const data = await res.json();
           
-          const place = data.address.city || data.address.village || data.address.suburb || "Location Found";
+          const address = data.address;
+          const place = address.village || 
+              address.suburb || 
+              address.city_district || 
+              address.town || 
+              address.city || 
+              address.county || 
+              "Location Found";
           
           setAddress(place); // Home.jsx ko state update bhayo
           await sendLocationToBackend(lat, lng);
