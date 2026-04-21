@@ -1,9 +1,11 @@
 import React from 'react';
-import { MapPin } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin,Loader2 } from 'lucide-react';
 
 const LocationBanner = () => {
-
+ const [loading, setloading]=useState(false)
   const geolocation=()=>{
+    setloading(true);
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition((Position)=>{
         const lat=Position.coords.latitude;
@@ -38,8 +40,19 @@ const LocationBanner = () => {
         </div>
 
         {/* Action Button */}
-        <button className="bg-white text-[#10B981] font-bold px-8 py-2.5 rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
-          Allow
+        <button
+          onclick={geolocation}
+          disabled={loading}
+          className="bg-white text-[#10B981] font-bold px-8 py-2.5 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+          >
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin" size={20} /> 
+              Wait...
+            </>
+          ) : (
+            "Allow"
+          )}
         </button>
       </div>
     </div>
