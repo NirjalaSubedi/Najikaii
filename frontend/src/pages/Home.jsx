@@ -11,7 +11,9 @@ const Home = ()=>{
     return(
         <>
             <Navbar Address={userAddress}/>
-            <LocationBanner setAddress={setuserAddress}/>
+            {userAddress === "Enable Location" && (
+                <LocationBanner setAddress={setuserAddress}/>
+            )}
             <ImageBanner/>
             <CategorySelector/>
             <NearbyShops/>
