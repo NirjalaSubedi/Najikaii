@@ -1,14 +1,12 @@
-import Navbar from './Components/Navbar'
-import LocationBanner from './Components/LocationBanner';
-import ImageBanner from './Components/ImageBanner';
-import CategorySelector from './Components/CategorySelector';
+import React from "react";
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <LocationBanner/>
-      <ImageBanner/>
-      <CategorySelector/>
+      <Routes>
+          <Route path="/" element={<Home />} />
+      </Routes>
     </div>
   );
 }
