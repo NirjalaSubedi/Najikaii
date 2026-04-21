@@ -7,6 +7,8 @@ import { Star, Clock, Zap, MapPin } from 'lucide-react';
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+          console.log("Coords received in NearbyShops:", coords); 
+
         if (coords) {
             fetchNearbyShops();
         }
@@ -15,7 +17,7 @@ import { Star, Clock, Zap, MapPin } from 'lucide-react';
     const fetchNearbyShops = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:5000/api/shops/nearby?lat=${coords.lat}&lng=${coords.lng}&distance=10`);
+            const response = await fetch(`http://localhost:5000/api/shops/getNearbyShops?lat=${coords.lat}&lng=${coords.lng}&distance=10`);
             const data = await response.json();
             
             if (data.success) {
