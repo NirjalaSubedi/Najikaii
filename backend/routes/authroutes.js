@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,getNearbyShops}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
@@ -19,8 +19,6 @@ router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
 router.delete('/delete-user/:id', authmiddlewares, deleteuser);
 
-//find nearby shop
-router.get('/getNearbyShops',authmiddlewares,getNearbyShops);
 
 router.get('/test',authmiddlewares,(req,res)=>{
     res.status(200).json({
