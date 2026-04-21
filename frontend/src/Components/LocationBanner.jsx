@@ -2,6 +2,14 @@ import React from 'react';
 import { MapPin } from 'lucide-react';
 
 const LocationBanner = () => {
+
+  const geolocation=()=>{
+    if(navigator.geolocation){
+
+    }else{
+      console.log("geolocation features is not allowed in your browser")
+    }
+  }
   return (
     <div className="px-6 py-4">
       <div className="bg-[#10B981] rounded-2xl p-4 flex items-center justify-between shadow-sm">
