@@ -7,7 +7,7 @@ import CategorySelector from "../Components/CategorySelector";
 import NearbyShops from "../Components/NearbyShops";
 
 const Home = ()=>{
-    const[userAddress,setuserAddress]=useState("Enable Location");
+    const[userAddress,setuserAddress]=useState(localStorage.getItem('savedAddress') || "Enable Location");
     return(
         <>
             <Navbar Address={userAddress}/>

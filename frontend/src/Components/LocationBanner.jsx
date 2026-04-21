@@ -26,6 +26,7 @@ const LocationBanner = ({setAddress}) => {
               "Location Found";
           
           setAddress(place); // Home.jsx ko state update bhayo
+          localStorage.setItem('savedAddress', place);
           await sendLocationToBackend(lat, lng);
         }catch(err){
           console.error("Geocoding error", err);
