@@ -10,7 +10,10 @@ const LocationBanner = () => {
         const lng=Position.coords.longitude;
         onsole.log("Latitude:", lat, "Longitude:", lng);
         sendLocationToBackend(lat, lng);
-      },)
+      },(error)=>{
+        console.error("Error getting location:", error.message);
+        alert("Location access denied. Please enable it from settings.");
+      })
     }else{
       console.log("geolocation features is not allowed in your browser")
     }
