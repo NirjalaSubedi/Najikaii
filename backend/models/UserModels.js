@@ -53,6 +53,10 @@ const userSchema=new mongoose.Schema({
     }
     },
     shopName: { type: String },
+    shopImage: { 
+        type: String, 
+        default: 'https://via.placeholder.com/150' 
+    },
 
     otp: {
         type: String
