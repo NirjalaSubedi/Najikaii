@@ -5,7 +5,12 @@ const LocationBanner = () => {
 
   const geolocation=()=>{
     if(navigator.geolocation){
-
+      navigator.geolocation.getCurrentPosition((Position)=>{
+        const lat=Position.coords.latitude;
+        const lng=Position.coords.longitude;
+        onsole.log("Latitude:", lat, "Longitude:", lng);
+        sendLocationToBackend(lat, lng);
+      },)
     }else{
       console.log("geolocation features is not allowed in your browser")
     }
