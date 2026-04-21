@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({Address}) => {
   return (
     <nav className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 shadow-sm">
       {/* Logo Section */}
@@ -13,7 +13,7 @@ const Navbar = () => {
         {/* Location Picker */}
         <button className="flex items-center gap-2 px-3 py-2 bg-orange-50 text-orange-600 rounded-full border border-orange-100 transition-hover hover:bg-orange-100">
           <MapPin size={18} />
-          <span className="text-sm font-medium">Enable Location</span>
+          <span className="text-sm font-medium">{Address}</span>
           <ChevronDown size={16} />
         </button>
       </div>

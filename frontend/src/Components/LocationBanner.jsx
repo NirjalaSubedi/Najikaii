@@ -2,16 +2,30 @@ import React from 'react';
 import { useState } from 'react';
 import { MapPin,Loader2 } from 'lucide-react';
 
-const LocationBanner = () => {
- const [loading, setloading]=useState(false)
+const LocationBanner = ({setAddress}) => {
+  const [loading, setloading]=useState(false)
+
   const geolocation=()=>{
     setloading(true);
     if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition((Position)=>{
+      navigator.geolocation.getCurrentPosition(async(Position)=>{
         const lat=Position.coords.latitude;
         const lng=Position.coords.longitude;
-        console.log("Latitude:", lat, "Longitude:", lng);
-        sendLocationToBackend(lat, lng);
+
+        try{
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+          const data = await res.json();
+          
+          const place = data.address.city || data.address.village || data.address.suburb || "Location Found";
+          
+          setAddress(place); // Home.jsx ko state update bhayo
+          await sendLocationToBackend(lat, lng);
+        }catch(err){
+          console.error("Geocoding error", err);
+          setAddress("Location Found");
+        }finally{
+          setloading(false);
+        }
       },(error)=>{
         console.error("Error getting location:", error.message);
         alert("Location access denied. Please enable it from settings.");
