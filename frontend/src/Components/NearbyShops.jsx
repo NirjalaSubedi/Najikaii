@@ -2,24 +2,32 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Star, Clock, Zap, MapPin } from 'lucide-react';
 
-const NearbyShops = () => {
-  const [shops, setShops] = useState([]); 
+  const NearbyShops = ({ coords }) => {
+    const [shops, setShops] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchshop = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/shops/getNearbyShops?lng=87.165&lat=26.648&distance=150');
-        
-        if (response.data.success) {
-          setShops(response.data.shops);
+    useEffect(() => {
+        if (coords) {
+            fetchNearbyShops();
         }
-      } catch (e) {
-        console.log("fetch error", e);
-      }
-    };
-    fetchshop();
-  }, []);
+    }, [coords]);
 
+    const fetchNearbyShops = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`http://localhost:5000/api/shops/nearby?lat=${coords.lat}&lng=${coords.lng}&distance=10`);
+            const data = await response.json();
+            
+            if (data.success) {
+                setShops(data.shops);
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+  
   return (
     <div className="px-6 py-8">
       <div className="flex justify-between items-end mb-6">

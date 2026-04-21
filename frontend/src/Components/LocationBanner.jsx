@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { MapPin,Loader2 } from 'lucide-react';
 
-const LocationBanner = ({setAddress}) => {
+const LocationBanner = ({setAddress,setCoords}) => {
   const [loading, setloading]=useState(false)
 
   const geolocation=()=>{
@@ -11,7 +11,7 @@ const LocationBanner = ({setAddress}) => {
       navigator.geolocation.getCurrentPosition(async(Position)=>{
         const lat=Position.coords.latitude;
         const lng=Position.coords.longitude;
-
+        setCoords({ lat, lng });
         try{
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
           const data = await res.json();

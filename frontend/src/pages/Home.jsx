@@ -8,15 +8,19 @@ import NearbyShops from "../Components/NearbyShops";
 
 const Home = ()=>{
     const[userAddress,setuserAddress]=useState(localStorage.getItem('savedAddress') || "Enable Location");
+    const [coords, setCoords] = useState(null);
     return(
         <>
             <Navbar Address={userAddress}/>
             {userAddress === "Enable Location" && (
-                <LocationBanner setAddress={setuserAddress}/>
+                <LocationBanner 
+                    setAddress={setuserAddress}
+                    setCoords={setCoords}
+                    />
             )}
             <ImageBanner/>
             <CategorySelector/>
-            <NearbyShops/>
+            <NearbyShops coords={coords}/>
         </>
     )
 }
