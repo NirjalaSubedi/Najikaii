@@ -21,9 +21,17 @@ const LocationBanner = ({ setAddress, setCoords }) => {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
             const data = await res.json();
             const address = data.address;
-            const place = address.village || address.suburb || address.town || address.city || "Location Found";
-
+            
+            const place = address.city_district || 
+                          address.neighbourhood || 
+                          address.suburb || 
+                          address.village || 
+                          address.hamlet || 
+                          address.town || 
+                          address.city || 
+                          "Location Found";
             localStorage.setItem('savedAddress', place);
+            console.log("Full Address Data:", address);
             setAddress(place);
 
             await fetch('http://localhost:5000/api/shops/save-location', {

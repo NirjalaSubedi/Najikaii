@@ -6,6 +6,12 @@ const NearbyShops = ({ coords }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // sorting ra filtering shops
+  const processedShops = shops
+  .filter(shop => shop.distanceInKm <= 5) 
+  .sort((a, b) => a.distanceInKm - b.distanceInKm) 
+  .slice(0, 4);
+
   useEffect(() => {
     //if coords exist before fetching
     if (coords && coords.lat && coords.lng) {
@@ -22,7 +28,6 @@ const NearbyShops = ({ coords }) => {
       );
       const data = await response.json();
 
-      console.log("Backend bata aako data:", data.shops);
 
       if (data.success) {
         setShops(data.shops);
@@ -70,7 +75,7 @@ const NearbyShops = ({ coords }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {shops.length > 0 ? (
-          shops.map((shop) => (
+          processedShops.map((shop) => (
             <div 
               key={shop._id} 
               className="group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-50"
