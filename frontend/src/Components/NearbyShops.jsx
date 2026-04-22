@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Star, Clock, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const NearbyShops = ({ coords }) => {
   const [shops, setShops] = useState([]);
@@ -69,7 +70,9 @@ const NearbyShops = ({ coords }) => {
           <p className="text-gray-500 text-sm">Find vendors within your reach in Jhumka</p>
         </div>
         <button className="text-[#00B56A] font-semibold hover:text-[#008f54] transition-colors">
-          View All
+          <Link to="/all-shops" className="text-[#00B56A] font-semibold hover:underline">
+    View All
+  </Link>
         </button>
       </div>
 
