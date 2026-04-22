@@ -4,7 +4,7 @@ import LocationBanner from "../Components/LocationBanner";
 import ImageBanner from "../Components/ImageBanner";
 import CategorySelector from "../Components/CategorySelector";
 import NearbyShops from "../Components/NearbyShops";
-
+import Footer from "../Components/Footer";
 const Home = () => {
   const [userAddress, setuserAddress] = useState(localStorage.getItem('savedAddress') || "Enable Location");
   
@@ -23,6 +23,7 @@ const Home = () => {
       <CategorySelector />
       {/* Coords state pass gareko chha */}
       <NearbyShops coords={coords} />
+      <Footer/>
     </>
   );
 };
