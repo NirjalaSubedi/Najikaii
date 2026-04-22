@@ -22,6 +22,8 @@ const NearbyShops = ({ coords }) => {
       );
       const data = await response.json();
 
+      console.log("Backend bata aako data:", data.shops);
+
       if (data.success) {
         setShops(data.shops);
       } else {
@@ -76,7 +78,7 @@ const NearbyShops = ({ coords }) => {
               {/* Image Container */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={shop.shopImage || 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=500&auto=format&fit=crop'} 
+                  src={shop.shopImage} 
                   alt={shop.shopName || shop.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
