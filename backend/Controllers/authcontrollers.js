@@ -5,6 +5,8 @@ const bcryptjs= require('bcryptjs');
 const crypto = require('crypto');
 const sendEmail= require('../utils/sendEmail');
 const { find } = require('../models/ProductModels');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 exports.register=async(req,res)=>{
     try{
@@ -430,5 +432,54 @@ exports.socialLogin = async (req, res) => {
 
     } catch (e) {
         res.status(500).json({ error: e.message });
+    }
+};
+
+exports.googleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        //Google Token Verify garne
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        
+        const { name, email, picture, sub: googleId } = ticket.getPayload();
+
+        //User database ma khojne
+        let foundUser = await user.findOne({ email });
+
+        if (!foundUser) {
+            foundUser = new user({
+                name,
+                email,
+                googleId,
+                avatar: picture,
+                isVerified: true, 
+                role: 'Customer',
+                status: 'Approved' 
+            });
+            await foundUser.save();
+        }
+
+        const token = jwt.sign(
+            { id: foundUser._id, role: foundUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.status(200).json({
+            success: true,
+            token,
+            user: {
+                id: foundUser._id,
+                name: foundUser.name,
+                role: foundUser.role
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Google Authentication failed!" });
     }
 };
