@@ -376,3 +376,59 @@ exports.getNearbyShops = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Social Login Logic
+exports.socialLogin = async (req, res) => {
+    try {
+        const { name, email, googleId, facebookId, avatar, role } = req.body;
+        let existingUser = await user.findOne({ email });
+
+        if (existingUser) {
+            const token = jwt.sign(
+                { id: existingUser._id, role: existingUser.role },
+                process.env.JWT_SECRET,
+                { expiresIn: '1d' }
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Login successful via Social Account",
+                token,
+                user: {
+                    id: existingUser._id,
+                    name: existingUser.name,
+                    role: existingUser.role
+                }
+            });
+        }
+
+        const newUser = new user({
+            name,
+            email,
+            googleId,
+            facebookId,
+            avatar,
+            role: role || 'Customer',
+            isVerified: true,
+            status: role === 'Vendor' ? 'Pending' : 'Approved'
+        });
+
+        await newUser.save();
+
+        const token = jwt.sign(
+            { id: newUser._id, role: newUser.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "User registered via Social Account",
+            token,
+            user: newUser
+        });
+
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
