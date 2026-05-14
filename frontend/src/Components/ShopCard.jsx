@@ -2,7 +2,6 @@ import React from 'react';
 import { MapPin, Star, Clock } from 'lucide-react'; // Icons ko lagi (Optional: npm install lucide-react)
 
 const ShopCard = ({ shop }) => {
-  // Destructuring shop data (Backend bata aaune fields anusar milaunuhos)
   const { 
     name, 
     address, 

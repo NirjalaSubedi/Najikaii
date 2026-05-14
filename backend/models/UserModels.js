@@ -11,7 +11,9 @@ const userSchema=new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
+        required: function() {
+            return !this.googleId && !this.facebookId;
+        }
     },
     role:{
         type:String,
@@ -68,7 +70,11 @@ const userSchema=new mongoose.Schema({
     cart: [{
         product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
         quantity: { type: Number, default: 1 }
-    }]
+    }],
+
+    googleId: { type: String },
+    facebookId: { type: String },
+    avatar: { type: String },
 }, {timestamps: true})
 
 userSchema.index({ location: "2dsphere" });

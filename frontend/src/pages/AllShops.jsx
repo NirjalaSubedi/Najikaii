@@ -11,7 +11,7 @@ const AllShops = () => {
       const { latitude, longitude } = position.coords;
       
       try {
-        const res = await axios.get(`http://localhost:5000/api/shops/getNearbyShops?lat=${latitude}&lng=${longitude}`);
+        const res = await axios.get(`http://localhost:5000/api/shops/viewallshops?lat=${latitude}&lng=${longitude}`);
         setShops(res.data);
         setLoading(false);
       } catch (err) {
