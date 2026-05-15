@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Navbar = ({Address}) => {
   return (
@@ -48,10 +49,12 @@ const Navbar = ({Address}) => {
         </button>
 
         {/* Profile Icon Section*/}
-        <button className="flex items-center gap-2 px-5 py-2 text-[#00B56A] hover:bg-green-50 rounded-xl border border-[#00B56A] transition-all font-medium">
-          <User size={20} strokeWidth={2} />
-          <span>Login</span>
-        </button>
+        <Link to="/login">
+          <button className="flex items-center gap-2 px-5 py-2 text-[#00B56A] hover:bg-green-50 rounded-xl border border-[#00B56A] transition-all font-medium">
+            <User size={20} strokeWidth={2} />
+            <span>Login</span>
+          </button>
+        </Link>
 
       </div>
     </nav>
