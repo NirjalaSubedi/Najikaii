@@ -1,18 +1,14 @@
 import React from 'react';
+import vegetables from '../images/vegetables.png'
 
 const AuthHero = () => {
     return (
         <div className="hidden lg:flex w-1/2 bg-[#00a86b] flex-col justify-center items-center p-12 text-white">
             <div className="mb-8">
                 {/* Logo Section */}
-                <div className="flex items-center gap-2 text-3xl font-bold mb-4">
-                    <span className="bg-white text-[#00a86b] p-2 rounded-lg text-xl">🏪</span>
-                    Najikai
-                </div>
-                
-                {/* Main Image - Timro assets ma vako image path milaunu */}
+                <div className="flex items-center gap-2 text-3xl font-bold mb-4">Najikai</div>
                 <img 
-                    src="/images/vegetables-hero.png" 
+                    src={vegetables} 
                     alt="Fresh Groceries" 
                     className="rounded-2xl shadow-2xl mb-8 w-full max-w-md object-cover"
                 />
