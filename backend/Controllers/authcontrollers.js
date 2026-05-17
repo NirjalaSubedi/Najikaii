@@ -444,25 +444,23 @@ exports.googleLogin = async (req, res) => {
             idToken,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
-        
         const { name, email, picture, sub: googleId } = ticket.getPayload();
 
-        //User database ma khojne
         let foundUser = await user.findOne({ email });
 
         if (!foundUser) {
             foundUser = new user({
-                name,
-                email,
-                googleId,
-                avatar: picture,
-                isVerified: true, 
-                role: 'Customer',
-                status: 'Approved' 
+            name,
+            email,
+            googleId,
+            avatar: picture,
+            isVerified: true, 
+            role: 'Customer',
+            status: 'Approved',
+            password: crypto.randomBytes(16).toString('hex') 
             });
             await foundUser.save();
         }
-
         const token = jwt.sign(
             { id: foundUser._id, role: foundUser.role },
             process.env.JWT_SECRET,
