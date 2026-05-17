@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import AllShops from "./pages/AllShops";
 import Login from './pages/Login';
 import Signup from './pages/SignUp';
+import VerifyOtp from "./pages/VerifyOtp";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/all-shops" element={<AllShops />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>}/>
+          <Route path="/verifyotp" element={<VerifyOtp/>}/>
       </Routes>
     </div>
   );
