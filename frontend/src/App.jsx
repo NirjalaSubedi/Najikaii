@@ -33,9 +33,25 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
+        theme="light"
+        
+        toastStyle={{ 
+          backgroundColor: "#white", 
+          border: "1px solid #00B56A", 
+          borderRadius: "12px",
+          color: "#00B56A" 
+        }}
+        bodyStyle={{ 
+          color: "#00B56A", 
+          fontWeight: "bold",
+          fontFamily: "sans-serif"
+        }}
+        
+        progressStyle={{
+          backgroundColor: "#00B56A"
+        }}
       />
-      
+
     </div>
   );
 }
