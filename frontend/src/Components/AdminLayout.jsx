@@ -20,15 +20,14 @@ const AdminLayout = () => {
             <div className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col justify-between p-4 fixed left-0 top-0 z-20">
                 <div>
                     <div className="mb-6 px-4">
-                        <h1 className="text-xl font-extrabold text-[#00B56A]">Najikai</h1>
+                        <h1 className="text-xl font-extrabold text-[#0c0c0c]">Najikai</h1>
                         <span className="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Admin Panel</span>
                     </div>
 
-                    <div className="mb-6 p-3 bg-red-50/50 rounded-2xl flex items-center gap-3 border border-red-50">
-                        <div className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm">SA</div>
+                    <div className="mb-6 p-3 bg-red-200/50 rounded-2xl flex items-center gap-3 border border-red-50">
                         <div>
-                            <h4 className="text-sm font-bold text-gray-800">Super Admin</h4>
-                            <p className="text-[11px] text-gray-400">nirjalasubedi944@gmail.com</p>
+                        <h4 className="text-sm font-bold text-red-500">Super Admin</h4>
+                        <p className="text-[11px] text-gray-400">nirjalasubedi944@gmail.com</p>
                         </div>
                     </div>
 
