@@ -48,8 +48,9 @@ const Signup = () => {
 
         try {
             const res = await axios.post('http://localhost:5000/api/auth/register', payload);
+            
             if (res.data.success) {
-                alert(res.data.message);
+                navigate('/verify-otp', { state: { email: formData.email } });
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong!');
@@ -80,7 +81,7 @@ const Signup = () => {
         <div className="flex h-screen w-screen overflow-hidden font-sans bg-white">
             
             {/* Left Side: Hero Section */}
-                <AuthHero />
+            <AuthHero />
 
             {/* Right Side*/}
             <div className="w-full lg:w-1/2 h-full overflow-y-auto px-8 lg:px-20 py-10 flex flex-col justify-start items-center">
@@ -257,10 +258,10 @@ const Signup = () => {
                             </div>
                         </div>
 
-                        {/* Submit Button */}
-                        <button
-                            type="submit" disabled={loading}
-                            className="w-full bg-[#00B56A] text-white py-3 rounded-xl font-bold hover:bg-[#009e5b] transition-all shadow-lg shadow-green-100 active:scale-[0.98] disabled:bg-gray-400 text-sm mt-2"
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="w-full bg-[#00B56A] text-white py-3 rounded-xl font-bold hover:bg-[#009e5b] transition-all shadow-lg shadow-green-100 active:scale-[0.98] disabled:bg-gray-400 text-sm mt-2 flex justify-center items-center"
                         >
                             {loading ? 'Creating Account...' : 'Create Account'}
                         </button>
@@ -284,7 +285,6 @@ const Signup = () => {
                             width="100%"
                         />
                     </div>
-
 
                     {/* Redirect link option */}
                     <div className="text-center text-sm text-gray-500 mt-5">

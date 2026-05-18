@@ -14,7 +14,7 @@ function App() {
           <Route path="/all-shops" element={<AllShops />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>}/>
-          <Route path="/verifyotp" element={<VerifyOtp/>}/>
+          <Route path="/verify-otp" element={<VerifyOtp/>}/>
       </Routes>
     </div>
   );
