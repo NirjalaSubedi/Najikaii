@@ -5,10 +5,10 @@ exports.verifyOtp= async (req,res)=>{
 
         const user = await usermodel.findOne({email});
         if(!user){
-            res.status(404).json({
-                message:"email doesnot exist"
-            })
-        }
+            return res.status(404).json({ 
+                    message:"email doesnot exist"
+                })
+}
         //checking if user is already register or not
         if(user.isVerified){
             return res.status(400).json({

@@ -13,8 +13,11 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/all-shops" element={<AllShops />} />
           <Route path="/login" element={<Login />} />
+
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
+
+          <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       </Routes>
     </div>
   );
