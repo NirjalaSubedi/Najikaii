@@ -9,6 +9,9 @@ import VerifyOtp from "./pages/VerifyOtp";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import AdminLayout from "./components/AdminLayout";
+import Overview from "./pages/admin/Overview";
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,8 +22,12 @@ function App() {
 
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
-
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
+      
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Overview />} />
+          </Route>
+
       </Routes>
 
       <ToastContainer 
