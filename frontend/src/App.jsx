@@ -6,6 +6,9 @@ import Login from './pages/Login';
 import Signup from './pages/SignUp';
 import VerifyOtp from "./pages/VerifyOtp";
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,6 +22,20 @@ function App() {
 
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       </Routes>
+
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
+      
     </div>
   );
 }
