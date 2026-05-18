@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { GoogleLogin } from '@react-oauth/google'; // Google auth library
+import { GoogleLogin } from '@react-oauth/google';
 import AuthHero from '../Components/AuthSidebar';
+import { toast } from 'react-toastify';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -27,12 +28,21 @@ const Login = () => {
         try {
             const res = await axios.post('http://localhost:5000/api/auth/login', formData);
             if (res.data.success) {
+                toast.success("Login Successful!");
+                
+                //Data store garne local storage ma
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('user', JSON.stringify(res.data.user));
-                window.location.href = "/"; // Redirect to Home/Dashboard
+
+                //1.5 seconds delayed navigation daxu jasma toast safely render huna paucha
+                setTimeout(() => {
+                    navigate('/');
+                }, 1500);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password');
+            const errorMsg = err.response?.data?.message || 'Invalid email or password';
+            setError(errorMsg);            
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -45,14 +55,20 @@ const Login = () => {
             });
 
             if (res.data.success) {
+                toast.success("Logged in via Google successfully!");
+                
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('user', JSON.stringify(res.data.user));
-                console.log("Logged in via Google successfully!");
-                window.location.href = "/";
+                
+                setTimeout(() => {
+                    navigate('/');
+                }, 1500);
             }
         } catch (error) {
             console.error("Google Auth Error:", error);
-            setError(error.response?.data?.message || "Google Authentication failed!");
+            const googleError = error.response?.data?.message || "Google Authentication failed!";
+            setError(googleError);
+            toast.error(googleError);
         }
     };
 
@@ -84,7 +100,11 @@ const Login = () => {
                                     <Mail size={18} />
                                 </span>
                                 <input 
-                                    type="email" name="email" required value={formData.email} onChange={handleChange}
+                                    type="email" 
+                                    name="email" 
+                                    required 
+                                    value={formData.email} 
+                                    onChange={handleChange}
                                     className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#00B56A] focus:ring-4 focus:ring-[#00B56A]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                     placeholder="you@example.com" 
                                 />
@@ -104,12 +124,17 @@ const Login = () => {
                                     <Lock size={18} />
                                 </span>
                                 <input 
-                                    type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange}
+                                    type={showPassword ? "text" : "password"} 
+                                    name="password" 
+                                    required 
+                                    value={formData.password} 
+                                    onChange={handleChange}
                                     className="w-full pl-11 pr-12 py-2.5 rounded-xl border border-gray-200 focus:border-[#00B56A] focus:ring-4 focus:ring-[#00B56A]/10 outline-none transition-all placeholder:text-gray-300 text-sm"
                                     placeholder="••••••••" 
                                 />
                                 <button
-                                    type="button" onClick={() => setShowPassword(!showPassword)}
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#00B56A]"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -119,7 +144,8 @@ const Login = () => {
 
                         {/* Sign In Button */}
                         <button 
-                            type="submit" disabled={loading}
+                            type="submit" 
+                            disabled={loading}
                             className="w-full bg-[#00B56A] text-white py-3 rounded-xl font-bold hover:bg-[#009e5b] transition-all shadow-lg shadow-green-100 active:scale-[0.98] disabled:bg-gray-400 text-sm"
                         >
                             {loading ? 'Signing In...' : 'Sign In'}
@@ -141,11 +167,11 @@ const Login = () => {
                             useOneTap
                             theme="outline"
                             size="large"
-                            width="100%"
+                            width="380" // strict percentage trigger skip block string number representation form
                         />
                     </div>
 
-                    {/* Redirecting to Signup with Linked Path */}
+                    {/* Redirecting to Signup */}
                     <p className="mt-6 text-center text-sm text-gray-500">
                         Don't have an account? <Link to="/signup" className="text-[#00B56A] font-bold hover:underline">Sign Up</Link>
                     </p>
