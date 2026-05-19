@@ -1,15 +1,61 @@
-import React from 'react';
-import { Users, Store, Clock, ShoppingBag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Users, Store, Clock, ShoppingBag, Loader2 } from 'lucide-react';
 
 const Overview = () => {
+    const [counts, setCounts] = useState({
+        total: 0,
+        customers: 0,
+        vendors: 0,
+        pendingVendors: 0, 
+        totalOrders: 0,     
+        totalRevenue: 0,   
+        vendorPayouts: 0,  
+        adminCommission: 0 
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get('http://localhost:5000/api/auth/getUserCount', { withCredentials: true });
+                if (response.data.success) {
+                    setCounts(prevState => ({
+                        ...prevState,
+                        total: response.data.data.total || 0,
+                        customers: response.data.data.customers || 0,
+                        vendors: response.data.data.vendors || 0
+                    }));
+                }
+            } catch (err) {
+                console.error("Dashboard engine failed to stream analytics dataset values:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="w-full h-96 flex items-center justify-center gap-2 text-gray-400 font-semibold text-sm bg-white/40 backdrop-blur-sm rounded-2xl border border-gray-100">
+                <Loader2 className="animate-spin text-[#00B56A]" size={20} />
+                <span>Syncing dashboard records with live server data stream...</span>
+            </div>
+        );
+    }
+
     return (
-        <div className="w-full space-y-8 px-0.5">
+        <div className="w-full space-y-8 px-0.5 animate-fadeIn">
+            {/* Top 4 Metrics Row Blocks */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { t: "Total Users", c: "5", i: <Users className="text-blue-500" size={22} />, bg: "bg-blue-50/70" },
-                    { t: "Total Vendors", c: "5", i: <Store className="text-green-500" size={22} />, bg: "bg-green-50/70" },
-                    { t: "Pending Vendors", c: "2", i: <Clock className="text-amber-500" size={22} />, bg: "bg-amber-50/70" },
-                    { t: "Total Orders", c: "48", i: <ShoppingBag className="text-purple-500" size={22} />, bg: "bg-purple-50/70" }
+                    { t: "Total Users", c: counts.total, i: <Users className="text-blue-500" size={22} />, bg: "bg-blue-50/70" },
+                    { t: "Total Vendors", c: counts.vendors, i: <Store className="text-green-500" size={22} />, bg: "bg-green-50/70" },
+                    { t: "Pending Vendors", c: counts.pendingVendors, i: <Clock className="text-amber-500" size={22} />, bg: "bg-amber-50/70" },
+                    { t: "Total Orders", c: counts.totalOrders, i: <ShoppingBag className="text-purple-500" size={22} />, bg: "bg-purple-50/70" }
                 ].map((s, idx) => (
                     <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex items-center justify-between transition-all hover:shadow-md hover:shadow-gray-100/50">
                         <div className="space-y-1.5">
@@ -23,28 +69,28 @@ const Overview = () => {
                 ))}
             </div>
 
-            {/* Platform Revenue Statement Split grid layout card columns */}
+            {/* Platform Revenue Breakdown Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm transition-all hover:shadow-md hover:shadow-gray-100/50 flex flex-col justify-center items-center text-center space-y-1">
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-center items-center text-center space-y-1 transition-all hover:shadow-md hover:shadow-gray-100/50">
                     <span className="text-xs font-bold text-gray-400 tracking-wide">Total Platform Revenue</span>
-                    <h2 className="text-2xl font-black text-gray-900">Rs. 68,450</h2>
+                    <h2 className="text-2xl font-black text-gray-900">Rs. {counts.totalRevenue.toLocaleString()}</h2>
                 </div>
-                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm transition-all hover:shadow-md hover:shadow-gray-100/50 flex flex-col justify-center items-center text-center space-y-1">
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-center items-center text-center space-y-1 transition-all hover:shadow-md hover:shadow-gray-100/50">
                     <span className="text-xs font-bold text-green-500 tracking-wide">Vendor Payouts (90%)</span>
-                    <h2 className="text-2xl font-black text-green-600">Rs. 61,605</h2>
+                    <h2 className="text-2xl font-black text-green-600">Rs. {counts.vendorPayouts.toLocaleString()}</h2>
                 </div>
-                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm transition-all hover:shadow-md hover:shadow-gray-100/50 flex flex-col justify-center items-center text-center space-y-1">
+                <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-center items-center text-center space-y-1 transition-all hover:shadow-md hover:shadow-gray-100/50">
                     <span className="text-xs font-bold text-red-500 tracking-wide">Admin Commission (10%)</span>
-                    <h2 className="text-2xl font-black text-red-500">Rs. 6,845</h2>
+                    <h2 className="text-2xl font-black text-red-500">Rs. {counts.adminCommission.toLocaleString()}</h2>
                 </div>
             </div>
 
-            {/* Action Item Status Block Notification Banner */}
+            {/* Action Required Banner Notification Structure */}
             <div className="bg-amber-50/40 border border-amber-100 rounded-2xl p-4.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm shadow-amber-50/50">
                 <div className="flex items-center gap-3.5">
                     <span className="text-2xl bg-white w-10 h-10 flex items-center justify-center rounded-xl shadow-sm border border-amber-100/50">🏠</span>
                     <div>
-                        <h4 className="text-sm font-bold text-gray-800">2 Vendors Awaiting Approval</h4>
+                        <h4 className="text-sm font-bold text-gray-800">{counts.pendingVendors} Vendors Awaiting Approval</h4>
                         <p className="text-xs text-gray-400 mt-0.5">Review and approve or reject pending local vendor applications.</p>
                     </div>
                 </div>
