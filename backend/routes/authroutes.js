@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,getUserCount}= require('../Controllers/authcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
@@ -19,6 +19,7 @@ router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
 router.delete('/delete-user/:id', authmiddlewares, deleteuser);
+router.get('/getUserCount',getUserCount);
 
 
 router.get('/test',authmiddlewares,(req,res)=>{
