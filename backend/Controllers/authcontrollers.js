@@ -481,3 +481,28 @@ exports.googleLogin = async (req, res) => {
         res.status(500).json({ success: false, message: "Google Authentication failed!" });
     }
 };
+
+exports.getUserCount = async (req, res) => {
+    try {
+        const [total, customers, vendors] = await Promise.all([
+            user.countDocuments({}),
+            user.countDocuments({ role: 'Customer' }), 
+            user.countDocuments({ role: 'Vendor' })
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: { 
+                total, 
+                customers, 
+                vendors 
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false, 
+            message: "Error counting multi-vendor platform elements layout data",
+            error: error.message 
+        });
+    }
+};
