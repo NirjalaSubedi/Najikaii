@@ -484,10 +484,11 @@ exports.googleLogin = async (req, res) => {
 
 exports.getUserCount = async (req, res) => {
     try {
-        const [total, customers, vendors] = await Promise.all([
+        const [total, customers, vendors, pendingVendors] = await Promise.all([
             user.countDocuments({}),
-            user.countDocuments({ role: 'Customer' }), 
-            user.countDocuments({ role: 'Vendor' })
+            user.countDocuments({ role: 'customer' }), 
+            user.countDocuments({ role: 'vendor' }),  
+            user.countDocuments({ role: 'vendor', status: 'pending' }) 
         ]);
 
         res.status(200).json({
@@ -495,7 +496,8 @@ exports.getUserCount = async (req, res) => {
             data: { 
                 total, 
                 customers, 
-                vendors 
+                vendors,
+                pendingVendors
             }
         });
     } catch (error) {
