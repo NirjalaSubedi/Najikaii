@@ -486,10 +486,12 @@ exports.getUserCount = async (req, res) => {
     try {
         const [total, customers, vendors, pendingVendors] = await Promise.all([
             user.countDocuments({}),
-            user.countDocuments({ role: 'customer' }), 
-            user.countDocuments({ role: 'vendor' }),  
-            user.countDocuments({ role: 'vendor', status: 'pending' }) 
+            user.countDocuments({ role: 'Customer' }), 
+            user.countDocuments({ role: 'Vendor' }),   
+            user.countDocuments({ role: 'Vendor', status: 'pending' }) 
         ]);
+
+        console.log("DB RE-SYNC LIVE:", { total, customers, vendors, pendingVendors });
 
         res.status(200).json({
             success: true,
@@ -501,6 +503,7 @@ exports.getUserCount = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("Dashboard backend filter stream block failed:", error);
         res.status(500).json({ 
             success: false, 
             message: "Error counting multi-vendor platform elements layout data",
