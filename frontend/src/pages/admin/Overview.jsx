@@ -106,7 +106,7 @@ const Overview = () => {
             {/* Action Required Banner Notification Structure */}
             <div className="bg-amber-50/40 border border-amber-100 rounded-2xl p-4.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm shadow-amber-50/50">
                 <div className="flex items-center gap-3.5">
-                    <span className="text-2xl bg-white w-10 h-10 flex items-center justify-center rounded-xl shadow-sm border border-amber-100/50">🏠</span>
+                    <span><Store className="text-green-500" size={28} /></span>
                     <div>
                         <h4 className="text-sm font-bold text-gray-800">{counts.pendingVendors} Vendors Awaiting Approval</h4>
                         <p className="text-xs text-gray-400 mt-0.5">Review and approve or reject pending local vendor applications.</p>
