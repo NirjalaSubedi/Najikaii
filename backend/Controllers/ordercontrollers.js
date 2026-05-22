@@ -284,3 +284,14 @@ exports.getOrderCount = async (req, res) => {
         });
     }
 };
+
+exports.getRecentOrders = async(req,res)=>{
+    try{
+
+    }catch(error){
+        res.status(500).json({
+            success:false,
+            message:"can't phase recent order"
+        })
+    }
+}
