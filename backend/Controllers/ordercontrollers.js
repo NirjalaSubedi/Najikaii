@@ -264,3 +264,23 @@ exports.CancelOrder = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+exports.getOrderCount = async (req, res) => {
+    try {
+        const totalOrders = await Order.countDocuments({});
+
+        console.log("FETCHED LIVE ORDERS COUNT:", totalOrders);
+
+        return res.status(200).json({
+            success: true,
+            totalOrders: totalOrders
+        });
+    } catch (error) {
+        console.error("Order Analytics count failed:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error counting multi-vendor platform orders",
+            error: error.message
+        });
+    }
+};

@@ -1,7 +1,7 @@
 const express =require('express');
 const router= express.Router();
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder}=require('../Controllers/ordercontrollers');
+const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder,getOrderCount}=require('../Controllers/ordercontrollers');
 
 router.post('/placeorder',authmiddlewares,authorizeRoles('Customer'),PlaceOrder);
 router.get('/vieworders',authmiddlewares,authorizeRoles('Customer','Admin','Vendor'),getorders);
@@ -10,4 +10,5 @@ router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('vendor','
 
 // Cancel ko lagi
 router.put('/cancel/:orderId', authmiddlewares, authorizeRoles('Customer', 'admin', 'Admin'), CancelOrder);
+router.get('/getOrderCount',getOrderCount);
 module.exports=router;
