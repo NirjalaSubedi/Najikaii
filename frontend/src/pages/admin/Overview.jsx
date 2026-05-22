@@ -19,17 +19,33 @@ const Overview = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:5000/api/auth/getUserCount', { withCredentials: true });
-                if (response.data.success) {
-                    const serverData = response.data.data;
-                    setCounts(prevState => ({
-                        ...prevState,
-                        total: serverData.total || 0,
-                        customers: serverData.customers || 0,
-                        vendors: serverData.vendors || 0,
-                        pendingVendors: serverData.pendingVendors || 0 
-                    }));
+                const [usersResponse, ordersResponse] = await Promise.all([
+                    axios.get('http://localhost:5000/api/auth/getUserCount', { withCredentials: true }),
+                    axios.get('http://localhost:5000/api/order/getOrderCount', { withCredentials: true })
+                ]);
+
+                // Auth Data Mapping Check
+                let userData = {};
+                if (usersResponse.data && usersResponse.data.success) {
+                    userData = usersResponse.data.data;
                 }
+
+                // Order Data Mapping Check
+                let orderCountFromApi = 0;
+                if (ordersResponse.data && ordersResponse.data.success) {
+                    orderCountFromApi = ordersResponse.data.totalOrders;
+                }
+
+                // State Updates
+                setCounts(prevState => ({
+                    ...prevState,
+                    total: userData.total || 0,
+                    customers: userData.customers || 0,
+                    vendors: userData.vendors || 0,
+                    pendingVendors: userData.pendingVendors || 0,
+                    totalOrders: orderCountFromApi || 0 
+                }));
+
             } catch (err) {
                 console.error("Dashboard engine failed to stream analytics dataset values:", err);
             } finally {
@@ -51,6 +67,7 @@ const Overview = () => {
 
     return (
         <div className="w-full space-y-8 px-0.5 animate-fadeIn">
+            {/* Top 4 Metrics Row Blocks */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
                     { t: "Total Users", c: counts.total, i: <Users className="text-blue-500" size={22} />, bg: "bg-blue-50/70" },
