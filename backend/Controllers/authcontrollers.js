@@ -253,27 +253,52 @@ exports.GetMyProfileInfo= async (req,res)=>{
 }
 
 //display all user info in admin pannel
-exports.getAllUserInfo = async (req,res)=>{
-    try{
-        if(req.user.role !== 'Admin'){
+exports.getAllUserInfo = async (req, res) => {
+    try {
+        if (req.user.role !== 'Admin') {
             return res.status(403).json({
-                success:false,
-                message:"all user display access admin saga matraii xa "
-            })
+                success: false,
+                message: "all user display access admin saga matraii xa "
+            });
         }
-        const userinfo= await user.find({})
-        res.status(200).json({
-            success:true,
-            data:userinfo
-        })
-    }catch(error){
-        res.status(500).json({
-            success:false,
-            message:error.message
-        })
-    }
-}
 
+        const userinfo = await user.aggregate([
+            {
+                $match: { role: { $regex: /customer/i } }
+            },
+            {
+                $lookup: {
+                    from: "orders",        
+                    localField: "_id",  
+                    foreignField: "customer",
+                    as: "customerOrders"
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    email: 1,
+                    PhoneNumber: 1,
+                    status: 1,
+                    role: 1,
+                    totalOrders: { $size: "$customerOrders" },
+                    totalSpent: { $sum: "$customerOrders.totalAmount" }
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: userinfo
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 // Admin le Vendor ko status update garne (Approved ya Rejected)
 exports.updateVendorStatus = async (req, res) => {
     try {
