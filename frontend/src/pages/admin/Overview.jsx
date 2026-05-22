@@ -13,30 +13,38 @@ const Overview = () => {
         vendorPayouts: 0,  
         adminCommission: 0 
     });
+    
+    const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const [usersResponse, ordersResponse] = await Promise.all([
+                
+                const [usersResponse, ordersResponse, recentResponse] = await Promise.all([
                     axios.get('http://localhost:5000/api/auth/getUserCount', { withCredentials: true }),
-                    axios.get('http://localhost:5000/api/order/getOrderCount', { withCredentials: true })
+                    axios.get('http://localhost:5000/api/order/getOrderCount', { withCredentials: true }),
+                    axios.get('http://localhost:5000/api/order/getRecentOrders', { withCredentials: true })
                 ]);
 
-                // Auth Data Mapping Check
+                //Auth Users Data Mapping
                 let userData = {};
                 if (usersResponse.data && usersResponse.data.success) {
                     userData = usersResponse.data.data;
                 }
 
-                // Order Data Mapping Check
+                //Total Order Document Count Analytics mapping
                 let orderCountFromApi = 0;
                 if (ordersResponse.data && ordersResponse.data.success) {
                     orderCountFromApi = ordersResponse.data.totalOrders;
                 }
 
-                // State Updates
+                //Recent 4 Orders Mapping arrays handler
+                if (recentResponse.data && recentResponse.data.success) {
+                    setRecentOrders(recentResponse.data.orders || []);
+                }
+
                 setCounts(prevState => ({
                     ...prevState,
                     total: userData.total || 0,
@@ -55,6 +63,13 @@ const Overview = () => {
 
         fetchDashboardData();
     }, []);
+
+    const getStatusStyles = (status) => {
+        const checkStatus = status ? status.toLowerCase() : 'pending';
+        if (checkStatus === 'delivered') return 'bg-green-50 text-green-600 border-green-100';
+        if (checkStatus === 'processing' || checkStatus === 'shipped') return 'bg-blue-50 text-blue-600 border-blue-100';
+        return 'bg-amber-50 text-amber-600 border-amber-100';
+    };
 
     if (loading) {
         return (
@@ -106,7 +121,7 @@ const Overview = () => {
             {/* Action Required Banner Notification Structure */}
             <div className="bg-amber-50/40 border border-amber-100 rounded-2xl p-4.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm shadow-amber-50/50">
                 <div className="flex items-center gap-3.5">
-                    <span><Store className="text-green-500" size={28} /></span>
+                    <span><Store className="text-amber-500" size={28} /></span>
                     <div>
                         <h4 className="text-sm font-bold text-gray-800">{counts.pendingVendors} Vendors Awaiting Approval</h4>
                         <p className="text-xs text-gray-400 mt-0.5">Review and approve or reject pending local vendor applications.</p>
@@ -115,6 +130,45 @@ const Overview = () => {
                 <button className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-amber-100 transition-all shrink-0 w-full sm:w-auto">
                     Review Now
                 </button>
+            </div>
+
+            {/*RECENT 4 ORDERS LIST LAYOUT*/}
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-5">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-base font-bold text-gray-900">Recent Orders</h3>
+                    <button className="text-xs font-bold text-red-500 hover:text-red-600 transition-colors">
+                        View All
+                    </button>
+                </div>
+
+                <div className="divide-y divide-gray-50">
+                    {recentOrders.length > 0 ? (
+                        recentOrders.map((order, idx) => (
+                            <div key={order._id || idx} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-bold text-gray-900">
+                                        ORD-{String(idx + 1).padStart(3, '0')}
+                                    </h4>
+                                    <p className="text-xs text-gray-400 font-medium">
+                                        {order.customer?.name || "Unknown Customer"} • {order.items?.[0]?.product?.name || "Product Item"}{order.items?.length > 1 ? ` +${order.items.length - 1} more` : ''}
+                                    </p>
+                                </div>
+                                <div className="text-right space-y-1.5">
+                                    <span className="text-sm font-black text-gray-900 block">
+                                        Rs. {(order.totalAmount || 0).toLocaleString()}
+                                    </span>
+                                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusStyles(order.status)}`}>
+                                        {order.status || 'pending'}
+                                    </span>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-6 text-xs font-medium text-gray-400">
+                            Kunai pani order bhetiyena.
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
