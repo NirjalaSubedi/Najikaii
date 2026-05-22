@@ -287,11 +287,21 @@ exports.getOrderCount = async (req, res) => {
 
 exports.getRecentOrders = async(req,res)=>{
     try{
+        const recentorders = await Order.find({})
+        .sort({ createdAt: -1 })
+            .limit(4)    
+            .populate('customer', 'name')
+            .populate('items.product', 'name');
+        return res.status(200).json({
+            success: true,
+            orders: recentOrders
+        });
 
     }catch(error){
         res.status(500).json({
             success:false,
-            message:"can't phase recent order"
+            message:"can't phase recent order",
+            error:error.message
         })
     }
 }
