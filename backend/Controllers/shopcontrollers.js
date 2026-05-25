@@ -1,4 +1,5 @@
-const User = require('../models/UserModels'); // UserModels.js लाई सही path बाट import गरेको
+const User = require('../models/UserModels'); 
+const Product = require('../models/ProductModels');
 
 exports.viewAllShops = async (req, res) => {
     try {
@@ -24,12 +25,24 @@ exports.viewAllShops = async (req, res) => {
 
 exports.getAllShopsForAdmin = async (req, res) => {
     try {
-        const vendors = await User.find({ role: 'Vendor' }).sort({ createdAt: -1 });
+        const vendors = await User.find({ role: 'Vendor' }).sort({ createdAt: -1 }).lean(); 
+
+        const vendorsWithStats = await Promise.all(
+            vendors.map(async (vendor) => {
+                const productCount = await Product.countDocuments({ vendor: vendor._id });
+                
+                return {
+                    ...vendor,
+                    totalProducts: productCount,
+                    totalRevenue: 0 
+                };
+            })
+        );
         
         return res.status(200).json({
             success: true,
-            count: vendors.length,
-            data: vendors
+            count: vendorsWithStats.length,
+            data: vendorsWithStats
         });
     } catch (error) {
         return res.status(500).json({
@@ -39,3 +52,6 @@ exports.getAllShopsForAdmin = async (req, res) => {
         });
     }
 };
+
+
+
