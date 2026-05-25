@@ -1,56 +1,54 @@
-const product = require ('../models/ProductModels');
+const product = require('../models/ProductModels');
 
-//for adding new product
-exports.Addproduct= async (req,res)=>{
-    try{
-        const{name, description, price, category, unitType, stock, image}=req.body;
-        const newProduct= new product({
-            vendor:req.user.id,
+// for adding new product
+exports.Addproduct = async (req, res) => {
+    try {
+        const { name, description, actualPrice, sellingPrice, category, unitType, stock, image } = req.body;
+        
+        const newProduct = new product({
+            vendor: req.user.id,
             name,
             description,
-            price,
+            actualPrice,   
+            sellingPrice,  
             category,
             unitType,
             stock,
             image
-        })
+        });
 
-        //saving it in database
         await newProduct.save();
         
         res.status(201).json({
-            success:true,
-            message:"Product successdully database ma create vayo",
-            product:newProduct
-        })
-    }catch(error){
+            success: true,
+            message: "Product successfully database ma create vayo",
+            product: newProduct
+        });
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
-        })
+            success: false,
+            message: error.message
+        });
     }
-}
+};
 
-//displaying only my product 
-exports.getmyProduct= async(req,res)=>{
-    try{
-        //searching only the logedin user product from database
-        const products = await product.find({vendor:req.user.id});
+exports.getmyProduct = async (req, res) => {
+    try {
+        const products = await product.find({ vendor: req.user.id });
         res.status(200).json({
-            success:true,
-            message:"logedin vendor ko registerd product haru",
+            success: true,
+            message: "logedin vendor ko registerd product haru",
             products
-        })
-    }catch(error){
+        });
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
-        })
-
+            success: false,
+            message: error.message
+        });
     }
-}
+};
 
-//displaying all product 
+// displaying all product 
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await product.find().populate('vendor', 'name email shopName');
@@ -68,16 +66,16 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
-//only product owner can upadte product
-exports.updateProducts = async (req,res)=>{
-    try{
-        //taking product id from URL
-        let productdata= await product.findById(req.params.id);
-        if(!productdata){
+// only product owner can update product
+exports.updateProducts = async (req, res) => {
+    try {
+        // taking product id from URL
+        let productdata = await product.findById(req.params.id);
+        if (!productdata) {
             return res.status(404).json({
-                success:false,
-                message:"product update garna ko lagi id milena"
-            })
+                success: false,
+                message: "product update garna ko lagi id milena"
+            });
         }
 
         if (productdata.vendor.toString() !== req.user.id) {
@@ -87,10 +85,9 @@ exports.updateProducts = async (req,res)=>{
             });
         }
 
-        //when we get the product id to update
         productdata = await product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true, // Naya updated data return garna
-            runValidators: true // Model ko validation check garna
+            new: true, 
+            runValidators: true 
         });
 
         res.status(200).json({
@@ -99,46 +96,44 @@ exports.updateProducts = async (req,res)=>{
             product: productdata
         });
 
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
-        })
+            success: false,
+            message: error.message
+        });
     }
-}
+};
 
-//deleting products
-exports.deleteProduct = async (req,res)=>{
-    try{
-        const productdata= await product.findById(req.params.id);
-        if(!productdata){
+// deleting products
+exports.deleteProduct = async (req, res) => {
+    try {
+        const productdata = await product.findById(req.params.id);
+        if (!productdata) {
             return res.status(404).json({
-                success:false,
-                message:"delete garna ko lagi product vetiyana"
-            
-            })
+                success: false,
+                message: "delete garna ko lagi product vetiyana"
+            });
         }
-        const isAdmin= req.user.role === 'Admin';
+        const isAdmin = req.user.role === 'Admin';
         const isOwner = productdata.vendor.toString() === req.user.id;
 
-        if(!isAdmin && !isOwner){
+        if (!isAdmin && !isOwner) {
             return res.status(403).json({
-                success:false,
-                message:"Timi saga yo product delete garne authorization xaiina"
-            })
+                success: false,
+                message: "Timi saga yo product delete garne authorization xaiina"
+            });
         }
 
         await product.findByIdAndDelete(req.params.id);
 
         res.status(200).json({
-            success:true,
-            message:isAdmin?"Admin le product delete gardiyo !": "Vendor le aafnu product delete garo"
-        })
-    }catch(error){
+            success: true,
+            message: isAdmin ? "Admin le product delete gardiyo !" : "Vendor le aafnu product delete garo"
+        });
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
-        })
+            success: false,
+            message: error.message
+        });
     }
-}
-
+};
