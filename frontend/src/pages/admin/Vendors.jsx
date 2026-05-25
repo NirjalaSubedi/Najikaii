@@ -145,11 +145,13 @@ const Vendors = () => {
                                 <div className="flex items-center justify-between md:justify-end gap-8 text-right bg-gray-50/50 border border-gray-100 px-5 py-3 rounded-xl md:bg-transparent md:border-none md:p-0">
                                     <div className="text-left md:text-right">
                                         <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Revenue</span>
-                                        <span className="text-sm font-black text-gray-900">Rs. 0</span> {/* Default placeholders for now */}
+                                        <span className="text-sm font-black text-gray-900">Rs. {vendor.totalRevenue || 0}</span> 
                                     </div>
                                     <div>
                                         <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-wider text-center md:text-right">Products</span>
-                                        <span className="block text-xs font-bold text-gray-600 text-center md:text-right">0 products</span>
+                                        <span className="block text-xs font-bold text-gray-600 text-center md:text-right">
+                                                {vendor.totalProducts || 0} products
+                                        </span>
                                     </div>
                                 </div>
                             </div>
