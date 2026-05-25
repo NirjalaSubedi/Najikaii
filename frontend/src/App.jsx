@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AdminLayout from "./components/AdminLayout";
 import Overview from "./pages/admin/Overview";
 import Users from "./pages/admin/Users";
+import Vendors from "./pages/admin/Vendors";
 
 function App() {
   return (
@@ -28,6 +29,8 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Overview />} />
             <Route path="Users" element={<Users/>}/>
+            <Route path="Vendors" element={<Vendors/>}/>
+
           </Route>
 
       </Routes>
