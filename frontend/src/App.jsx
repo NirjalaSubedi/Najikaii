@@ -14,6 +14,7 @@ import Overview from "./pages/admin/Overview";
 import Users from "./pages/admin/Users";
 import Vendors from "./pages/admin/Vendors";
 import Products from "./pages/admin/Products";
+import Orders from "./pages/admin/Orders";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="Users" element={<Users/>}/>
             <Route path="Vendors" element={<Vendors/>}/>
             <Route path="Products" element={<Products/>}/>
+            <Route path="Orders" element={<Orders/>}/>
 
           </Route>
 

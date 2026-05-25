@@ -147,7 +147,7 @@ const Overview = () => {
                             <div key={order._id || idx} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
                                 <div className="space-y-1">
                                     <h4 className="text-sm font-bold text-gray-900">
-                                        ORD-{String(idx + 1).padStart(3, '0')}
+                                        ORD-{String(order._id).slice(-3).toUpperCase()}
                                     </h4>
                                     <p className="text-xs text-gray-400 font-medium">
                                         {order.customer?.name || "Unknown Customer"} • {order.items?.[0]?.product?.name || "Product Item"}{order.items?.length > 1 ? ` +${order.items.length - 1} more` : ''}
