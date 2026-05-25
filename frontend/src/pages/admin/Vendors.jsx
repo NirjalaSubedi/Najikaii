@@ -7,9 +7,9 @@ const Vendors = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [filterTab, setFilterTab] = useState("all");
-    const [actionLoading, setActionLoading] = useState(null); // कुन vendorId लोड हुँदैछ ट्र्याक गर्न
+    const [actionLoading, setActionLoading] = useState(null);
 
-    // 1. Fetch All Vendors Registry Data
+    //Fetch All Vendors Registry Data
     const fetchVendors = async () => {
         try {
             setLoading(true);
@@ -39,7 +39,6 @@ const Vendors = () => {
         fetchVendors();
     }, []);
 
-    // 2. Handle Status Actions (Approve / Reject Pipeline)
     const handleStatusUpdate = async (vendorId, newStatus) => {
         try {
             setActionLoading(vendorId);

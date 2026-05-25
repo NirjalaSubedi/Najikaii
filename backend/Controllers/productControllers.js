@@ -53,7 +53,7 @@ exports.getmyProduct= async(req,res)=>{
 //displaying all product 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await product.find().populate('vendor', 'name email');
+        const products = await product.find().populate('vendor', 'name email shopName');
 
         res.status(200).json({
             success: true,

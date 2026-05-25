@@ -13,6 +13,7 @@ import AdminLayout from "./components/AdminLayout";
 import Overview from "./pages/admin/Overview";
 import Users from "./pages/admin/Users";
 import Vendors from "./pages/admin/Vendors";
+import Products from "./pages/admin/Products";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="dashboard" element={<Overview />} />
             <Route path="Users" element={<Users/>}/>
             <Route path="Vendors" element={<Vendors/>}/>
+            <Route path="Products" element={<Products/>}/>
 
           </Route>
 
