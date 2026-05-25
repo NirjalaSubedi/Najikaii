@@ -1,41 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Loader2, Store, MapPin, Calendar, Phone, Mail } from 'lucide-react';
+import { Loader2, Store, MapPin, Calendar, Phone, Mail, Check, X } from 'lucide-react';
 
 const Vendors = () => {
     const [vendorsList, setVendorsList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [filterTab, setFilterTab] = useState("all");
+    const [actionLoading, setActionLoading] = useState(null); // कुन vendorId लोड हुँदैछ ट्र्याक गर्न
+
+    // 1. Fetch All Vendors Registry Data
+    const fetchVendors = async () => {
+        try {
+            setLoading(true);
+            setError("");
+            const token = localStorage.getItem('token'); 
+
+            const response = await axios.get('http://localhost:5000/api/shops/getAllShopsForAdmin', { 
+                withCredentials: true,
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.data && response.data.success) {
+                setVendorsList(response.data.data);
+            }
+        } catch (err) {
+            console.error("Admin vendor listing grid load failed:", err);
+            setError(err.response?.data?.message || "Failed to fetch Najikai vendor directory.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchVendors = async () => {
-            try {
-                setLoading(true);
-                setError("");
-                
-                const token = localStorage.getItem('token'); 
+        fetchVendors();
+    }, []);
 
-                const response = await axios.get('http://localhost:5000/api/shops/getAllShopsForAdmin', { 
+    // 2. Handle Status Actions (Approve / Reject Pipeline)
+    const handleStatusUpdate = async (vendorId, newStatus) => {
+        try {
+            setActionLoading(vendorId);
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`http://localhost:5000/api/auth/approve-vendor/${vendorId}`, 
+                { status: newStatus },
+                {
                     withCredentials: true,
                     headers: {
                         'Authorization': token ? `Bearer ${token}` : '',
                         'Content-Type': 'application/json'
                     }
-                });
-                
-                if (response.data && response.data.success) {
-                    setVendorsList(response.data.data);
                 }
-            } catch (err) {
-                console.error("Admin vendor listing grid load failed:", err);
-                setError(err.response?.data?.message || "Failed to fetch Najikai vendor directory.");
-            } finally {
-                setLoading(false);
+            );
+
+            if (response.data && response.data.success) {
+                setVendorsList(prevList => 
+                    prevList.map(vendor => 
+                        vendor._id === vendorId ? { ...vendor, status: newStatus } : vendor
+                    )
+                );
             }
-        };
-        fetchVendors();
-    }, []);
+        } catch (err) {
+            console.error("Status update garna compounded error:", err);
+            alert(err.response?.data?.message || `Failed to change status to ${newStatus}`);
+        } finally {
+            setActionLoading(null);
+        }
+    };
 
     const filteredVendors = vendorsList.filter(vendor => {
         if (filterTab === "all") return true;
@@ -56,7 +89,7 @@ const Vendors = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Vendors</h2>
+                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Manage Vendors</h2>
                     <p className="text-xs text-gray-400 font-medium mt-0.5">Najikai Admin Dashboard Store Registrations Directory</p>
                 </div>
 
@@ -78,7 +111,6 @@ const Vendors = () => {
                 </div>
             </div>
 
-            {/* Error Message Layout */}
             {error && (
                 <div className="p-4 bg-red-50 text-red-600 border border-red-100 rounded-2xl text-xs font-semibold">
                     Error trace mapping target: {error}
@@ -104,10 +136,9 @@ const Vendors = () => {
                                     
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            {/* Shop Name Display */}
                                             <h3 className="text-sm font-black text-gray-900">{vendor.shopName || "Unnamed Store"}</h3>
                                             
-                                            {/* Status Badge डिस्प्ले */}
+                                            {/* Status Badge */}
                                             <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
                                                 String(vendor.status).toLowerCase() === 'approved' 
                                                     ? 'bg-green-50 text-green-600 border-green-100' 
@@ -141,20 +172,45 @@ const Vendors = () => {
                                     </div>
                                 </div>
 
-                                {/* Revenue & Static Multi-Vendor Counters Grid Right Segment */}
+                                {/* Revenue & Products Segment */}
                                 <div className="flex items-center justify-between md:justify-end gap-8 text-right bg-gray-50/50 border border-gray-100 px-5 py-3 rounded-xl md:bg-transparent md:border-none md:p-0">
                                     <div className="text-left md:text-right">
                                         <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Revenue</span>
-                                        <span className="text-sm font-black text-gray-900">Rs. {vendor.totalRevenue || 0}</span> 
+                                        <span className="text-sm font-black text-gray-900">Rs. {vendor.totalRevenue || 0}</span>
                                     </div>
                                     <div>
                                         <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-wider text-center md:text-right">Products</span>
-                                        <span className="block text-xs font-bold text-gray-600 text-center md:text-right">
-                                                {vendor.totalProducts || 0} products
-                                        </span>
+                                        <span className="block text-xs font-bold text-gray-600 text-center md:text-right">{vendor.totalProducts || 0} products</span>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* 3. CONDITIONAL ACTION BUTTONS FOR PENDING VENDORS ONLY */}
+                            {String(vendor.status).toLowerCase() === 'pending' && (
+                                <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-gray-100/70 w-full">
+                                    <button
+                                        disabled={actionLoading === vendor._id}
+                                        onClick={() => handleStatusUpdate(vendor._id, 'Approved')}
+                                        className="w-full sm:flex-1 h-10 rounded-xl bg-[#00B56A] hover:bg-[#009e5c] text-white text-xs font-bold transition-all shadow-sm shadow-emerald-100 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                    >
+                                        {actionLoading === vendor._id ? (
+                                            <Loader2 size={15} className="animate-spin" />
+                                        ) : (
+                                            <>
+                                                Approve Vendor
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        disabled={actionLoading === vendor._id}
+                                        onClick={() => handleStatusUpdate(vendor._id, 'Rejected')}
+                                        className="w-full sm:flex-1 h-10 rounded-xl bg-red-50 hover:bg-red-100/80 border border-red-100 text-red-600 text-xs font-bold transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     ))
                 ) : (
