@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const {getNearbyShops} = require('../Controllers/authcontrollers');
-const {viewAllShops} = require('../Controllers/shopcontrollers');
+const {viewAllShops,getAllShopsForAdmin} = require('../Controllers/shopcontrollers');
+const { authmiddlewares } = require('../middlewares/authmiddlewares');
 
 router.get('/getNearbyShops', getNearbyShops);
 router.get('/viewallshops',viewAllShops);
-
+router.get('/getAllShopsForAdmin',authmiddlewares,getAllShopsForAdmin);
 
 router.post('/save-location', (req, res) => {
     const { latitude, longitude } = req.body;
