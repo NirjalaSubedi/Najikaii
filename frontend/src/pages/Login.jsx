@@ -19,6 +19,17 @@ const Login = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+    const handleRoleBasedRedirect = (userObj) => {
+        const userRole = userObj?.role;
+
+        if (userRole === 'Admin') {
+            navigate('/admin/dashboard'); 
+        } else if (userRole === 'Vendor') {
+            navigate('/vendor/dashboard');
+        } else {
+            navigate('/'); 
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,13 +41,11 @@ const Login = () => {
             if (res.data.success) {
                 toast.success("Login Successful!");
                 
-                //Data store garne local storage ma
                 localStorage.setItem('token', res.data.token);
                 localStorage.setItem('user', JSON.stringify(res.data.user));
 
-                //1.5 seconds delayed navigation daxu jasma toast safely render huna paucha
                 setTimeout(() => {
-                    navigate('/');
+                    handleRoleBasedRedirect(res.data.user);
                 }, 1500);
             }
         } catch (err) {
@@ -61,7 +70,8 @@ const Login = () => {
                 localStorage.setItem('user', JSON.stringify(res.data.user));
                 
                 setTimeout(() => {
-                    navigate('/');
+                    // Google login ko runtime matching dynamic separation route parameters pass check
+                    handleRoleBasedRedirect(res.data.user);
                 }, 1500);
             }
         } catch (error) {
@@ -167,7 +177,7 @@ const Login = () => {
                             useOneTap
                             theme="outline"
                             size="large"
-                            width="380" // strict percentage trigger skip block string number representation form
+                            width="380"
                         />
                     </div>
 

@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import AdminLayout from "./components/AdminLayout";
 import Overview from "./pages/admin/Overview";
+import Users from "./pages/admin/Users";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
       
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Overview />} />
+            <Route path="Users" element={<Users/>}/>
           </Route>
 
       </Routes>
