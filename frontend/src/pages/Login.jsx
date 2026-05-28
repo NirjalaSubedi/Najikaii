@@ -70,7 +70,6 @@ const Login = () => {
                 localStorage.setItem('user', JSON.stringify(res.data.user));
                 
                 setTimeout(() => {
-                    // Google login ko runtime matching dynamic separation route parameters pass check
                     handleRoleBasedRedirect(res.data.user);
                 }, 1500);
             }
