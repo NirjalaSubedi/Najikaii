@@ -51,13 +51,80 @@ exports.getmyProduct = async (req, res) => {
 // displaying all product 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await product.find().populate('vendor', 'name email shopName');
+        const { lat, lng, sort } = req.query;
+
+        if (!lat || !lng) {
+            const products = await product.find().populate('vendor', 'name email shopName');
+            return res.status(200).json({
+                success: true,
+                count: products.length,
+                products
+            });
+        }
+
+        const userLat = parseFloat(lat);
+        const userLng = parseFloat(lng);
+
+        let pipeline = [
+            {
+                $geoNear: {
+                    near: { type: "Point", coordinates: [userLng, userLat] },
+                    distanceField: "distance",
+                    distanceMultiplier: 0.001,
+                    spherical: true
+                }
+            },
+            {
+                $lookup: {
+                    from: "vendors",
+                    localField: "vendor",
+                    foreignField: "_id",
+                    as: "vendorDetails"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$vendorDetails",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    description: 1,
+                    actualPrice: 1,
+                    sellingPrice: 1,
+                    category: 1,
+                    unitType: 1,
+                    stock: 1,
+                    image: 1,
+                    distance: 1,
+                    vendor: {
+                        _id: "$vendorDetails._id",
+                        name: "$vendorDetails.name",
+                        email: "$vendorDetails.email",
+                        shopName: "$vendorDetails.shopName"
+                    }
+                }
+            }
+        ];
+
+        if (sort === "Price: Low→High") {
+            pipeline.push({ $sort: { sellingPrice: 1 } });
+        } else if (sort === "Price: High→Low") {
+            pipeline.push({ $sort: { sellingPrice: -1 } });
+        } else {
+            pipeline.push({ $sort: { distance: 1 } });
+        }
+
+        const products = await product.aggregate(pipeline);
 
         res.status(200).json({
             success: true,
             count: products.length,
             products
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
