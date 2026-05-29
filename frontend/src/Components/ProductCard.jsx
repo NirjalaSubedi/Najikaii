@@ -16,6 +16,16 @@ const ProductCard = ({product})=>{
     vendor = {}
   } = product;
 
+  const calculatedDiscount = discountPercentage 
+    ? discountPercentage 
+    : (actualPrice && actualPrice > sellingPrice) 
+      ? Math.round(((actualPrice - sellingPrice) / actualPrice) * 100) 
+      : null;
+
+  const isOutOfStock = stock <= 0;
+
+  
+
     return(
         <>
         </>
