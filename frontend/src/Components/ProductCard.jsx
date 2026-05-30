@@ -1,5 +1,5 @@
 import React from 'react';
-import {heart,star,plus} from 'lucide-react';
+import {Heart,Star,Plus} from 'lucide-react';
 const ProductCard = ({product})=>{
     if(!product)return null;
 
@@ -24,11 +24,103 @@ const ProductCard = ({product})=>{
 
   const isOutOfStock = stock <= 0;
 
-  
-
     return(
-        <>
-        </>
-    )
+    <div className="group relative bg-white rounded-3xl border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden p-3 min-h-[360px]">
+      
+      {/* Visual Image Segment Asset Node */}
+      <div className="relative w-full h-44 bg-gray-50 rounded-2xl overflow-hidden mb-3">
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex items-center justify-center">
+            <span className="bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full shadow-md">
+              Out of Stock
+            </span>
+          </div>
+        )}
+
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5 items-start">
+          {isFastDelivery && !isOutOfStock && (
+            <span className="bg-[#00B56A] text-white text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
+              ⚡ Fast
+            </span>
+          )}
+          {calculatedDiscount > 0 && !isOutOfStock && (
+            <span className="bg-[#FF4D4F] text-white text-[11px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+              -{calculatedDiscount}%
+            </span>
+          )}
+        </div>
+
+        <button className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-gray-400 hover:text-red-500 transition-all duration-200">
+          <Heart size={16} />
+        </button>
+
+        <img
+          src={image}
+          alt={name}
+          className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[40%]' : ''}`}
+          loading="lazy"
+        />
+      </div>
+
+      {/* Meta Properties Specs Box */}
+      <div className="flex-1 flex flex-col justify-between px-1">
+        <div>
+          <div className="flex items-center justify-between text-[11px] font-bold text-gray-400">
+            <span className="truncate max-w-[120px] hover:text-[#00B56A] cursor-pointer">
+              🏠 {vendor?.shopName || "Najikai Shop Owner"}
+            </span>
+            {/* Live Distance Tag Render Integration */}
+            <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-extrabold">
+              📍 {distance !== undefined ? `${distance.toFixed(1)} km` : "0.8 km"}
+            </span>
+          </div>
+
+          <h3 className="text-sm font-bold text-gray-800 mt-1.5 line-clamp-2 tracking-tight group-hover:text-[#00B56A] transition-colors duration-200">
+            {name}
+          </h3>
+
+          <div className="flex items-center gap-1 mt-1">
+            <div className="flex items-center text-amber-400">
+              <Star size={12} className="fill-current" />
+            </div>
+            <span className="text-xs font-bold text-gray-700">4.5</span>
+            <span className="text-[10px] text-gray-400 font-semibold">(45)</span>
+            <span className="text-gray-300 text-[10px]">•</span>
+            <span className="text-[10px] font-bold text-gray-400">{unitType}</span>
+          </div>
+        </div>
+
+        {/* Pricing Segment Controls */}
+        <div className="flex items-center justify-between mt-4 pt-1 border-t border-gray-50">
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-black text-gray-900 tracking-tight">
+                Rs. {sellingPrice}
+              </span>
+              {actualPrice && actualPrice > sellingPrice && (
+                <span className="text-xs font-medium text-gray-400 line-through decoration-gray-300">
+                  Rs. {actualPrice}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <button 
+            disabled={isOutOfStock}
+            className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 ${
+              isOutOfStock 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-[#00B56A] hover:bg-[#009E5B] text-white'
+            }`}
+          >
+            <Plus size={14} strokeWidth={3} />
+            <span>Add</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  );
+
 }
 export default ProductCard;
