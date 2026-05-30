@@ -1,5 +1,16 @@
 const product = require('../models/ProductModels');
 
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+
 // for adding new product
 exports.Addproduct = async (req, res) => {
     try {
@@ -64,65 +75,40 @@ exports.getAllProducts = async (req, res) => {
 
         const userLat = parseFloat(lat);
         const userLng = parseFloat(lng);
+        const products = await product.find().populate('vendor', 'name email shopName location');
 
-        let pipeline = [
-            {
-                $geoNear: {
-                    near: { type: "Point", coordinates: [userLng, userLat] },
-                    distanceField: "distance",
-                    distanceMultiplier: 0.001,
-                    spherical: true
-                }
-            },
-            {
-                $lookup: {
-                    from: "vendors",
-                    localField: "vendor",
-                    foreignField: "_id",
-                    as: "vendorDetails"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$vendorDetails",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    name: 1,
-                    description: 1,
-                    actualPrice: 1,
-                    sellingPrice: 1,
-                    category: 1,
-                    unitType: 1,
-                    stock: 1,
-                    image: 1,
-                    distance: 1,
-                    vendor: {
-                        _id: "$vendorDetails._id",
-                        name: "$vendorDetails.name",
-                        email: "$vendorDetails.email",
-                        shopName: "$vendorDetails.shopName"
-                    }
-                }
+        const productsWithDistance = products.map((item) => {
+            const productData = item.toObject();
+            const vendorCoords = productData.vendor?.location?.coordinates;
+
+            if (Array.isArray(vendorCoords) && vendorCoords.length === 2) {
+                productData.distance = calculateDistance(
+                    userLat,
+                    userLng,
+                    vendorCoords[1],
+                    vendorCoords[0]
+                );
+            } else {
+                productData.distance = Number.POSITIVE_INFINITY;
             }
-        ];
+
+            return productData;
+        });
 
         if (sort === "Price: Low→High") {
-            pipeline.push({ $sort: { sellingPrice: 1 } });
+            productsWithDistance.sort((a, b) => (a.sellingPrice ?? a.actualPrice ?? 0) - (b.sellingPrice ?? b.actualPrice ?? 0));
         } else if (sort === "Price: High→Low") {
-            pipeline.push({ $sort: { sellingPrice: -1 } });
+            productsWithDistance.sort((a, b) => (b.sellingPrice ?? b.actualPrice ?? 0) - (a.sellingPrice ?? a.actualPrice ?? 0));
+        } else if (sort === "Top Rated") {
+            productsWithDistance.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         } else {
-            pipeline.push({ $sort: { distance: 1 } });
+            productsWithDistance.sort((a, b) => (a.distance ?? Number.POSITIVE_INFINITY) - (b.distance ?? Number.POSITIVE_INFINITY));
         }
-
-        const products = await product.aggregate(pipeline);
 
         res.status(200).json({
             success: true,
-            count: products.length,
-            products
+            count: productsWithDistance.length,
+            products: productsWithDistance
         });
 
     } catch (error) {
