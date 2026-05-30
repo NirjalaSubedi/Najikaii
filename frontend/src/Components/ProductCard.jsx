@@ -1,9 +1,10 @@
 import React from 'react';
-import {Heart,Star,Plus} from 'lucide-react';
-const ProductCard = ({product})=>{
-    if(!product)return null;
+import { Heart, Star, Plus, Zap, Store,MapPin } from 'lucide-react';
 
-    const {
+const ProductCard = ({ product }) => {
+  if (!product) return null;
+
+  const {
     name = "Unnamed Product",
     sellingPrice = 0,      
     actualPrice,          
@@ -24,10 +25,9 @@ const ProductCard = ({product})=>{
 
   const isOutOfStock = stock <= 0;
 
-    return(
+  return (
     <div className="group relative bg-white rounded-3xl border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden p-3 min-h-[360px]">
       
-      {/* Visual Image Segment Asset Node */}
       <div className="relative w-full h-44 bg-gray-50 rounded-2xl overflow-hidden mb-3">
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex items-center justify-center">
@@ -40,7 +40,8 @@ const ProductCard = ({product})=>{
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5 items-start">
           {isFastDelivery && !isOutOfStock && (
             <span className="bg-[#00B56A] text-white text-[10px] font-extrabold uppercase tracking-wide px-2 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
-              ⚡ Fast
+              <Zap size={10} className="fill-current text-white" />
+              <span>Fast</span>
             </span>
           )}
           {calculatedDiscount > 0 && !isOutOfStock && (
@@ -62,16 +63,16 @@ const ProductCard = ({product})=>{
         />
       </div>
 
-      {/* Meta Properties Specs Box */}
       <div className="flex-1 flex flex-col justify-between px-1">
         <div>
           <div className="flex items-center justify-between text-[11px] font-bold text-gray-400">
-            <span className="truncate max-w-[120px] hover:text-[#00B56A] cursor-pointer">
-              🏠 {vendor?.shopName || "Najikai Shop Owner"}
+            <span className="flex items-center gap-1 truncate max-w-[120px] hover:text-[#00B56A] cursor-pointer">
+              <Store size={13} className="text-gray-400" />
+              <span className="truncate">{vendor?.shopName || "Najikai Shop Owner"}</span>
             </span>
-            {/* Live Distance Tag Render Integration */}
+            
             <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-extrabold">
-              📍 {distance !== undefined ? `${distance.toFixed(1)} km` : "0.8 km"}
+              <MapPin size={10}/> {distance !== undefined ? `${distance.toFixed(1)} km` : "0.8 km"}
             </span>
           </div>
 
@@ -90,7 +91,6 @@ const ProductCard = ({product})=>{
           </div>
         </div>
 
-        {/* Pricing Segment Controls */}
         <div className="flex items-center justify-between mt-4 pt-1 border-t border-gray-50">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1.5">
@@ -121,6 +121,6 @@ const ProductCard = ({product})=>{
 
     </div>
   );
+};
 
-}
 export default ProductCard;
