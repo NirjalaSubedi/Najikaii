@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Star, Clock, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Star, Clock, MapPin, Loader2, AlertCircle, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const NearbyShops = ({ coords }) => {
@@ -14,7 +14,6 @@ const NearbyShops = ({ coords }) => {
   .slice(0, 4);
 
   useEffect(() => {
-    //if coords exist before fetching
     if (coords && coords.lat && coords.lng) {
       fetchNearbyShops();
     }
@@ -81,7 +80,7 @@ const NearbyShops = ({ coords }) => {
           processedShops.map((shop) => (
             <div 
               key={shop._id} 
-              className="group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-50"
+              className="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-50"
             >
               {/* Image Container */}
               <div className="relative h-48 overflow-hidden">
@@ -95,6 +94,17 @@ const NearbyShops = ({ coords }) => {
                   <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
                   {shop.distanceInKm ? `${shop.distanceInKm.toFixed(1)} km` : '0.5 km'}
                 </div>
+              </div>
+
+              {/* view shop button*/}
+              <div className='absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'>
+                  <Link 
+                    to={`/shop/${shop._id}`} 
+                    className="bg-white text-gray-900 px-5 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5 transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#00B56A] hover:text-white"
+                  >
+                    <Eye size={14} />
+                      View Shop
+                  </Link>
               </div>
 
               {/* Content */}
