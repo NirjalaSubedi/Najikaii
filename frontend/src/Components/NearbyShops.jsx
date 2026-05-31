@@ -89,15 +89,8 @@ const NearbyShops = ({ coords }) => {
                   alt={shop.shopName || shop.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                {/* Distance Badge */}
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
-                  <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
-                  {shop.distanceInKm ? `${shop.distanceInKm.toFixed(1)} km` : '0.5 km'}
-                </div>
-              </div>
-
-              {/* view shop button*/}
-              <div className='absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'>
+                {/* view shop button*/}
+                <div className='absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'>
                   <Link 
                     to={`/shop/${shop._id}`} 
                     className="bg-white text-gray-900 px-5 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5 transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#00B56A] hover:text-white"
@@ -105,7 +98,13 @@ const NearbyShops = ({ coords }) => {
                     <Eye size={14} />
                       View Shop
                   </Link>
-              </div>
+                </div>
+                {/* Distance Badge */}
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
+                  <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
+                  {shop.distanceInKm ? `${shop.distanceInKm.toFixed(1)} km` : '0.5 km'}
+                </div>
+              </div>              
 
               {/* Content */}
               <div className="p-5">
