@@ -2,14 +2,38 @@ import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { Loader2, SlidersHorizontal } from "lucide-react";
 import axios from "axios";
+import ProductDetailModal from "./ProductDetailModal";
 
 const ProductGrid = ({ coords }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSort, setActiveSort] = useState("Nearest First");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState("");
 
   const lat = coords?.lat;
   const lng = coords?.lng;
+
+  const fetchProductDetail = async (product) => {
+    const productId = product?._id || product?.id;
+    if (!productId) return;
+
+    setSelectedProduct(product);
+    setDetailLoading(true);
+    setDetailError("");
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/auth/product/${productId}`);
+      if (response.data?.success && response.data?.product) {
+        setSelectedProduct(response.data.product);
+      }
+    } catch (error) {
+      setDetailError(error.response?.data?.message || "Product details fetch garna sakiyena.");
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAllMarketplaceProducts = async () => {
@@ -79,7 +103,11 @@ const ProductGrid = ({ coords }) => {
       ) : products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {products.map((singleItem) => (
-            <ProductCard key={singleItem._id || singleItem.id} product={singleItem} />
+            <ProductCard
+              key={singleItem._id || singleItem.id}
+              product={singleItem}
+              onClick={fetchProductDetail}
+            />
           ))}
         </div>
       ) : (
@@ -87,6 +115,17 @@ const ProductGrid = ({ coords }) => {
           Product block collection available chaina current area radius vitra!
         </div>
       )}
+
+      <ProductDetailModal
+        product={selectedProduct}
+        loading={detailLoading}
+        error={detailError}
+        onClose={() => {
+          setSelectedProduct(null);
+          setDetailError("");
+          setDetailLoading(false);
+        }}
+      />
     </div>
   );
 };

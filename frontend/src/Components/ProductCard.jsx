@@ -2,7 +2,7 @@ import React from 'react';
 import { Heart, Star, Plus, Minus, Zap, Store, MapPin } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onClick }) => {
   const { cartItems, addToCart, removeFromCart } = useCart();
 
   if (!product) return null;
@@ -40,7 +40,18 @@ const ProductCard = ({ product }) => {
   const isOutOfStock = stock <= 0;
 
   return (
-    <div className="group relative bg-white rounded-3xl border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden p-3 min-h-[360px]">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onClick?.(product)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick?.(product);
+        }
+      }}
+      className="group relative bg-white rounded-3xl border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden p-3 min-h-90 cursor-pointer"
+    >
       
       <div className="relative w-full h-44 bg-gray-50 rounded-2xl overflow-hidden mb-3">
         {isOutOfStock && (
@@ -65,14 +76,18 @@ const ProductCard = ({ product }) => {
           )}
         </div>
 
-        <button className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-gray-400 hover:text-red-500 transition-all duration-200">
+        <button
+          type="button"
+          onClick={(event) => event.stopPropagation()}
+          className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-gray-400 hover:text-red-500 transition-all duration-200"
+        >
           <Heart size={16} />
         </button>
 
         <img
           src={image}
           alt={name}
-          className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[40%]' : ''}`}
+          className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-40' : ''}`}
           loading="lazy"
         />
       </div>
@@ -80,7 +95,7 @@ const ProductCard = ({ product }) => {
       <div className="flex-1 flex flex-col justify-between px-1">
         <div>
           <div className="flex items-center justify-between text-[11px] font-bold text-gray-400">
-            <span className="flex items-center gap-1 truncate max-w-[120px] hover:text-[#00B56A] cursor-pointer">
+            <span className="flex items-center gap-1 truncate max-w-30 hover:text-[#00B56A] cursor-pointer">
               <Store size={13} className="text-gray-400" />
               <span className="truncate">{vendor?.shopName || "Najikai Shop Owner"}</span>
             </span>
@@ -120,9 +135,13 @@ const ProductCard = ({ product }) => {
           </div>
 
           {currentQuantity > 0 ? (
-            <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 min-w-[90px] shadow-sm h-8">
+            <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 min-w-22.5 shadow-sm h-8">
               <button 
-                onClick={() => removeFromCart(currentProductKey)}
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  removeFromCart(currentProductKey);
+                }}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
               >
                 <Minus size={14} strokeWidth={3} />
@@ -133,7 +152,11 @@ const ProductCard = ({ product }) => {
               </span>
               
               <button 
-                onClick={() => addToCart(product)}
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  addToCart(product);
+                }}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
               >
                 <Plus size={14} strokeWidth={3} />
@@ -141,8 +164,12 @@ const ProductCard = ({ product }) => {
             </div>
           ) : (
             <button 
+              type="button"
               disabled={isOutOfStock}
-              onClick={() => addToCart(product)}
+              onClick={(event) => {
+                event.stopPropagation();
+                addToCart(product);
+              }}
               className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 h-8 ${
                 isOutOfStock 
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 

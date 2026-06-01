@@ -119,6 +119,29 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+exports.getProductById = async (req, res) => {
+    try {
+        const productData = await product.findById(req.params.id).populate('vendor', 'name email shopName location shopImage');
+
+        if (!productData) {
+            return res.status(404).json({
+                success: false,
+                message: "Product bhetiyena"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            product: productData
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 // only product owner can update product
 exports.updateProducts = async (req, res) => {
     try {
