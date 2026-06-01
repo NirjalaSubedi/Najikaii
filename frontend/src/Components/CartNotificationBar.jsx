@@ -5,9 +5,8 @@ import { useCart } from '../hooks/CartContext';
 
 const CartNotificationBar = () => {
   const { cartItems } = useCart();
-  const totalItems = cartItems.length;
+const totalItems = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);;
 
-  // Debugging log: Jaba thichxau, browser console ma dynamic count update aako chha ki nai check garna
   useEffect(() => {
     console.log("Cart change tracking triggered! Current total items:", totalItems);
   }, [cartItems, totalItems]);

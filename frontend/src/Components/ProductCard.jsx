@@ -1,13 +1,15 @@
 import React from 'react';
-import { Heart, Star, Plus, Zap, Store, MapPin } from 'lucide-react';
-import { useCart } from '../hooks/CartContext'; 
+import { Heart, Star, Plus, Minus, Zap, Store, MapPin } from 'lucide-react';
+import { useCart } from '../hooks/CartContext';
 
 const ProductCard = ({ product }) => {
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, removeFromCart } = useCart();
 
   if (!product) return null;
 
   const {
+    _id,
+    id,
     name = "Unnamed Product",
     sellingPrice = 0,      
     actualPrice,          
@@ -19,6 +21,15 @@ const ProductCard = ({ product }) => {
     stock = 0,
     vendor = {}
   } = product;
+
+  const currentProductKey = _id || id;
+  
+  const cartItem = cartItems.find((item) => {
+    const itemKey = item._id || item.id;
+    return String(itemKey) === String(currentProductKey);
+  });
+
+  const currentQuantity = cartItem ? cartItem.quantity : 0;
 
   const calculatedDiscount = discountPercentage 
     ? discountPercentage 
@@ -108,21 +119,41 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
 
-          <button 
-            disabled={isOutOfStock}
-            onClick={() => {
-              console.log("Card click system triggered for:", name);
-              addToCart(product);
-            }}
-            className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 ${
-              isOutOfStock 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                : 'bg-[#00B56A] hover:bg-[#009E5B] text-white'
-            }`}
-          >
-            <Plus size={14} strokeWidth={3} />
-            <span>Add</span>
-          </button>
+          {currentQuantity > 0 ? (
+            <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 min-w-[90px] shadow-sm h-8">
+              <button 
+                onClick={() => removeFromCart(currentProductKey)}
+                className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
+              >
+                <Minus size={14} strokeWidth={3} />
+              </button>
+              
+              <span className="text-xs font-black text-emerald-950 w-4 text-center">
+                {currentQuantity}
+              </span>
+              
+              <button 
+                onClick={() => addToCart(product)}
+                className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
+              >
+                <Plus size={14} strokeWidth={3} />
+              </button>
+            </div>
+          ) : (
+            <button 
+              disabled={isOutOfStock}
+              onClick={() => addToCart(product)}
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 h-8 ${
+                isOutOfStock 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  : 'bg-[#00B56A] hover:bg-[#009E5B] text-white'
+              }`}
+            >
+              <Plus size={14} strokeWidth={3} />
+              <span>Add</span>
+            </button>
+          )}
+
         </div>
       </div>
 
