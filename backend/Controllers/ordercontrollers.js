@@ -143,6 +143,73 @@ exports.PlaceOrder = async (req, res) => {
     }
 };
 
+exports.estimateOrder = async (req, res) => {
+    try {
+        const { productId, quantity = 1, customerCoords } = req.body;
+
+        if (!productId) {
+            return res.status(400).json({ success: false, message: "Product id pathaunus." });
+        }
+
+        if (!customerCoords || typeof customerCoords.lat !== 'number' || typeof customerCoords.lng !== 'number') {
+            return res.status(400).json({ success: false, message: "Customer location valid chhaina." });
+        }
+
+        const productData = await Product.findById(productId).populate('vendor', 'name shopName location');
+
+        if (!productData) {
+            return res.status(404).json({ success: false, message: "Product bhetiyena." });
+        }
+
+        const vendorCoords = productData.vendor?.location?.coordinates;
+        if (!Array.isArray(vendorCoords) || vendorCoords.length !== 2) {
+            return res.status(400).json({ success: false, message: "Vendor location bhetiyena." });
+        }
+
+        const distance = calculateDistance(
+            customerCoords.lat,
+            customerCoords.lng,
+            vendorCoords[1],
+            vendorCoords[0]
+        );
+
+        let deliveryCharge = 0;
+        if (distance <= 1) deliveryCharge = 0;
+        else if (distance <= 2) deliveryCharge = 10;
+        else if (distance <= 3) deliveryCharge = 20;
+        else if (distance <= 4) deliveryCharge = 30;
+        else if (distance <= 5) deliveryCharge = 40;
+        else deliveryCharge = 50;
+
+        const unitPrice = Number(productData.sellingPrice ?? productData.actualPrice ?? 0);
+        const subTotal = unitPrice * Number(quantity || 1);
+        const adminCommission = subTotal * 0.1;
+        const totalAmount = subTotal + deliveryCharge;
+
+        return res.status(200).json({
+            success: true,
+            product: {
+                _id: productData._id,
+                name: productData.name,
+                image: productData.image,
+                sellingPrice: productData.sellingPrice,
+                actualPrice: productData.actualPrice,
+                quantity: Number(quantity || 1),
+                vendor: productData.vendor,
+            },
+            pricing: {
+                distance,
+                deliveryCharge,
+                subTotal,
+                adminCommission,
+                totalAmount,
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 exports.getorders = async (req, res) => {
     try {
         const userId = req.user.id;
