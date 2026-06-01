@@ -1,9 +1,10 @@
 const express =require('express');
 const router= express.Router();
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder,getOrderCount,getRecentOrders}=require('../Controllers/ordercontrollers');
+const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder,getOrderCount,getRecentOrders,estimateOrder}=require('../Controllers/ordercontrollers');
 
 router.post('/placeorder',authmiddlewares,authorizeRoles('Customer'),PlaceOrder);
+router.post('/estimate-order', authmiddlewares, authorizeRoles('Customer'), estimateOrder);
 router.get('/vieworders',authmiddlewares,authorizeRoles('Customer','Admin','Vendor'),getorders);
 // Status update ko lagi
 router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('vendor','Vendor'), UpdateOrderStatus);
