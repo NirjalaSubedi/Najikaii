@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Star, MapPin, Store, Clock3, ShieldCheck, Minus, Plus, Zap, ShoppingCart, BadgePercent } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const formatDistance = (distance) => {
   if (distance === undefined || distance === null || Number.isNaN(Number(distance))) {
@@ -13,6 +14,7 @@ const formatDistance = (distance) => {
 
 const ProductDetailModal = ({ product, loading, error, onClose }) => {
   const { cartItems, addToCart, removeFromCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!product && !loading && !error) return undefined;
@@ -229,7 +231,10 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
 
                 <button
                   type="button"
-                  onClick={() => addToCart(product)}
+                  onClick={() => {
+                    addToCart(product);
+                    navigate('/checkout', { state: { items: [{ ...product, quantity: Math.max(currentQuantity, 1) }] } });
+                  }}
                   disabled={isOutOfStock}
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#00B56A] px-5 py-4 text-base font-black text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-[#009E5B] disabled:cursor-not-allowed disabled:bg-gray-300"
                 >
