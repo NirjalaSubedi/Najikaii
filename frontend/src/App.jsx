@@ -15,7 +15,6 @@ import Users from "./pages/admin/Users";
 import Vendors from "./pages/admin/Vendors";
 import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
-
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">

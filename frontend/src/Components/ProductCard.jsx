@@ -1,7 +1,10 @@
 import React from 'react';
-import { Heart, Star, Plus, Zap, Store,MapPin } from 'lucide-react';
+import { Heart, Star, Plus, Zap, Store, MapPin } from 'lucide-react';
+import { useCart } from '../hooks/CartContext'; 
 
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
+
   if (!product) return null;
 
   const {
@@ -107,6 +110,10 @@ const ProductCard = ({ product }) => {
 
           <button 
             disabled={isOutOfStock}
+            onClick={() => {
+              console.log("Card click system triggered for:", name);
+              addToCart(product);
+            }}
             className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 ${
               isOutOfStock 
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 

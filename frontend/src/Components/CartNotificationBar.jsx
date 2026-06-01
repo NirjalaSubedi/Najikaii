@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // useEffect thapiyo
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/CartContext';
 
 const CartNotificationBar = () => {
   const { cartItems } = useCart();
   const totalItems = cartItems.length;
 
+  // Debugging log: Jaba thichxau, browser console ma dynamic count update aako chha ki nai check garna
+  useEffect(() => {
+    console.log("Cart change tracking triggered! Current total items:", totalItems);
+  }, [cartItems, totalItems]);
+
   if (totalItems === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md animate-bounce-short">
-      <div className="bg-[#00B56A] text-white px-5 py-3.5 rounded-full flex items-center justify-between shadow-xl shadow-emerald-900/20 backdrop-blur-sm bg-opacity-95 transition-all duration-300">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm animate-bounce-short">
+      <div className="bg-[#00B56A] text-white px-5 py-3.5 rounded-full flex items-center justify-between shadow-xl shadow-emerald-950/20 backdrop-blur-sm bg-opacity-95 transition-all duration-300">
         
-        <div className="flex items-center gap-2.5 font-bold text-sm tracking-wide">
-          <ShoppingBag size={18} className="animate-pulse" />
+        <div className="flex items-center gap-2 font-bold text-xs tracking-wide">
+          <ShoppingBag size={16} />
           <span>
             {totalItems} {totalItems === 1 ? 'item' : 'items'} in cart
           </span>
@@ -22,10 +27,10 @@ const CartNotificationBar = () => {
 
         <Link 
           to="/cart" 
-          className="bg-white/15 hover:bg-white/25 active:scale-95 text-white pl-4 pr-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1 transition-all duration-200"
+          className="bg-white/20 hover:bg-white/30 text-white pl-3 pr-2 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1 transition-all"
         >
           View Cart
-          <ArrowRight size={14} className="mt-0.5" />
+          <ArrowRight size={12} />
         </Link>
       </div>
     </div>

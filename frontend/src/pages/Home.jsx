@@ -7,11 +7,13 @@ import NearbyShops from "../Components/NearbyShops";
 import ProductGrid from "../Components/ProductGrid";
 import Footer from "../Components/Footer";
 import { useLocationWatcher } from "../hooks/useLocationWatcher";
+import { CartProvider } from "../hooks/CartContext";
+import CartNotificationBar from "../Components/CartNotificationBar";
 
 const Home = () => {
   const { userAddress, setUserAddress, coords, setCoords } = useLocationWatcher();
   return (
-    <>
+      <CartProvider>
       <Navbar Address={userAddress} />
       {userAddress === "Enable Location" && (
         <LocationBanner setAddress={setUserAddress} setCoords={setCoords} />
@@ -21,7 +23,9 @@ const Home = () => {
       <NearbyShops coords={coords} />
       <ProductGrid coords={coords}/>
       <Footer />
-    </>
+
+      <CartNotificationBar/>
+      </CartProvider>
   );
 };
 
