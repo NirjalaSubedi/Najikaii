@@ -1,6 +1,7 @@
 const express =require('express');
 const router= express.Router();
 const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,getUserCount}= require('../Controllers/authcontrollers');
+const { getVendorOverview } = require('../Controllers/shopcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
@@ -39,6 +40,9 @@ router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduc
 router.get('/all-products',getAllProducts );
 
 router.get('/product/:id', getProductById);
+
+// Vendor dashboard overview
+router.get('/vendor-overview', authmiddlewares, authorizeRoles('Vendor'), getVendorOverview);
 
 //only owner can upadte their product
 router.put('/updateProduct/:id',authmiddlewares,authorizeRoles('Vendor'),updateProducts);
