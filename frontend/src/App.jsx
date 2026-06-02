@@ -16,6 +16,8 @@ import Users from "./pages/admin/Users";
 import Vendors from "./pages/admin/Vendors";
 import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
+import VendorLayout from "./components/VendorLayout";
+import VendorOverview from "./pages/Vendor/Overview";
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -36,6 +38,10 @@ function App() {
             <Route path="Products" element={<Products/>}/>
             <Route path="Orders" element={<Orders/>}/>
 
+          </Route>
+
+          <Route path="/vendor" element={<VendorLayout />}>
+            <Route path="dashboard" element={<VendorOverview />} />
           </Route>
 
       </Routes>
