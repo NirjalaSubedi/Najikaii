@@ -215,13 +215,15 @@ const Checkout = () => {
                   { value: 'COD', title: 'Cash on Delivery', subtitle: 'Pay when you receive' },
                   { value: 'esewa', title: 'eSewa', subtitle: 'Digital wallet payment' },
                 ].map((method) => (
-                  <div
+                  <button
                     key={method.value}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, paymentMethod: method.value }))}
                     className={`rounded-2xl border p-4 text-left transition-none cursor-default select-none ${formData.paymentMethod === method.value ? 'border-[#00B56A] bg-[#00B56A] text-white' : 'border-slate-200 bg-white text-slate-900'}`}
                   >
                     <div className={formData.paymentMethod === method.value ? 'font-bold text-white' : 'font-bold text-slate-900'}>{method.title}</div>
                     <div className={formData.paymentMethod === method.value ? 'text-sm text-white/80' : 'text-sm text-slate-500'}>{method.subtitle}</div>
-                  </div>
+                  </button>
                 ))}
               </div>
 
