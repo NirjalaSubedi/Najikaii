@@ -2,7 +2,6 @@ const Order = require('../models/OrderModels');
 const User = require('../models/UserModels');
 const Product = require('../models/ProductModels');
 
-//helper function ko calculate distance
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -43,14 +42,15 @@ exports.PlaceOrder = async (req, res) => {
                     return res.status(400).json({ success: false, message: `${product.name} ko stock pugena!` });
                 }
 
-                subTotal += product.price * item.quantity;
+                const unitPrice = Number(product.sellingPrice ?? product.actualPrice ?? 0);
+                subTotal += unitPrice * item.quantity;
                 
                 if (!mainVendorId) mainVendorId = product.vendor;
 
                 orderItems.push({
                     product: product._id,
                     quantity: item.quantity,
-                    price: product.price,
+                    price: unitPrice,
                     vendor: product.vendor
                 });
 
@@ -68,13 +68,14 @@ exports.PlaceOrder = async (req, res) => {
             for (const item of user.cart) {
                 if (!item.product) continue; 
 
-                subTotal += item.product.price * item.quantity;
+                const unitPrice = Number(item.product.sellingPrice ?? item.product.actualPrice ?? 0);
+                subTotal += unitPrice * item.quantity;
                 if (!mainVendorId) mainVendorId = item.product.vendor;
 
                 orderItems.push({
                     product: item.product._id,
                     quantity: item.quantity,
-                    price: item.product.price,
+                    price: unitPrice,
                     vendor: item.product.vendor 
                 });
 
@@ -310,14 +311,12 @@ exports.CancelOrder = async (req, res) => {
             });
         }
 
-        // 1. Stock Restore garne
         for (const item of order.items) {
             await Product.findByIdAndUpdate(item.product, {
                 $inc: { stock: item.quantity }
             });
         }
 
-        // 2. Status Update garne
         await Order.findByIdAndUpdate(orderId, { 
             $set: { status: 'Cancelled' } 
         });
