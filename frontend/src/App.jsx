@@ -18,6 +18,9 @@ import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
 import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
+
+import PaymentSuccess from "./pages/PaymentSuccess";
+
 function App() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -29,6 +32,8 @@ function App() {
 
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
+          
+          <Route path="/PaymentSuccess" element={<PaymentSuccess/>}/>
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       
           <Route path="/admin" element={<AdminLayout />}>
