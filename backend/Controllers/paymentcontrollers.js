@@ -6,9 +6,13 @@ exports.esewaPayment = async (req, res) => {
     try {
         const dataToken = req.query.data || req.body.data;
 
-        if (!dataToken) {
-            return res.status(400).json({ success: false, message: "Encoded transaction data missing." });
+        if(!dataToken){
+            res.status(400).json({
+                success:False,
+                message:"Ecoded data missing"
+            })
         }
+        
 
         //Safe base64 decode mapping
         const decodedString = Buffer.from(dataToken, 'base64').toString('utf-8');

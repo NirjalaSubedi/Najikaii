@@ -19,9 +19,7 @@ const PaymentSuccess = () => {
       }
 
       try {
-        // Backend eSewa validation endpoint call garne (Hamile agi banako dynamic hook API)
-        // Note: Response query check mapping path context verification configuration regex array check
-        const response = await axios.get(`http://localhost:5000/api/payment/esewa-verify?data=${dataToken}`);
+        const response = await axios.get(`http://localhost:5000/api/payment/esewa-success?data=${dataToken}`);
 
         if (response.data.success) {
           setStatus('success');
