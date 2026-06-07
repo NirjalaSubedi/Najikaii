@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,getUserCount}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,resendOtp,getUserCount}= require('../Controllers/authcontrollers');
 const { getVendorOverview } = require('../Controllers/shopcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct}= require("../Controllers/productControllers");
@@ -11,6 +11,7 @@ router.post('/register',register);
 
 //verify otp
 router.post('/verify-Otp',verifyOtp);
+router.post('/resend-otp', resendOtp);
 router.post('/login',login);
 router.post('/google-login', googleLogin);
 
