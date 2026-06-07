@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, LayoutDashboard, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProfileDropdown from "./ProfileDropdown";
+import EditProfile from "./EditProfile";
 
 const Navbar = ({ Address }) => {
   const navigate = useNavigate();
