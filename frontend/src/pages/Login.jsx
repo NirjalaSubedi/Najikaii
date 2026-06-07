@@ -43,11 +43,14 @@ const Login = () => {
                 toast.success("Login Successful!");
                 
                 localStorage.setItem('token', res.data.token);
+                
                 const loggedInUser = {
                     id: res.data.user.id,
                     name: res.data.user.name,
                     role: res.data.user.role,
-                    email: res.data.user.email || formData.email
+                    email: res.data.user.email || formData.email,
+                    phone: res.data.user.phone || res.data.user.phonenumber || res.data.user.PhoneNumber || "",
+                    address: res.data.user.address || res.data.user.Address || ""
                 };
                 
                 localStorage.setItem('user', JSON.stringify(loggedInUser));
@@ -80,7 +83,9 @@ const Login = () => {
                     id: res.data.user.id,
                     name: res.data.user.name,
                     role: res.data.user.role,
-                    email: res.data.user.email
+                    email: res.data.user.email,
+                    phone: res.data.user.phone || res.data.user.phonenumber || res.data.user.phoneNumber || "",
+                    address: res.data.user.address || res.data.user.Address || ""
                 };
                 
                 localStorage.setItem('user', JSON.stringify(googleUser));
