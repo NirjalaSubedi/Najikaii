@@ -5,9 +5,10 @@ import { toast } from 'react-toastify';
 
 const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
     const [loading, setLoading] = useState(false);
+    
     const [formData, setFormData] = useState({
         name: '',
-        phoneNumber: '',
+        phoneNumber: '', 
         city: '',
         province: ''
     });
@@ -15,9 +16,12 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
     useEffect(() => {
         if (user) {
             const addr = user?.address || {};
+            
+            const extractedPhone = user?.phone || user?.phonenumber || user?.phoneNumber || user?.rawUser?.PhoneNumber || user?.rawUser?.phoneNumber || '';
+
             setFormData({
                 name: user?.name || '',
-                PhoneNumber: user?.PhoneNumber || '',
+                phoneNumber: extractedPhone, 
                 city: typeof addr === 'object' ? (addr.city || '') : '',
                 province: typeof addr === 'object' ? (addr.province || '') : ''
             });
@@ -37,7 +41,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
             
             const res = await axios.put('http://localhost:5000/api/auth/update-profile', {
                 name: formData.name,
-                PhoneNumber: formData.PhoneNumber,
+                PhoneNumber: formData.phoneNumber, 
                 address: {
                     city: formData.city,
                     province: formData.province
@@ -50,7 +54,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
                 const updatedUser = {
                     ...user,
                     name: formData.name,
-                    PhoneNumber: formData.PhoneNumber,
+                    phoneNumber: formData.phoneNumber, 
                     address: {
                         city: formData.city,
                         province: formData.province
@@ -65,7 +69,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
             console.error("Update profile error:", err);
             toast.error(err.response?.data?.message || "Failed to update profile");
         } finally {
-            setLoading(false);
+            loading(false);
         }
     };
 
@@ -111,7 +115,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
                             type="text" 
                             name="phoneNumber"
                             required
-                            value={formData.PhoneNumber}
+                            value={formData.phoneNumber} 
                             onChange={handleChange}
                             className="w-full pl-11 pr-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:border-[#00B56A] focus:ring-4 focus:ring-[#00B56A]/10 outline-none text-xs font-semibold transition-all"
                             placeholder="+977 98XXXXXXXX"
