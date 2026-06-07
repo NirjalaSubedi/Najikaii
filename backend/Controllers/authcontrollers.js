@@ -142,6 +142,7 @@ exports.login= async (req,res)=>{
             user: {
                 id: founduser._id,
                 name: founduser.name,
+                email:founduser.email,
                 role: founduser.role
             }
         });

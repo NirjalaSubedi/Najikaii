@@ -19,6 +19,7 @@ const Login = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
     const handleRoleBasedRedirect = (userObj) => {
         const userRole = userObj?.role;
 
@@ -42,10 +43,17 @@ const Login = () => {
                 toast.success("Login Successful!");
                 
                 localStorage.setItem('token', res.data.token);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
+                const loggedInUser = {
+                    id: res.data.user.id,
+                    name: res.data.user.name,
+                    role: res.data.user.role,
+                    email: res.data.user.email || formData.email
+                };
+                
+                localStorage.setItem('user', JSON.stringify(loggedInUser));
 
                 setTimeout(() => {
-                    handleRoleBasedRedirect(res.data.user);
+                    handleRoleBasedRedirect(loggedInUser);
                 }, 1500);
             }
         } catch (err) {
@@ -67,10 +75,18 @@ const Login = () => {
                 toast.success("Logged in via Google successfully!");
                 
                 localStorage.setItem('token', res.data.token);
-                localStorage.setItem('user', JSON.stringify(res.data.user));
+
+                const googleUser = {
+                    id: res.data.user.id,
+                    name: res.data.user.name,
+                    role: res.data.user.role,
+                    email: res.data.user.email
+                };
+                
+                localStorage.setItem('user', JSON.stringify(googleUser));
                 
                 setTimeout(() => {
-                    handleRoleBasedRedirect(res.data.user);
+                    handleRoleBasedRedirect(googleUser);
                 }, 1500);
             }
         } catch (error) {
@@ -83,10 +99,10 @@ const Login = () => {
 
     return (
         <div className="flex min-h-screen font-sans bg-white">
-            {/* Left Side: Hero Section */}
+            {/*Hero Section */}
             <AuthHero />
 
-            {/* Right Side: Login Form */}
+            {/*Login Form */}
             <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-8 lg:px-20 py-12">
                 <div className="w-full max-w-md">
                     <div className="mb-8">
