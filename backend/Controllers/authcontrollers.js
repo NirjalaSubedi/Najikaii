@@ -190,7 +190,7 @@ exports.deleteuser = async (req, res) => {
         const targetUserId = req.params.id; 
         const loggedInUser = req.user;    
 
-        // 1. Authorization Check
+        // Authorization Check
         if (loggedInUser.role !== 'Admin' && loggedInUser.id !== targetUserId) {
             return res.status(403).json({
                 success: false,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, LayoutDashboard, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // IMPORTED for delete request
+import { toast } from 'react-toastify'; // IMPORTED for alerts
 import ProfileDropdown from "./ProfileDropdown";
 import EditProfile from "./EditProfile";
 
@@ -9,6 +11,7 @@ const Navbar = ({ Address }) => {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -28,12 +31,50 @@ const Navbar = ({ Address }) => {
     localStorage.removeItem("user");
     setUser(null);
     setShowDropdown(false);
+    setIsProfileOpen(false);
+    setIsEditProfileOpen(false);
     navigate("/login");
+  };
+
+  const handleUpdateSuccess = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "Are you absolutely sure you want to delete your account? This action is permanent and cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      const res = await axios.delete('http://localhost:5000/api/auth/delete-user', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data.success || res.status === 200) {
+        toast.success("Your account has been permanently deleted.");
+        
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+        setShowDropdown(false);
+        setIsProfileOpen(false);
+        setIsEditProfileOpen(false);
+        
+        navigate("/login");
+      }
+    } catch (err) {
+      console.error("Error deleting account:", err);
+      toast.error(err.response?.data?.message || "Failed to delete account. Try again later.");
+    }
   };
 
   return (
     <nav className="flex items-center justify-between px-8 py-3.5 bg-white border-b border-gray-100 sticky top-0 z-50">
-      {/*Logo & Location */}
+      {/* Logo & Location */}
       <div className="flex items-center gap-6">
         <Link to="/" className="hover:opacity-90">
           <h1 className="text-2xl font-black tracking-tight text-gray-900">
@@ -48,7 +89,7 @@ const Navbar = ({ Address }) => {
         </button>
       </div>
 
-      {/*Search Bar */}
+      {/* Search Bar */}
       <div className="flex-1 max-w-2xl mx-8">
         <div className="relative group">
           <Search 
@@ -63,7 +104,7 @@ const Navbar = ({ Address }) => {
         </div>
       </div>
 
-      {/*Actions & Profile */}
+      {/* Actions & Profile */}
       <div className="flex items-center gap-3.5">
         <button className="p-2 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all">
           <Heart size={20} strokeWidth={2} />
@@ -81,8 +122,9 @@ const Navbar = ({ Address }) => {
           <div className="relative">
             <button
               onClick={() => {
-                if (isProfileOpen) {
+                if (isProfileOpen || isEditProfileOpen) {
                   setIsProfileOpen(false);
+                  setIsEditProfileOpen(false);
                 } else {
                   setShowDropdown(!showDropdown);
                 }
@@ -98,8 +140,18 @@ const Navbar = ({ Address }) => {
               <ProfileDropdown onClose={() => setIsProfileOpen(false)} />
             )}
 
-            {showDropdown && !isProfileOpen && (
-              <div className="absolute right-0 mt-3 w-72 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-4 z-50 transition-all transform origin-top-right">
+            {isEditProfileOpen && (
+              <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-5 z-50 transform origin-top-right">
+                <EditProfile 
+                  user={user} 
+                  onBack={() => setIsEditProfileOpen(false)} 
+                  onUpdateSuccess={handleUpdateSuccess} 
+                />
+              </div>
+            )}
+
+            {showDropdown && !isProfileOpen && !isEditProfileOpen && (
+              <div className="absolute right-0 mt-3 w-72 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-4 z-50 transform origin-top-right">
                 
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                   <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg shrink-0">
@@ -135,7 +187,7 @@ const Navbar = ({ Address }) => {
                   </button>
 
                   <button
-                    onClick={() => { setShowDropdown(false); navigate("/edit-profile"); }}
+                    onClick={() => { setIsEditProfileOpen(true); setShowDropdown(false); }}
                     className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
                   >
                     <div className="flex items-center gap-3">
@@ -166,8 +218,9 @@ const Navbar = ({ Address }) => {
                     <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
                   </button>
 
+                  {/*Added onClick to point to handleDeleteAccount */}
                   <button
-                    onClick={() => { /*Account Delete*/ }}
+                    onClick={handleDeleteAccount}
                     className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-red-50/50 transition-colors text-left group"
                   >
                     <div className="flex items-center gap-3">
