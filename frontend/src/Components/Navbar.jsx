@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, LayoutDashboard, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import ProfileDropdown from "./ProfileDropdown";
 
 const Navbar = ({ Address }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -62,7 +64,6 @@ const Navbar = ({ Address }) => {
 
       {/*Actions & Profile */}
       <div className="flex items-center gap-3.5">
-        {/*borderless subtle stroke */}
         <button className="p-2 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all">
           <Heart size={20} strokeWidth={2} />
         </button>
@@ -75,11 +76,16 @@ const Navbar = ({ Address }) => {
           </span>
         </button>
 
-        {/* Profile Card & Custom Dropdown Integration */}
         {user ? (
           <div className="relative">
             <button
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={() => {
+                if (isProfileOpen) {
+                  setIsProfileOpen(false);
+                } else {
+                  setShowDropdown(!showDropdown);
+                }
+              }}
               className="flex items-center gap-0.5 p-0.5 rounded-full border border-gray-100 hover:border-[#00B56A] bg-white transition-all"
             >
               <div className="w-9 h-9 rounded-full bg-[#00B56A] text-white flex items-center justify-center font-black text-sm tracking-wide shadow-sm">
@@ -87,35 +93,32 @@ const Navbar = ({ Address }) => {
               </div>
             </button>
 
-            {/*Dropdown Modal Structure */}
-            {showDropdown && (
+            {isProfileOpen && (
+              <ProfileDropdown onClose={() => setIsProfileOpen(false)} />
+            )}
+
+            {showDropdown && !isProfileOpen && (
               <div className="absolute right-0 mt-3 w-72 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-4 z-50 transition-all transform origin-top-right">
                 
-                {/* User Header block segment */}
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  {/* Fixed User Avatar Icon */}
                   <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg shrink-0">
                     {user.name ? user.name.substring(0, 2).toUpperCase() : "US"}
                   </div>
 
                   <div className="leading-tight max-w-[180px]">
                     <p className="text-sm font-black text-slate-800 truncate">{user.name || "User Name"}</p>
-                    
-                    {/* Fixed Fallback Email Structure */}
                     <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">
                       {user.email || `${user.name ? user.name.toLowerCase().replace(/\s+/g, '') : 'user'}@gmail.com`}
                     </p>
-                    
                     <span className="inline-block bg-[#E6F8F0] text-[#00B56A] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1.5">
                       {user.role || "Customer"}
                     </span>
                   </div>
                 </div>
                 
-                {/* Navigation Options List */}
                 <div className="mt-3 space-y-1">
                   <button
-                    onClick={() => { setShowDropdown(false); navigate("/profile"); }}
+                    onClick={() => { setIsProfileOpen(true); setShowDropdown(false); }}
                     className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
                   >
                     <div className="flex items-center gap-3">
