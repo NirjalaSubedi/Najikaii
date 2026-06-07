@@ -507,6 +507,48 @@ exports.googleLogin = async (req, res) => {
     }
 };
 
+exports.resendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const foundUser = await user.findOne({ email });
+        if (!foundUser) {
+            return res.status(404).json({
+                success: false,
+                message: "email doesnot exist"
+            });
+        }
+
+        if (foundUser.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: "User is already verified"
+            });
+        }
+
+        const otp = crypto.randomInt(100000, 999999).toString();
+        foundUser.otp = otp;
+        foundUser.otpExpire = Date.now() + 10 * 60 * 1000;
+        await foundUser.save();
+
+        await sendEmail({
+            email: foundUser.email,
+            subject: 'Najikai App - Email Verification Code',
+            message: `Namaste ${foundUser.name}, timro naya verification code ${otp} ho. Yo 10 minute pachi expire hunecha.`
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP resend bhayo"
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
 exports.getUserCount = async (req, res) => {
     try {
         const [total, customers, vendors, pendingVendors] = await Promise.all([
