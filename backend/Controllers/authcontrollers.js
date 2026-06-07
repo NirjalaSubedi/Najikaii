@@ -143,6 +143,8 @@ exports.login= async (req,res)=>{
                 id: founduser._id,
                 name: founduser.name,
                 email:founduser.email,
+                phonenumber:founduser.PhoneNumber,
+                address:founduser.Address,
                 role: founduser.role
             }
         });
@@ -406,6 +408,7 @@ exports.getNearbyShops = async (req, res) => {
 };
 
 // Social Login Logic
+// Social Login Logic
 exports.socialLogin = async (req, res) => {
     try {
         const { name, email, googleId, facebookId, avatar, role } = req.body;
@@ -425,6 +428,9 @@ exports.socialLogin = async (req, res) => {
                 user: {
                     id: existingUser._id,
                     name: existingUser.name,
+                    email: existingUser.email,
+                    phonenumber: existingUser.PhoneNumber, // <- यो थप्नुहोस्
+                    address: existingUser.Address,         // <- यो थप्नुहोस्
                     role: existingUser.role
                 }
             });
@@ -453,7 +459,14 @@ exports.socialLogin = async (req, res) => {
             success: true,
             message: "User registered via Social Account",
             token,
-            user: newUser
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                phonenumber: newUser.PhoneNumber, 
+                address: newUser.Address,        
+                role: newUser.role
+            }
         });
 
     } catch (e) {
@@ -476,14 +489,14 @@ exports.googleLogin = async (req, res) => {
 
         if (!foundUser) {
             foundUser = new user({
-            name,
-            email,
-            googleId,
-            avatar: picture,
-            isVerified: true, 
-            role: 'Customer',
-            status: 'Approved',
-            password: crypto.randomBytes(16).toString('hex') 
+                name,
+                email,
+                googleId,
+                avatar: picture,
+                isVerified: true, 
+                role: 'Customer',
+                status: 'Approved',
+                password: crypto.randomBytes(16).toString('hex') 
             });
             await foundUser.save();
         }
@@ -499,6 +512,11 @@ exports.googleLogin = async (req, res) => {
             user: {
                 id: foundUser._id,
                 name: foundUser.name,
+                email: foundUser.email,              
+                
+                phonenumber: foundUser.PhoneNumber || foundUser.phoneNumber, 
+                address: foundUser.Address || foundUser.address,
+
                 role: foundUser.role
             }
         });
