@@ -33,7 +33,7 @@ function App() {
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
           
-          <Route path="/PaymentSuccess" element={<PaymentSuccess/>}/>
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       
           <Route path="/admin" element={<AdminLayout />}>
