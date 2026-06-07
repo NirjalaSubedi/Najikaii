@@ -17,7 +17,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
             const addr = user?.address || {};
             setFormData({
                 name: user?.name || '',
-                phoneNumber: user?.phoneNumber || '',
+                PhoneNumber: user?.PhoneNumber || '',
                 city: typeof addr === 'object' ? (addr.city || '') : '',
                 province: typeof addr === 'object' ? (addr.province || '') : ''
             });
