@@ -51,5 +51,6 @@ router.post('/initiate-esewa', async (req, res) => {
 });
 
 router.get('/esewa-success', esewaPayment);
+router.post('/verify-esewa', esewaPayment);
 
 module.exports = router;
