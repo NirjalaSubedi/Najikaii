@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const Order = require('../models/OrderModels');
 const payment = require('../models/paymentModel');
 
@@ -7,12 +8,11 @@ exports.esewaPayment = async (req, res) => {
         const dataToken = req.query.data || req.body.data;
 
         if(!dataToken){
-            res.status(400).json({
-                success:False,
-                message:"Ecoded data missing"
-            })
+            return res.status(400).json({
+                success: false,
+                message: "Encoded data missing"
+            });
         }
-        
 
         //Safe base64 decode mapping
         const decodedString = Buffer.from(dataToken, 'base64').toString('utf-8');
@@ -38,9 +38,16 @@ exports.esewaPayment = async (req, res) => {
             return res.status(401).json({ success: false, message: "Security Warning: Signature Mismatch! Fraud Detected." });
         }
 
-        //Safe transaction uuid resolution tracking pattern setup rule
-        const uuidParts = decoded.transaction_uuid.split('-');
-        const parsedOrderId = uuidParts.length > 1 ? uuidParts[1] : decoded.transaction_uuid;
+        const uuidParts = String(decoded.transaction_uuid || '').split('-').map((part) => part.trim());
+        const parsedOrderId = uuidParts.find((part) => mongoose.Types.ObjectId.isValid(part)) || uuidParts[0] || '';
+
+        if (!mongoose.Types.ObjectId.isValid(parsedOrderId)) {
+            console.error(`Mongoose CastError Prevented! Received invalid format: "${parsedOrderId}"`);
+            return res.status(400).json({ 
+                success: false, 
+                message: `Invalid Order ID format: '${parsedOrderId}'. Expected a valid MongoDB ObjectId inside transaction_uuid.` 
+            });
+        }
 
         const order = await Order.findById(parsedOrderId);
         if (!order) {
@@ -54,7 +61,6 @@ exports.esewaPayment = async (req, res) => {
             return res.status(400).json({ success: false, message: "Critical Risk: Amount mismatch detected!" });
         }
 
-        //Atomic Payment Generation Object Insertion
         const newPayment = new payment({
             order: order._id,
             user: order.customer,
