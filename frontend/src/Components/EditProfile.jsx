@@ -39,7 +39,7 @@ const EditProfile = ({ user, onBack, onUpdateSuccess }) => {
         try {
             const token = localStorage.getItem('token');
             
-            const res = await axios.put('http://localhost:5000/api/auth/update-profile', {
+            const res = await axios.put('http://localhost:5000/api/auth/update-userProfile', {
                 name: formData.name,
                 PhoneNumber: formData.phoneNumber, 
                 address: {
