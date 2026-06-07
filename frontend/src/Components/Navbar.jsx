@@ -11,7 +11,9 @@ const Navbar = ({ Address }) => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        console.log("Current Logged In User Schema Check:", parsedUser);
+        setUser(parsedUser);
       } catch (error) {
         console.error("Error parsing user data from localStorage:", error);
       }
@@ -28,7 +30,7 @@ const Navbar = ({ Address }) => {
 
   return (
     <nav className="flex items-center justify-between px-8 py-3.5 bg-white border-b border-gray-100 sticky top-0 z-50">
-      {/* Left Section: Logo & Location */}
+      {/*Logo & Location */}
       <div className="flex items-center gap-6">
         <Link to="/" className="hover:opacity-90">
           <h1 className="text-2xl font-black tracking-tight text-gray-900">
@@ -91,12 +93,19 @@ const Navbar = ({ Address }) => {
                 
                 {/* User Header block segment */}
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg">
+                  {/* Fixed User Avatar Icon */}
+                  <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg shrink-0">
                     {user.name ? user.name.substring(0, 2).toUpperCase() : "US"}
                   </div>
+
                   <div className="leading-tight max-w-[180px]">
                     <p className="text-sm font-black text-slate-800 truncate">{user.name || "User Name"}</p>
-                    <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">{user.email || "user@domain.com"}</p>
+                    
+                    {/* Fixed Fallback Email Structure */}
+                    <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">
+                      {user.email || `${user.name ? user.name.toLowerCase().replace(/\s+/g, '') : 'user'}@gmail.com`}
+                    </p>
+                    
                     <span className="inline-block bg-[#E6F8F0] text-[#00B56A] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1.5">
                       {user.role || "Customer"}
                     </span>
