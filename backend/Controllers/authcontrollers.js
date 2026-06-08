@@ -184,13 +184,11 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-//user delete garne logic
 exports.deleteuser = async (req, res) => {
     try {
         const targetUserId = req.params.id; 
         const loggedInUser = req.user;    
 
-        // Authorization Check
         if (loggedInUser.role !== 'Admin' && loggedInUser.id !== targetUserId) {
             return res.status(403).json({
                 success: false,
@@ -207,24 +205,105 @@ exports.deleteuser = async (req, res) => {
             });
         }
 
+        const deleteToken = jwt.sign(
+            { id: userToDelete._id }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '15m' }
+        );
+
+        const confirmationUrl = `${req.protocol}://${req.get('host')}/api/v1/user/confirm-delete/${deleteToken}`;
+
+        const htmlTemplate = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eeeeee; border-radius: 10px;">
+                <h2 style="color: #333333; text-align: center;">Account Deletion Request</h2>
+                <p>Namaste <strong>${userToDelete.name}</strong>,</p>
+                <p>Tapaile Najikai App bata afno account permanent delete garna request garnubhayeko chha. Yadi yo request tapaile nai garnubhayeko ho bhane tala ko <strong>Delete Account</strong> button ma click garnuhos:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${confirmationUrl}" style="background-color: #dc3545; color: white; padding: 14px 28px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; display: inline-block; box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);">
+                        Delete Account
+                    </a>
+                </div>
+
+                <p style="color: #dc3545; font-size: 13px; text-align: center;"><strong>Warning:</strong> Yo button click garesi tapai ko account permanent sapha hunechha. Yo link 15 minutes ma expire hunchha.</p>
+                <hr style="border: 0; border-top: 1px solid #eeeeee; margin-top: 20px;" />
+                <p style="font-size: 11px; color: #999999; text-align: center;">Yadi yo request tapaile garnubhayeko haina bhane, yo email lai ignore garna saknuhunxa।</p>
+            </div>
+        `;
+
+        try {
+            await sendEmail({
+                email: userToDelete.email,
+                subject: 'Najikai App - Delete Your Account',
+                message: `Namaste ${userToDelete.name}, Account delete garna yo link copy garnus: ${confirmationUrl}`,
+                html: htmlTemplate 
+            });
+
+            res.status(200).json({
+                success: true,
+                message: "Account deletion link email ma pathayiyeko chha. Kripaya email check garnuhos!"
+            });
+
+        } catch (mailError) {
+            console.error("NODEMAILER ERROR:", mailError);
+            return res.status(500).json({
+                success: false,
+                message: "Confirmation email pathauna sakiyena.",
+                error: mailError.message
+            });
+        }
+
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+}
+
+exports.confirmDeleteUser = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(400).send(`
+                <div style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif;">
+                    <h2 style="color: #dc3545;">Link Expired!</h2>
+                    <p>Yo deletion session token expire bhaisakyo. Kripaya pheri request garnuhos.</p>
+                </div>
+            `);
+        }
+
+        const targetUserId = decoded.id;
+        const userToDelete = await user.findById(targetUserId); 
+
+        if (!userToDelete) {
+            return res.status(404).send(`
+                <div style="text-align: center; margin-top: 50px; font-family: Arial, sans-serif;">
+                    <h2 style="color: #dc3545;">User Bhetiyena!</h2>
+                    <p>Yo account pahile nai delete bhaisakeko huna sakchhha.</p>
+                </div>
+            `);
+        }
+
         if (userToDelete.role === 'Vendor') {
             await Product.deleteMany({ vendor: targetUserId }); 
         }
 
         await user.findByIdAndDelete(targetUserId);
 
-        res.status(200).json({
-            success: true,
-            message: userToDelete.role === 'Vendor' 
-                ? "Vendor account ra sabai products delete bhayo!" 
-                : "User account delete bhayo!"
-        });
+        res.status(200).send(`
+            <div style="text-align: center; margin-top: 60px; font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin-left: auto; margin-right: auto; border: 1px solid #e1e4e6; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <div style="font-size: 50px; color: #28a745; margin-bottom: 10px;">✓</div>
+                <h2 style="color: #28a745; margin-bottom: 15px;">Account Successfully Deleted!</h2>
+                <p style="color: #555555; line-height: 1.6;">Tapaiko profile info ra database data haru safalpatpurvak permanent delete bhaye.</p>
+                <br/>
+                <p style="color: #888888; font-size: 13px;">Najikai App core services use garnubhayekoma धन्यवाद।</p>
+            </div>
+        `);
 
     } catch (e) {
-        res.status(500).json({ 
-            success: false,
-            error: e.message 
-        });
+        res.status(500).json({ success: false, error: e.message });
     }
 };
 
