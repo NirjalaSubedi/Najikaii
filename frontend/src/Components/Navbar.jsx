@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, LayoutDashboard, Trash2, ChevronRight } from 'lucide-react';
+import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, Package, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
 import { toast } from 'react-toastify'; 
@@ -60,7 +60,6 @@ const Navbar = ({ Address }) => {
 
     try {
       const token = localStorage.getItem('token');
-      
       const userId = user?._id || user?.id;
 
       if (!userId) {
@@ -212,17 +211,18 @@ const Navbar = ({ Address }) => {
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
                       </button>
 
+                      {/* CHANGED SECTION: Dashboard item renamed to My Orders */}
                       <button
-                        onClick={() => { setShowDropdown(false); navigate("/dashboard"); }}
+                        onClick={() => { setShowDropdown(false); navigate("/my-orders"); }}
                         className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
                       >
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
-                            <LayoutDashboard size={16} />
+                            <Package size={16} />
                           </div>
                           <div>
-                            <div className="text-xs font-black text-slate-800">My Dashboard</div>
-                            <div className="text-[10px] font-semibold text-slate-400">Orders, wishlist, profile</div>
+                            <div className="text-xs font-black text-slate-800">My Orders</div>
+                            <div className="text-[10px] font-semibold text-slate-400">View your active and past orders</div>
                           </div>
                         </div>
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
