@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Star, Clock } from 'lucide-react'; // Icons ko lagi (Optional: npm install lucide-react)
+import { MapPin, Star, Clock } from 'lucide-react';
 
 const ShopCard = ({ shop }) => {
   const { 
