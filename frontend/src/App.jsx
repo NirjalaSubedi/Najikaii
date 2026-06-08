@@ -20,6 +20,7 @@ import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ConfirmDelete from './components/ConfirmDelete'; 
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
           
           <Route path="/payment-success" element={<PaymentSuccess />} />
+
+          <Route path="/confirm-delete/:token" element={<ConfirmDelete />} />
+
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       
           <Route path="/admin" element={<AdminLayout />}>

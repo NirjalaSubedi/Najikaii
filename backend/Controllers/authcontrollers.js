@@ -211,8 +211,7 @@ exports.deleteuser = async (req, res) => {
             { expiresIn: '15m' }
         );
 
-        const confirmationUrl = `${req.protocol}://${req.get('host')}/api/v1/user/confirm-delete/${deleteToken}`;
-
+        const confirmationUrl = `http://localhost:5173/confirm-delete/${deleteToken}`;
         const htmlTemplate = `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eeeeee; border-radius: 10px;">
                 <h2 style="color: #333333; text-align: center;">Account Deletion Request</h2>
@@ -292,16 +291,10 @@ exports.confirmDeleteUser = async (req, res) => {
 
         await user.findByIdAndDelete(targetUserId);
 
-        res.status(200).send(`
-            <div style="text-align: center; margin-top: 60px; font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin-left: auto; margin-right: auto; border: 1px solid #e1e4e6; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                <div style="font-size: 50px; color: #28a745; margin-bottom: 10px;">✓</div>
-                <h2 style="color: #28a745; margin-bottom: 15px;">Account Successfully Deleted!</h2>
-                <p style="color: #555555; line-height: 1.6;">Tapaiko profile info ra database data haru safalpatpurvak permanent delete bhaye.</p>
-                <br/>
-                <p style="color: #888888; font-size: 13px;">Najikai App core services use garnubhayekoma धन्यवाद।</p>
-            </div>
-        `);
-
+        return res.status(200).json({
+            success: true,
+            message: "Tapaiko profile ra database data haru permanent delete bhaye."
+        });
     } catch (e) {
         res.status(500).json({ success: false, error: e.message });
     }

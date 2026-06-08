@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, LayoutDashboard, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // IMPORTED for delete request
-import { toast } from 'react-toastify'; // IMPORTED for alerts
+import axios from 'axios'; 
+import { toast } from 'react-toastify'; 
 import ProfileDropdown from "./ProfileDropdown";
 import EditProfile from "./EditProfile";
 
@@ -12,18 +12,29 @@ const Navbar = ({ Address }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
-        console.log("Current Logged In User Schema Check:", parsedUser);
         setUser(parsedUser);
       } catch (error) {
         console.error("Error parsing user data from localStorage:", error);
       }
     }
+
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+        setIsProfileOpen(false);
+        setIsEditProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -42,7 +53,7 @@ const Navbar = ({ Address }) => {
 
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
-      "Are you absolutely sure you want to delete your account? This action is permanent and cannot be undone."
+      "Are you sure you want to request account deletion? A confirmation link will be sent to your email."
     );
 
     if (!confirmDelete) return;
@@ -50,25 +61,38 @@ const Navbar = ({ Address }) => {
     try {
       const token = localStorage.getItem('token');
       
-      const res = await axios.delete('http://localhost:5000/api/auth/delete-user', {
+      const userId = user?._id || user?.id;
+
+      if (!userId) {
+        toast.error("unable to verify User ID verify login again");
+        return;
+      }
+
+      const res = await axios.delete(`http://localhost:5000/api/auth/delete/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (res.data.success || res.status === 200) {
-        toast.success("Your account has been permanently deleted.");
-        
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setUser(null);
+        toast.info(res.data.message || "check your email", {
+          position: "top-center",
+          autoClose: 8000
+        });
+
         setShowDropdown(false);
-        setIsProfileOpen(false);
-        setIsEditProfileOpen(false);
-        
-        navigate("/login");
       }
     } catch (err) {
       console.error("Error deleting account:", err);
       toast.error(err.response?.data?.message || "Failed to delete account. Try again later.");
+    }
+  };
+
+  const toggleMainDropdown = () => {
+    if (showDropdown || isProfileOpen || isEditProfileOpen) {
+      setShowDropdown(false);
+      setIsProfileOpen(false);
+      setIsEditProfileOpen(false);
+    } else {
+      setShowDropdown(true);
     }
   };
 
@@ -92,10 +116,7 @@ const Navbar = ({ Address }) => {
       {/* Search Bar */}
       <div className="flex-1 max-w-2xl mx-8">
         <div className="relative group">
-          <Search 
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00B56A] transition-colors" 
-            size={18} 
-          />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#00B56A] transition-colors" size={18} />
           <input
             type="text"
             placeholder="Search products, vendors..."
@@ -110,25 +131,15 @@ const Navbar = ({ Address }) => {
           <Heart size={20} strokeWidth={2} />
         </button>
         
-        {/* Cart Button */}
         <button className="relative p-2 bg-[#00B56A] text-white rounded-xl hover:bg-[#009e5b] transition-all shadow-md shadow-[#00B56A]/10">
           <ShoppingCart size={20} strokeWidth={2.5} />
-          <span className="absolute -top-1 -right-1 bg-[#FF4D4D] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white">
-            0
-          </span>
+          <span className="absolute -top-1 -right-1 bg-[#FF4D4D] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white">0</span>
         </button>
 
         {user ? (
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => {
-                if (isProfileOpen || isEditProfileOpen) {
-                  setIsProfileOpen(false);
-                  setIsEditProfileOpen(false);
-                } else {
-                  setShowDropdown(!showDropdown);
-                }
-              }}
+              onClick={toggleMainDropdown}
               className="flex items-center gap-0.5 p-0.5 rounded-full border border-gray-100 hover:border-[#00B56A] bg-white transition-all"
             >
               <div className="w-9 h-9 rounded-full bg-[#00B56A] text-white flex items-center justify-center font-black text-sm tracking-wide shadow-sm">
@@ -136,115 +147,114 @@ const Navbar = ({ Address }) => {
               </div>
             </button>
 
-            {isProfileOpen && (
-              <ProfileDropdown onClose={() => setIsProfileOpen(false)} />
-            )}
-
-            {isEditProfileOpen && (
-              <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-5 z-50 transform origin-top-right">
-                <EditProfile 
-                  user={user} 
-                  onBack={() => setIsEditProfileOpen(false)} 
-                  onUpdateSuccess={handleUpdateSuccess} 
-                />
-              </div>
-            )}
-
-            {showDropdown && !isProfileOpen && !isEditProfileOpen && (
+            {(showDropdown || isProfileOpen || isEditProfileOpen) && (
               <div className="absolute right-0 mt-3 w-72 bg-white border border-slate-100 rounded-[24px] shadow-2xl shadow-slate-200/80 p-4 z-50 transform origin-top-right">
                 
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg shrink-0">
-                    {user.name ? user.name.substring(0, 2).toUpperCase() : "US"}
-                  </div>
+                {isProfileOpen && (
+                  <ProfileDropdown onClose={() => setIsProfileOpen(false)} />
+                )}
 
-                  <div className="leading-tight max-w-[180px]">
-                    <p className="text-sm font-black text-slate-800 truncate">{user.name || "User Name"}</p>
-                    <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">
-                      {user.email || `${user.name ? user.name.toLowerCase().replace(/\s+/g, '') : 'user'}@gmail.com`}
-                    </p>
-                    <span className="inline-block bg-[#E6F8F0] text-[#00B56A] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1.5">
-                      {user.role || "Customer"}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="mt-3 space-y-1">
-                  <button
-                    onClick={() => { setIsProfileOpen(true); setShowDropdown(false); }}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
-                        <User size={16} />
+                {isEditProfileOpen && (
+                  <EditProfile 
+                    user={user} 
+                    onBack={() => setIsEditProfileOpen(false)} 
+                    onUpdateSuccess={handleUpdateSuccess} 
+                  />
+                )}
+
+                {showDropdown && !isProfileOpen && !isEditProfileOpen && (
+                  <>
+                    <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+                      <div className="w-12 h-12 rounded-full bg-[#E6F8F0] text-[#00B56A] flex items-center justify-center font-black text-lg shrink-0">
+                        {user.name ? user.name.substring(0, 2).toUpperCase() : "US"}
                       </div>
-                      <div>
-                        <div className="text-xs font-black text-slate-800">My Profile</div>
-                        <div className="text-[10px] font-semibold text-slate-400">View your details</div>
+                      <div className="leading-tight max-w-[180px]">
+                        <p className="text-sm font-black text-slate-800 truncate">{user.name || "User Name"}</p>
+                        <p className="text-xs font-semibold text-slate-400 truncate mt-0.5">
+                          {user.email || `${user.name ? user.name.toLowerCase().replace(/\s+/g, '') : 'user'}@gmail.com`}
+                        </p>
+                        <span className="inline-block bg-[#E6F8F0] text-[#00B56A] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1.5">
+                          {user.role || "Customer"}
+                        </span>
                       </div>
                     </div>
-                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
-                  </button>
+                    
+                    <div className="mt-3 space-y-1">
+                      <button
+                        onClick={() => { setIsProfileOpen(true); setShowDropdown(false); }}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
+                            <User size={16} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-slate-800">My Profile</div>
+                            <div className="text-[10px] font-semibold text-slate-400">View your details</div>
+                          </div>
+                        </div>
+                        <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
+                      </button>
 
-                  <button
-                    onClick={() => { setIsEditProfileOpen(true); setShowDropdown(false); }}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
-                        <Settings size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-black text-slate-800">Edit Profile</div>
-                        <div className="text-[10px] font-semibold text-slate-400">Update your information</div>
-                      </div>
+                      <button
+                        onClick={() => { setIsEditProfileOpen(true); setShowDropdown(false); }}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
+                            <Settings size={16} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-slate-800">Edit Profile</div>
+                            <div className="text-[10px] font-semibold text-slate-400">Update your information</div>
+                          </div>
+                        </div>
+                        <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
+                      </button>
+
+                      <button
+                        onClick={() => { setShowDropdown(false); navigate("/dashboard"); }}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
+                            <LayoutDashboard size={16} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-slate-800">My Dashboard</div>
+                            <div className="text-[10px] font-semibold text-slate-400">Orders, wishlist, profile</div>
+                          </div>
+                        </div>
+                        <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
+                      </button>
+
+                      <button
+                        onClick={handleDeleteAccount}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-red-50/50 transition-colors text-left group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-[#FFF0F0] text-red-500 rounded-xl">
+                            <Trash2 size={16} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-black text-red-500">Delete Account</div>
+                            <div className="text-[10px] font-semibold text-red-400/80">Permanently remove account</div>
+                          </div>
+                        </div>
+                      </button>
                     </div>
-                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
-                  </button>
 
-                  <button
-                    onClick={() => { setShowDropdown(false); navigate("/dashboard"); }}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#F8F9FA] group-hover:bg-white text-slate-500 group-hover:text-[#00B56A] rounded-xl transition-colors">
-                        <LayoutDashboard size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-black text-slate-800">My Dashboard</div>
-                        <div className="text-[10px] font-semibold text-slate-400">Orders, wishlist, profile</div>
-                      </div>
+                    <div className="mt-3 pt-2 border-t border-slate-100">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 p-2.5 text-xs font-black text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left"
+                      >
+                        <LogOut size={16} className="text-slate-400" />
+                        <span>Sign Out</span>
+                      </button>
                     </div>
-                    <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
-                  </button>
-
-                  {/*Added onClick to point to handleDeleteAccount */}
-                  <button
-                    onClick={handleDeleteAccount}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-red-50/50 transition-colors text-left group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-[#FFF0F0] text-red-500 rounded-xl">
-                        <Trash2 size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-black text-red-500">Delete Account</div>
-                        <div className="text-[10px] font-semibold text-red-400/80">Permanently remove account</div>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="mt-3 pt-2 border-t border-slate-100">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 p-2.5 text-xs font-black text-slate-700 hover:bg-slate-50 rounded-xl transition-colors text-left"
-                  >
-                    <LogOut size={16} className="text-slate-400" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-
+                  </>
+                )}
               </div>
             )}
           </div>

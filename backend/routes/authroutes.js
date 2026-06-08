@@ -20,10 +20,11 @@ router.put('/approve-vendor/:id', authmiddlewares, authorizeRoles('Admin'), upda
 router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
-router.delete('/delete/:id', authmiddlewares, deleteuser);
-router.get('/getUserCount',getUserCount);
 
+router.delete('/delete/:id', authmiddlewares, deleteuser);
 router.get('/confirm-delete/:token', confirmDeleteUser);
+
+router.get('/getUserCount',getUserCount);
 
 
 router.get('/test',authmiddlewares,(req,res)=>{
