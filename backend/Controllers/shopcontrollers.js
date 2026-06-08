@@ -105,4 +105,28 @@ exports.getVendorOverview = async (req, res) => {
 };
 
 
+exports.getShopDetails = async (req, res) => {
+    try {
+        const { id } = req.params;
 
+        const shop = await User.findOne({ _id: id, role: 'Vendor' }).select('-password');
+        
+        if (!shop) {
+            return res.status(404).json({ success: false, message: "Shop not found" });
+        }
+
+        const products = await Product.find({ vendor: id }).sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            success: true,
+            shop,
+            products
+        });
+    } catch (error) {
+        return res.status(500).json({ 
+            success: false, 
+            message: "Error fetching shop details", 
+            error: error.message 
+        });
+    }
+};
