@@ -7,11 +7,10 @@ const NearbyShops = ({ coords }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // sorting ra filtering shops
   const processedShops = shops
-  .filter(shop => shop.distanceInKm <= 5) 
-  .sort((a, b) => a.distanceInKm - b.distanceInKm) 
-  .slice(0, 4);
+    .filter(shop => shop.distanceInKm <= 5) 
+    .sort((a, b) => a.distanceInKm - b.distanceInKm) 
+    .slice(0, 4);
 
   useEffect(() => {
     if (coords && coords.lat && coords.lng) {
@@ -28,9 +27,8 @@ const NearbyShops = ({ coords }) => {
       );
       const data = await response.json();
 
-
       if (data.success) {
-        setShops(data.shops);
+        setShops(data.shops || []);
       } else {
         setShops([]);
         setError(data.message || "Shops bhetiyena.");
@@ -62,21 +60,19 @@ const NearbyShops = ({ coords }) => {
   }
 
   return (
-    <div className="px-6 py-8 ">
+    <div className="px-6 py-8">
       <div className="flex justify-between items-end mb-8">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Nearby Shops</h2>
-          <p className="text-gray-500 text-sm">Find vendors within your reach in Jhumka</p>
+          <p className="text-gray-500 text-sm">Find vendors within your reach</p>
         </div>
-        <button className="text-[#00B56A] font-semibold hover:text-[#008f54] transition-colors">
-          <Link to="/all-shops" className="text-[#00B56A] font-semibold hover:underline">
-    View All
-  </Link>
-        </button>
+        <Link to="/all-shops" className="text-[#00B56A] font-semibold hover:underline">
+          View All
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {shops.length > 0 ? (
+        {processedShops.length > 0 ? (
           processedShops.map((shop) => (
             <div 
               key={shop._id} 
@@ -85,20 +81,22 @@ const NearbyShops = ({ coords }) => {
               {/* Image Container */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={shop.shopImage} 
+                  src={shop.shopImage || "https://via.placeholder.com/400x300?text=Shop+Image"} 
                   alt={shop.shopName || shop.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                {/* view shop button*/}
+                
+                {/* View Shop Hover Button */}
                 <div className='absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'>
                   <Link 
                     to={`/shop/${shop._id}`} 
                     className="bg-white text-gray-900 px-5 py-2.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5 transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 hover:bg-[#00B56A] hover:text-white"
                   >
                     <Eye size={14} />
-                      View Shop
+                    View Shop
                   </Link>
                 </div>
+
                 {/* Distance Badge */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
                   <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
@@ -106,7 +104,7 @@ const NearbyShops = ({ coords }) => {
                 </div>
               </div>              
 
-              {/* Content */}
+              {/* Content Section */}
               <div className="p-5">
                 <h3 className="font-bold text-lg text-gray-900 truncate mb-1">
                   {shop.shopName || shop.name}
@@ -138,7 +136,7 @@ const NearbyShops = ({ coords }) => {
           ))
         ) : (
           <div className="col-span-full text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 font-medium">Koi pani shop bhetiyena. Distance badhaunu hos!</p>
+            <p className="text-gray-400 font-medium">aahile 5km vitra kunaii pani shop available xaiina </p>
           </div>
         )}
       </div>
