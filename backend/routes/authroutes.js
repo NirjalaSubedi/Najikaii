@@ -1,6 +1,6 @@
 const express =require('express');
 const router= express.Router();
-const {register,login,updateProfile,deleteuser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,resendOtp,getUserCount}= require('../Controllers/authcontrollers');
+const {register,login,updateProfile,deleteuser,confirmDeleteUser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,resendOtp,getUserCount}= require('../Controllers/authcontrollers');
 const { getVendorOverview } = require('../Controllers/shopcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
 const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct}= require("../Controllers/productControllers");
@@ -20,8 +20,10 @@ router.put('/approve-vendor/:id', authmiddlewares, authorizeRoles('Admin'), upda
 router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
-router.delete('/delete-user/:id', authmiddlewares, deleteuser);
+router.delete('/delete/:id', authmiddlewares, deleteuser);
 router.get('/getUserCount',getUserCount);
+
+router.get('/confirm-delete/:token', confirmDeleteUser);
 
 
 router.get('/test',authmiddlewares,(req,res)=>{
