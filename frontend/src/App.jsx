@@ -20,7 +20,9 @@ import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
-import ConfirmDelete from './components/ConfirmDelete'; 
+import ConfirmDelete from './components/ConfirmDelete';
+
+import ViewShop from './Components/ViewShop';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
 
           <Route path="/confirm-delete/:token" element={<ConfirmDelete />} />
+
+          <Route path="/shop/:id" element={<ViewShop />} />
 
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       
