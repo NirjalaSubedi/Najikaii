@@ -24,6 +24,9 @@ import ConfirmDelete from './components/ConfirmDelete';
 
 import ViewShop from './Components/ViewShop';
 import MyOrders from "./Components/MyOrders";
+import ViewCart from "./Components/ViewCart";
+
+import CartNotificationBar from "./Components/CartNotificationBar";
 
 function App() {
   return (
@@ -43,6 +46,8 @@ function App() {
 
           <Route path="/shop/:id" element={<ViewShop />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/cart" element={<ViewCart/>}/>
+          <Route path="/carts" element={<CartNotificationBar/>}/>
 
           <Route path="*" element={<div className="p-5 font-bold text-center">404 - Page Not Found! Paths mismatched check pattern config.</div>} />
       
