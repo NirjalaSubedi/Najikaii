@@ -18,8 +18,8 @@ const Home = () => {
         <LocationBanner setAddress={setUserAddress} setCoords={setCoords} />
       )}
       <ImageBanner />
-      <CategorySelector />
       <NearbyShops coords={coords} />
+      <CategorySelector />
       <ProductGrid coords={coords}/>
       <Footer />
 
