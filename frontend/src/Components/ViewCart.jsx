@@ -9,7 +9,7 @@ const ViewCart = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://localhost:5000/api/auth/GetCart';
+  const API_BASE_URL = 'http://localhost:5000/api/auth';
 
   const fetchCart = async () => {
     try {
@@ -31,7 +31,7 @@ const ViewCart = () => {
         },
       };
 
-      const response = await axios.get(`${API_BASE_URL}`, config);
+      const response = await axios.get(`${API_BASE_URL}/GetCart`, config);
       
       if (response.data.success) {
         setCartItems(response.data.cart || []);
@@ -63,8 +63,12 @@ const ViewCart = () => {
       const quantityChange = type === 'inc' ? 1 : -1;
 
       const response = await axios.post(
-        `${API_BASE_URL}/cart/add`,
-        { productid: productId, quantity: quantityChange },
+        `${API_BASE_URL}/AddToCart`,
+        { 
+          productId: productId, 
+          productid: productId, 
+          quantity: quantityChange 
+        },
         config
       );
 
@@ -85,10 +89,11 @@ const ViewCart = () => {
         },
       };
 
-      const response = await axios.delete(`${API_BASE_URL}/cart/remove/${productId}`, config);
+      const response = await axios.delete(`${API_BASE_URL}/remove-item/${productId}`, config);
       
       if (response.data.success) {
         setCartItems(prev => prev.filter(item => item.product?._id !== productId));
+        fetchCart();
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Item hatauna sakiyena!');
@@ -100,8 +105,9 @@ const ViewCart = () => {
   const totalItemsCount = cartItems.reduce((acc, item) => acc + (item.quantity || 0), 0);
   
   const subtotal = cartItems.reduce((acc, item) => {
-    const price = item.product?.price || 0;
-    return acc + (price * item.quantity);
+    const targetProduct = item.product || {};
+    const price = targetProduct.price !== undefined ? targetProduct.price : (targetProduct.sellingPrice || 0);
+    return acc + (price * (item.quantity || 0));
   }, 0);
 
   const platformCommission = Math.round(subtotal * 0.10);
@@ -171,6 +177,8 @@ const ViewCart = () => {
           ) : (
             cartItems.map((item) => {
               const product = item.product || {};
+              const resolvedPrice = product.price !== undefined ? product.price : (product.sellingPrice || 0);
+              
               return (
                 <div 
                   key={item._id} 
@@ -191,7 +199,7 @@ const ViewCart = () => {
                         Stock: {product.stock || 0} pieces available
                       </p>
                       <div className="flex items-baseline gap-1.5 text-xs">
-                        <span className="text-[#10B981] font-bold text-sm">Rs. {product.price}</span>
+                        <span className="text-[#10B981] font-bold text-sm">Rs. {resolvedPrice}</span>
                       </div>
                     </div>
                   </div>
@@ -221,7 +229,7 @@ const ViewCart = () => {
                     {/* Calculated Subtotal per Item */}
                     <div className="flex items-center gap-3 min-w-[90px] justify-end">
                       <span className="font-bold text-slate-800 text-sm">
-                        Rs. {(product.price || 0) * item.quantity}
+                        Rs. {resolvedPrice * item.quantity}
                       </span>
                       <button 
                         onClick={() => handleRemoveItem(product._id)}
