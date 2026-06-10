@@ -280,14 +280,9 @@ const ViewCart = () => {
 
           {/* Delivery Note Badge */}
           <div className="bg-[#EFFAF5] border border-[#D1F2E5] rounded-2xl p-4 flex gap-3">
-            <div className="text-[#10B981] mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M5.52.142A.5.5 0 0 1 6 .5v6.257l5.42-3.142a.5.5 0 0 1 .75.434v6.291l4.312-2.5a.5.5 0 0 1 .75.434v4.536a.5.5 0 0 1-.25.433l-11 6.364a.5.5 0 0 1-.5 0l-11-6.364A.5.5 0 0 1 0 12.35V7.814a.5.5 0 0 1 .75-.434l4.312 2.5V3.65L.142 1.242A.5.5 0 0 1 .5.5h5a.5.5 0 0 1 .02.142zM4.5 7.707V1.793L1.22 3.25 4.5 7.707zM5.5 7.707l3.28-4.457L5.5 1.793v5.914zm6-4.225V9.39l2.78-1.61L11.5 3.482zm-6 6.126l4.28 2.482-4.28 2.482V9.608zm-1 4.964V9.608l-4.28 2.482 4.28 2.482zm6.5-3.354l2.78 1.61-2.78 1.61V11.218z"/>
-              </svg>
-            </div>
             <div>
               <h4 className="text-xs font-bold text-[#10B981] uppercase tracking-wide mb-0.5 flex items-center gap-1">
-                ⚡ Fast Delivery Available
+                Fast Delivery Available
               </h4>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Items from vendors within 2km qualify for fast delivery in 15 - 25 min.
