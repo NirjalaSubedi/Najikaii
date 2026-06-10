@@ -9,19 +9,17 @@ const ViewCart = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://localhost:5000/api'; // आफ्नो actual backend port सँग match गराउनुहोस्
+  const API_BASE_URL = 'http://localhost:5000/api/auth/GetCar';
 
-  // 1. Fetch Cart Data from Backend (GetCart)
   const fetchCart = async () => {
     try {
       setLoading(true);
       setError('');
 
-      // टोकन र कन्फिगलाई प्रतेक पटक फङ्सन चल्दा फ्रेस बनाउने
       const token = localStorage.getItem('token'); 
       
       if (!token) {
-        setError('तपाईँ लगइन हुनुहुन्न! कृपया पहिले लगइन गर्नुहोस्।');
+        setError('you are loged out login first');
         setLoading(false);
         return;
       }
@@ -40,8 +38,7 @@ const ViewCart = () => {
       }
     } catch (err) {
       console.error("Cart fetch error details:", err.response || err);
-      // Backend ले दिएको message वा custom message देखाउने
-      setError(err.response?.data?.message || 'Cart fetch garna sakiyena! Server वा Network चेक गर्नुहोस्।');
+      setError(err.response?.data?.message || 'Cart fetch garna sakiyena!');
     } finally {
       setLoading(false);
     }
@@ -51,7 +48,6 @@ const ViewCart = () => {
     fetchCart();
   }, []);
 
-  // 2. Handle Quantity Update (Using AddToCart Backend Logic)
   const handleQuantityChange = async (productId, currentQty, type) => {
     if (type === 'dec' && currentQty <= 1) return;
 
@@ -64,7 +60,6 @@ const ViewCart = () => {
         },
       };
 
-      // backend ले quantity थप्ने भएकोले: inc को लागि +1, dec को लागि -1 पठाउने
       const quantityChange = type === 'inc' ? 1 : -1;
 
       const response = await axios.post(
@@ -74,14 +69,13 @@ const ViewCart = () => {
       );
 
       if (response.data.success) {
-        fetchCart(); // डाटा अपडेट भएपछि फ्रेस कार्ट लिस्ट तान्ने
+        fetchCart();
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Quantity update error!');
     }
   };
 
-  // 3. Remove Single Item (RemoveFromCart)
   const handleRemoveItem = async (productId) => {
     try {
       const token = localStorage.getItem('token');
@@ -94,7 +88,6 @@ const ViewCart = () => {
       const response = await axios.delete(`${API_BASE_URL}/cart/remove/${productId}`, config);
       
       if (response.data.success) {
-        // UI बाट तुरुन्तै फिल्टर गरिदिने
         setCartItems(prev => prev.filter(item => item.product?._id !== productId));
       }
     } catch (err) {
@@ -137,7 +130,7 @@ const ViewCart = () => {
               Feri Try Garne
             </button>
             <button onClick={() => navigate('/login')} className="text-sm text-slate-500 hover:underline">
-              Login Page मा जाने
+              Back To Login Page
             </button>
           </div>
         </div>
