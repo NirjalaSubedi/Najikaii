@@ -9,7 +9,7 @@ const ViewCart = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://localhost:5000/api/auth/GetCar';
+  const API_BASE_URL = 'http://localhost:5000/api/auth/GetCart';
 
   const fetchCart = async () => {
     try {
@@ -31,7 +31,7 @@ const ViewCart = () => {
         },
       };
 
-      const response = await axios.get(`${API_BASE_URL}/cart/get`, config);
+      const response = await axios.get(`${API_BASE_URL}`, config);
       
       if (response.data.success) {
         setCartItems(response.data.cart || []);
@@ -147,9 +147,6 @@ const ViewCart = () => {
             <ArrowLeft size={18} className="text-slate-600" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="bg-[#10B981] text-white p-1.5 rounded-lg font-bold flex items-center justify-center text-sm">
-              N
-            </div>
             <span className="text-lg font-bold text-slate-900 tracking-tight">
               Najikai
             </span>
