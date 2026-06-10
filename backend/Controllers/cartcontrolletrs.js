@@ -7,6 +7,14 @@ exports.AddToCart = async(req,res)=>{
         const {productid, quantity}= req.body;
         const userId= req.user.id;
 
+        const reqQuantity = Number(quantity);
+        if (!reqQuantity || reqQuantity <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Quantity kamti ma pani 1 huna parcha!"
+            });
+        }
+
         //check if user exist or not
         const user = await usermodel.findById(userId);
         if(!user){
@@ -28,6 +36,13 @@ exports.AddToCart = async(req,res)=>{
         }
 
         //checking product stock
+        if (product.stock === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Yo product out of stock chha!"
+            });
+        }
+
         if (product.stock < quantity) {
             return res.status(400).json({ message: "Stock ma yeti saman chhaina!" });
         }
