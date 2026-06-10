@@ -110,12 +110,12 @@ exports.PlaceOrder = async (req, res) => {
         else if (distance <= 5) dCharge = 40;
         else dCharge = 50;
 
-        // 3. Financial Calculation
+        //Financial Calculation
         const finalAmount = subTotal + dCharge;
         const adminCommission = subTotal * 0.10;
         const vendorEarnings = subTotal * 0.90;
 
-        // 4. Order Create garne
+        //Order Create garne
         const newOrder = new Order({
             customer: userId,
             items: orderItems,
