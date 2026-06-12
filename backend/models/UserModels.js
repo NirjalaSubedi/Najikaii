@@ -66,22 +66,6 @@ const userSchema=new mongoose.Schema({
     otpExpire: {
         type: Date
     },
-    
-    cart: [{
-        product: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: 'Product' 
-        },
-        quantity: { 
-            type: Number, 
-            default: 1 
-        },
-        price: { 
-            type: Number, 
-            required: true,
-            default: 0 
-        }
-    }],
 
     googleId: { type: String },
     facebookId: { type: String },
