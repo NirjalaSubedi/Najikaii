@@ -11,7 +11,8 @@ const ProductCard = ({ product, onClick }) => {
     _id,
     id,
     name = "Unnamed Product",
-    sellingPrice = 0,      
+    price,                  
+    sellingPrice,          
     actualPrice,          
     discountPercentage,   
     image = "https://via.placeholder.com/300",
@@ -22,10 +23,12 @@ const ProductCard = ({ product, onClick }) => {
     vendor = {}
   } = product;
 
+  const displayPrice = price !== undefined && price !== null ? Number(price) : (Number(sellingPrice) || 0);
   const currentProductKey = _id || id;
   
-  const cartItem = cartItems.find((item) => {
-    const itemKey = item._id || item.id;
+  const cartItem = cartItems?.find((item) => {
+    const nestedProduct = item.product || item;
+    const itemKey = nestedProduct._id || nestedProduct.id || nestedProduct.productId;
     return String(itemKey) === String(currentProductKey);
   });
 
@@ -33,11 +36,32 @@ const ProductCard = ({ product, onClick }) => {
 
   const calculatedDiscount = discountPercentage 
     ? discountPercentage 
-    : (actualPrice && actualPrice > sellingPrice) 
-      ? Math.round(((actualPrice - sellingPrice) / actualPrice) * 100) 
+    : (actualPrice && actualPrice > displayPrice) 
+      ? Math.round(((actualPrice - displayPrice) / actualPrice) * 100) 
       : null;
 
   const isOutOfStock = stock <= 0;
+
+  const handleAddToCart = (event) => {
+    event.stopPropagation();
+    
+    if (isOutOfStock) {
+      alert("Yo item out of stock bhayeko le thapna mildaina!");
+      return;
+    }
+
+    addToCart({
+      ...product,
+      _id: currentProductKey,
+      id: currentProductKey,
+      price: displayPrice  
+    });
+  };
+
+  const handleRemoveFromCart = (event) => {
+    event.stopPropagation();
+    removeFromCart(currentProductKey);
+  };
 
   return (
     <div
@@ -87,7 +111,7 @@ const ProductCard = ({ product, onClick }) => {
         <img
           src={image}
           alt={name}
-          className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-40' : ''}`}
+          className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[40%]' : ''}`}
           loading="lazy"
         />
       </div>
@@ -124,9 +148,9 @@ const ProductCard = ({ product, onClick }) => {
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1.5">
               <span className="text-base font-black text-gray-900 tracking-tight">
-                Rs. {sellingPrice}
+                Rs. {displayPrice}
               </span>
-              {actualPrice && actualPrice > sellingPrice && (
+              {actualPrice && actualPrice > displayPrice && (
                 <span className="text-xs font-medium text-gray-400 line-through decoration-gray-300">
                   Rs. {actualPrice}
                 </span>
@@ -134,14 +158,11 @@ const ProductCard = ({ product, onClick }) => {
             </div>
           </div>
 
-          {currentQuantity > 0 ? (
+          {currentQuantity > 0 && !isOutOfStock ? (
             <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 min-w-22.5 shadow-sm h-8">
               <button 
                 type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removeFromCart(currentProductKey);
-                }}
+                onClick={handleRemoveFromCart}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
               >
                 <Minus size={14} strokeWidth={3} />
@@ -153,10 +174,7 @@ const ProductCard = ({ product, onClick }) => {
               
               <button 
                 type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  addToCart(product);
-                }}
+                onClick={handleAddToCart}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
               >
                 <Plus size={14} strokeWidth={3} />
@@ -166,13 +184,10 @@ const ProductCard = ({ product, onClick }) => {
             <button 
               type="button"
               disabled={isOutOfStock}
-              onClick={(event) => {
-                event.stopPropagation();
-                addToCart(product);
-              }}
+              onClick={handleAddToCart}
               className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 h-8 ${
                 isOutOfStock 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed hidden'
                   : 'bg-[#00B56A] hover:bg-[#009E5B] text-white'
               }`}
             >
