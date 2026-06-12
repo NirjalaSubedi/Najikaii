@@ -1,11 +1,11 @@
 const usermodel = require('../models/UserModels');
 const productmodel = require('../models/ProductModels');
+const cartmodel = require('../models/cartModel');
 
-//Add to cart logic
-exports.AddToCart = async(req,res)=>{
-    try{
-        const {productid, quantity}= req.body;
-        const userId= req.user.id;
+exports.AddToCart = async (req, res) => {
+    try {
+        const { productid, quantity } = req.body;
+        const userId = req.user.id;
 
         const reqQuantity = Number(quantity);
         if (!reqQuantity || reqQuantity <= 0) {
@@ -15,27 +15,16 @@ exports.AddToCart = async(req,res)=>{
             });
         }
 
-        //check if user exist or not
-        const user = await usermodel.findById(userId);
-        if(!user){
-            return res.status(404).json({
-                success:false,
-                message:"user vetiyana"
-            })
-        }
-
-        //product exist garxa ki gardaiina check garne
         console.log("Searching for Product ID:", productid);
         const product = await productmodel.findById(productid.trim());
-        
-        if(!product){
+
+        if (!product) {
             return res.status(404).json({
-                success:false,
-                message:"product vetiyana"
-            })
+                success: false,
+                message: "product vetiyana"
+            });
         }
 
-        //checking product stock
         if (product.stock === 0) {
             return res.status(400).json({
                 success: false,
@@ -43,55 +32,85 @@ exports.AddToCart = async(req,res)=>{
             });
         }
 
-        if (product.stock < quantity) {
-            return res.status(400).json({ message: "Stock ma yeti saman chhaina!" });
+        if (product.stock < reqQuantity) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Stock ma yeti saman chhaina!" 
+            });
         }
 
-        //checking if product already exist in cart or not
-        const isItemExist = user.cart.find(
-            (item) => item.product.toString() === productid
-        );
+        const currentPrice = product.sellingPrice || product.actualPrice;
 
-        if (isItemExist) {
-            isItemExist.quantity += Number(quantity);
+        let cart = await cartmodel.findOne({ user: userId });
+
+        if (!cart) {
+            cart = new cartmodel({
+                user: userId,
+                items: [{
+                    product: productid.trim(),
+                    quantity: reqQuantity,
+                    price: currentPrice
+                }]
+            });
         } else {
-            user.cart.push({ product: productid, quantity });
+            const isItemExist = cart.items.find(
+                (item) => item.product.toString() === productid.trim()
+            );
+
+            if (isItemExist) {
+                isItemExist.quantity += reqQuantity;
+                isItemExist.price = currentPrice;
+            } else {
+                cart.items.push({
+                    product: productid.trim(),
+                    quantity: reqQuantity,
+                    price: currentPrice
+                });
+            }
         }
 
-        await user.save();
+        await cart.save();
+
+        const updatedCart = await cartmodel.findOne({ user: userId }).populate({
+            path: 'items.product',
+            select: 'name actualPrice sellingPrice image stock'
+        });
 
         res.status(200).json({
             success: true,
             message: "Cart updated successfully!",
-            cart: user.cart
+            cart: updatedCart.items
         });
 
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
-        })
+            success: false,
+            message: error.message
+        });
     }
-}
+};
 
-//view cart
 exports.GetCart = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const user = await usermodel.findById(userId).populate({
-            path: 'cart.product',
-            select: 'name price image stock' 
+        const cart = await cartmodel.findOne({ user: userId }).populate({
+            path: 'items.product',
+            select: 'name actualPrice sellingPrice image stock'
         });
 
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User bhetiyena" });
+        if (!cart) {
+            return res.status(200).json({
+                success: true,
+                count: 0,
+                cart: []
+            });
         }
 
         res.status(200).json({
             success: true,
-            count: user.cart.length,
-            cart: user.cart
+            count: cart.items.length,
+            cart: cart.items
         });
 
     } catch (error) {
@@ -99,34 +118,38 @@ exports.GetCart = async (req, res) => {
     }
 };
 
-// Remove single item from cart
 exports.RemoveFromCart = async (req, res) => {
     try {
-        const { productid } = req.params; // or req.body
+        const { productid } = req.params;
         const userId = req.user.id;
 
-        const user = await usermodel.findById(userId);
+        const cart = await cartmodel.findOne({ user: userId });
 
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User bhetiyena" });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart bhetiyena" });
         }
 
-        // Filter garera tyo product bahek aru sabai lai naya array ma rakhne
-        const initialCartLength = user.cart.length;
-        user.cart = user.cart.filter(
-            (item) => item.product.toString() !== productid
+        const initialLength = cart.items.length;
+        
+        cart.items = cart.items.filter(
+            (item) => item.product.toString() !== productid.trim()
         );
 
-        if (user.cart.length === initialCartLength) {
+        if (cart.items.length === initialLength) {
             return res.status(404).json({ success: false, message: "Yo product cart ma chhaina" });
         }
 
-        await user.save();
+        await cart.save();
+
+        const updatedCart = await cartmodel.findOne({ user: userId }).populate({
+            path: 'items.product',
+            select: 'name actualPrice sellingPrice image stock'
+        });
 
         res.status(200).json({
             success: true,
             message: "Product cart bata hatayo!",
-            cart: user.cart
+            cart: updatedCart ? updatedCart.items : []
         });
 
     } catch (error) {
@@ -134,24 +157,23 @@ exports.RemoveFromCart = async (req, res) => {
     }
 };
 
-// Clear all items from cart
 exports.ClearCart = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const user = await usermodel.findById(userId);
+        const cart = await cartmodel.findOne({ user: userId });
 
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User bhetiyena" });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: "Cart bhetiyena" });
         }
 
-        // Cart array lai empty garidine
-        user.cart = [];
-        await user.save();
+        cart.items = [];
+        await cart.save();
 
         res.status(200).json({
             success: true,
-            message: "Cart purai khali vayo!"
+            message: "Cart purai khali vayo!",
+            cart: []
         });
 
     } catch (error) {
