@@ -20,6 +20,7 @@ import Orders from "./pages/admin/Orders";
 
 import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
+import AddProduct from "./pages/Vendor/AddProduct";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ConfirmDelete from './components/ConfirmDelete';
@@ -64,6 +65,9 @@ function App() {
 
           <Route path="/vendor" element={<VendorLayout />}>
             <Route path="dashboard" element={<VendorOverview />} />
+            <Route path="addProduct" element={<AddProduct />} />
+
+
           </Route>
 
       </Routes>
