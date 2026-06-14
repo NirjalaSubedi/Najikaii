@@ -65,7 +65,7 @@ function App() {
 
           <Route path="/vendor" element={<VendorLayout />}>
             <Route path="dashboard" element={<VendorOverview />} />
-            <Route path="addProduct" element={<AddProduct />} />
+            <Route path="add-product" element={<AddProduct />} />
 
 
           </Route>
