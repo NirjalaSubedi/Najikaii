@@ -36,7 +36,6 @@ const VendorOverview = () => {
                 });
 
                 if (res.data && res.data.success) {
-                    // res.data.orders एरे नै हो भनी सुनिश्चित गर्न Array.isArray प्रयोग गरिएको
                     const ordersList = Array.isArray(res.data.orders) ? res.data.orders : [];
 
                     const totalSales = ordersList.reduce((sum, order) => sum + (order.vendorSpecificTotal || 0), 0);
