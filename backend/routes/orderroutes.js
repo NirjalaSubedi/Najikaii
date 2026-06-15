@@ -11,6 +11,6 @@ router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('vendor','
 
 // Cancel ko lagi
 router.put('/cancel/:orderId', authmiddlewares, authorizeRoles('Customer', 'admin', 'Admin'), CancelOrder);
-router.get('/getOrderCount',getOrderCount);
-router.get('/getRecentOrders',getRecentOrders);
+router.get('/getOrderCount',authmiddlewares, authorizeRoles('Admin'),getOrderCount);
+router.get('/getRecentOrders',authmiddlewares, authorizeRoles('Admin'),getRecentOrders);
 module.exports=router;
