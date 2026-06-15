@@ -213,3 +213,28 @@ exports.deleteProduct = async (req, res) => {
         });
     }
 };
+
+// Get low stock products for the logged-in vendor
+exports.getLowStockProducts = async (req, res) => {
+    try {
+        // dynamic threshold checking value setup (Fallback to 10 if not defined)
+        const threshold = parseInt(req.query.threshold) || 10;
+        
+        const lowStockProducts = await product.find({
+            vendor: req.user.id,
+            stock: { $lte: threshold, $gte: 0 }
+        });
+
+        res.status(200).json({
+            success: true,
+            count: lowStockProducts.length,
+            message: "Low stock vako products haru successfully fetch vayo",
+            products: lowStockProducts
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

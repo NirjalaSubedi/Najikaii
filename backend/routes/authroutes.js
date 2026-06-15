@@ -3,7 +3,7 @@ const router= express.Router();
 const {register,login,updateProfile,deleteuser,confirmDeleteUser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,resendOtp,getUserCount}= require('../Controllers/authcontrollers');
 const { getVendorOverview } = require('../Controllers/shopcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct}= require("../Controllers/productControllers");
+const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct,getLowStockProducts}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
 const {AddToCart,GetCart,RemoveFromCart,ClearCart}= require("../Controllers/cartcontrolletrs");
 
@@ -53,6 +53,8 @@ router.put('/updateProduct/:id',authmiddlewares,authorizeRoles('Vendor'),updateP
 
 //product owner and vendor can only delete products 
 router.delete('/delete-product/:id',authmiddlewares,authorizeRoles('Vendor','Admin'),deleteProduct);
+
+router.get('/getLowStockProducts',authmiddlewares,authorizeRoles('Vendor'),getLowStockProducts);
 
 //add to cart 
 router.post('/AddToCart',authmiddlewares,authorizeRoles('Customer'),AddToCart);
