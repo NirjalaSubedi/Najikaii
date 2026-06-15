@@ -18,8 +18,11 @@ const VendorLayout = () => {
     const navigate = useNavigate();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     
-    // Backend bata aune low stock products ko state
+    // State for low stock products
     const [lowStockProducts, setLowStockProducts] = useState([]);
+    
+    // State to store dynamic Shop Name fetched from backend
+    const [shopName, setShopName] = useState('Loading...');
 
     const menuItems = [
         { name: 'Overview', path: '/vendor/dashboard', icon: <LayoutDashboard size={16} /> },
@@ -30,13 +33,45 @@ const VendorLayout = () => {
         { name: 'Profile', path: '/vendor/profile', icon: <User size={16} /> }
     ];
 
+    // MATCHED & FIXED: Fetch Vendor Profile Data using correct backend route
+    useEffect(() => {
+        const fetchVendorProfile = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                // CHANGED: /api/auth/profile -> /api/auth/MyProfileInfo to match backend router
+                const response = await fetch('http://localhost:5000/api/auth/MyProfileInfo', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                // Backend controller response validation
+                if (data.success && data.userInfo) {
+                    setShopName(data.userInfo.shopName || data.userInfo.name || 'My Shop');
+                } else if (data.success && data.user) { 
+                    setShopName(data.user.shopName || data.user.name || 'My Shop');
+                }
+            } catch (error) {
+                console.error("Profile data fetch garna error aayo:", error);
+                setShopName('My Shop');
+            }
+        };
+
+        fetchVendorProfile();
+    }, []);
+
     // Fetch Low Stock Products From Backend
     useEffect(() => {
         const fetchLowStockData = async () => {
             try {
                 const token = localStorage.getItem('token'); 
 
-                // FIXED: URL changed to backend port 5000 and added /api/auth path
                 const response = await fetch('http://localhost:5000/api/auth/getLowStockProducts', {
                     method: 'GET',
                     headers: {
@@ -54,11 +89,16 @@ const VendorLayout = () => {
             }
         };
 
-        // Vendor dashboard path ma huda matra backend api hit garne
         if (location.pathname === '/vendor/dashboard') {
             fetchLowStockData();
         }
     }, [location.pathname]);
+
+    // Helper to extract initials for the avatar
+    const getInitials = (name) => {
+        if (!name || name === 'Loading...') return 'V';
+        return name.split(' ').filter(Boolean).map(word => word[0]).join('').slice(0, 2).toUpperCase();
+    };
 
     return (
         <div className="min-h-screen bg-[#f9fafb] font-sans w-full flex flex-col antialiased">
@@ -105,17 +145,17 @@ const VendorLayout = () => {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full"></span>
                         </button>
 
-                        {/* Profile*/}
+                        {/* Profile */}
                         <div className="relative">
                             <button 
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                                 className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 bg-gray-50 hover:bg-gray-100/80 border border-gray-100 rounded-full transition-all text-left"
                             >
-                                <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                                    GV
+                                <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm select-none">
+                                    {getInitials(shopName)}
                                 </div>
                                 <div className="hidden sm:block leading-tight">
-                                    <h4 className="text-xs font-bold text-gray-800">Green Valley Farm</h4>
+                                    <h4 className="text-xs font-bold text-gray-800 tracking-tight">{shopName}</h4>
                                     <p className="text-[10px] text-gray-400 font-medium">Vendor Account</p>
                                 </div>
                             </button>
@@ -132,7 +172,11 @@ const VendorLayout = () => {
                                     </Link>
                                     <hr className="border-gray-50 my-1" />
                                     <button 
-                                        onClick={() => alert('Logout Triggered')}
+                                        onClick={() => {
+                                            localStorage.removeItem('token');
+                                            localStorage.removeItem('role');
+                                            navigate('/login');
+                                        }}
                                         className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50/50 w-full text-left transition-colors"
                                     >
                                         <LogOut size={14} /> Logout
@@ -147,11 +191,9 @@ const VendorLayout = () => {
 
             <main className="flex-1 w-full max-w-[1000px] mx-auto px-6 py-8">
                 
-                {/* 1. PATH CHECK  2. DYNAMICALLY RENDERED ONLY IF LOW STOCK ITEMS EXIST */}
                 {location.pathname === '/vendor/dashboard' && lowStockProducts.length > 0 && (
                     <div className="mb-6 bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-5 text-left shadow-2xs">
                         
-                        {/* Header Section */}
                         <div className="flex items-center gap-2.5 mb-4">
                             <AlertTriangle size={18} className="text-amber-600 stroke-[2]" />
                             <h3 className="text-base font-medium text-amber-900">Low Stock Alert!</h3>
@@ -160,7 +202,6 @@ const VendorLayout = () => {
                             </span>
                         </div>
 
-                        {/* Dynamic Grid Layout baata loop gareko items */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {lowStockProducts.map((prod) => (
                                 <div key={prod._id} className="bg-white border border-gray-100 rounded-xl p-3.5 flex items-center justify-between shadow-3xs">
