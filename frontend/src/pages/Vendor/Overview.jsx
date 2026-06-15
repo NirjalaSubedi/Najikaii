@@ -5,8 +5,7 @@ import {
     Store, 
     Package, 
     CreditCard, 
-    TrendingUp, 
-    AlertTriangle 
+    TrendingUp 
 } from 'lucide-react';
 
 const VendorOverview = () => {
@@ -15,7 +14,7 @@ const VendorOverview = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const fetchOverview = async () => {
+        const fetchOverview = async()=>{
             try {
                 setLoading(true);
                 setError('');
@@ -28,10 +27,10 @@ const VendorOverview = () => {
                     }
                 });
 
-                if (res.data && res.data.success) {
+                if (res.data && res.data.success){
                     setData(res.data.data);
                 } else {
-                    setError(res.data?.message || 'Failed to fetch vendor overview');
+                    setError(res.data?.message||'Failed to fetch vendor overview');
                 }
             } catch (err) {
                 console.error('Vendor overview load error:', err);
@@ -67,8 +66,7 @@ const VendorOverview = () => {
         totalSales, 
         vendorEarnings, 
         adminCommission, 
-        recentOrders, 
-        lowStockProducts 
+        recentOrders 
     } = data || {};
 
     const getStatusStyles = (status) => {
@@ -86,42 +84,6 @@ const VendorOverview = () => {
     return (
         <div className="w-full space-y-7 text-left font-sans animate-fadeIn">
 
-            {/* ─── LOW STOCK BANNER (Thulo Container & Sized Up Inner Items) ─── */}
-            {lowStockProducts && lowStockProducts.length > 0 && (
-                <div className="bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-7 shadow-xs">
-                    
-                    {/* Header Label Block */}
-                    <div className="flex items-center gap-3 mb-6">
-                        <AlertTriangle size={22} className="text-amber-600 stroke-[2]" />
-                        <span className="text-lg font-medium text-amber-900">Low Stock Alert!</span>
-                        <span className="text-sm bg-[#fdedd0] text-amber-800 px-3.5 py-1 rounded-full font-medium">
-                            {lowStockProducts.length} products
-                        </span>
-                    </div>
-
-                    {/* Grids with thicker p-5 and text sizes */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        {lowStockProducts.map(p => (
-                            <div key={p._id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-5 shadow-xs">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-amber-50/40 flex items-center justify-center text-amber-600 border border-amber-100/30 flex-shrink-0">
-                                        <Package size={22} className="stroke-[1.5]" />
-                                    </div>
-                                    <div>
-                                        <div className="text-lg font-medium text-gray-900 tracking-tight">{p.name}</div>
-                                        <div className="text-sm text-[#e11d48] font-normal mt-1">Only {p.stock} left!</div>
-                                    </div>
-                                </div>
-                                <button className="text-base text-emerald-600 hover:text-emerald-700 font-medium px-3 py-1.5 transition-colors">
-                                    Update
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* ─── TOP METRICS GRID ─── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {/* Total Products */}
                 <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col justify-between min-h-[160px]">
@@ -129,8 +91,8 @@ const VendorOverview = () => {
                         <Store size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-light text-gray-900 tracking-tight">{totalProducts || 0}</div>
-                        <div className="text-sm text-gray-500 font-normal mt-1">Total Products</div>
+                        <div className="text-4xl font-bold text-gray-900 tracking-tight">{totalProducts || 0}</div>
+                        <div className="text-sm text-gray-700 font-semibold mt-1">Total Products</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">5 active profiles</div>
                     </div>
                 </div>
@@ -141,8 +103,8 @@ const VendorOverview = () => {
                         <Package size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-light text-gray-900 tracking-tight">{totalOrders || 0}</div>
-                        <div className="text-sm text-gray-500 font-normal mt-1">Total Orders</div>
+                        <div className="text-4xl font-bold text-gray-900 tracking-tight">{totalOrders || 0}</div>
+                        <div className="text-sm text-gray-700 font-semibold mt-1">Total Orders</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">3 pending approval</div>
                     </div>
                 </div>
@@ -153,8 +115,8 @@ const VendorOverview = () => {
                         <TrendingUp size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-light text-gray-900 tracking-tight">Rs. {(totalSales || 0).toLocaleString()}</div>
-                        <div className="text-sm text-gray-500 font-normal mt-1">This Month Revenue</div>
+                        <div className="text-4xl font-bold text-gray-900 tracking-tight">Rs. {(totalSales || 0).toLocaleString()}</div>
+                        <div className="text-sm text-gray-700 font-semibold mt-1">This Month Revenue</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">Gross volume scale</div>
                     </div>
                 </div>
@@ -165,47 +127,46 @@ const VendorOverview = () => {
                         <CreditCard size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-light text-gray-900 tracking-tight">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
-                        <div className="text-sm text-gray-500 font-normal mt-1">Your Net Earnings</div>
+                        <div className="text-4xl font-bold text-gray-900 tracking-tight">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
+                        <div className="text-sm text-gray-700 font-semibold mt-1">Your Net Earnings</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">90% cutout share</div>
                     </div>
                 </div>
             </div>
 
-            {/* ─── COMMISSION BREAKDOWN ─── */}
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-2xs">
-                <h4 className="text-base font-normal text-gray-900 mb-5 tracking-tight uppercase">Commission Breakdown</h4>
+                <h4 className="text-base font-bold text-gray-900 mb-5 tracking-tight uppercase">Commission Breakdown</h4>
                 
                 <div className="flex items-center justify-between gap-5 mb-6">
                     <div className="w-full bg-gray-50 border border-gray-100 rounded-full h-3 overflow-hidden">
                         <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${vendorPercentage}%` }} />
                     </div>
-                    <span className="text-sm font-normal text-gray-500 whitespace-nowrap bg-gray-50 border border-gray-100 px-3 py-1 rounded-lg">
+                    <span className="text-sm font-semibold text-gray-600 whitespace-nowrap bg-gray-50 border border-gray-100 px-3 py-1 rounded-lg">
                         {vendorPercentage}% Vendor / {adminPercentage}% Admin
                     </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="bg-gray-50/60 border border-gray-100/60 rounded-xl p-5 text-center">
-                        <div className="text-2xl font-light text-gray-900">Rs. {(totalSales || 0).toLocaleString()}</div>
-                        <div className="text-xs text-gray-400 font-medium mt-1.5 uppercase tracking-wider">Total Revenue Base</div>
+                        <div className="text-2xl font-bold text-gray-900">Rs. {(totalSales || 0).toLocaleString()}</div>
+                        <div className="text-xs text-gray-400 font-bold mt-1.5 uppercase tracking-wider">Total Revenue Base</div>
                     </div>
                     <div className="bg-emerald-50/40 border border-emerald-100/40 rounded-xl p-5 text-center">
-                        <div className="text-2xl font-light text-emerald-600">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
-                        <div className="text-xs text-emerald-500 font-medium mt-1.5 uppercase tracking-wider">Your Payout Earning (90%)</div>
+                        <div className="text-2xl font-bold text-emerald-600">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
+                        <div className="text-xs text-emerald-500 font-bold mt-1.5 uppercase tracking-wider">Your Payout Earning (90%)</div>
                     </div>
                     <div className="bg-rose-50/40 border border-rose-100/40 rounded-xl p-5 text-center">
-                        <div className="text-2xl font-light text-rose-500">Rs. {(adminCommission || 0).toLocaleString()}</div>
-                        <div className="text-xs text-rose-400 font-medium mt-1.5 uppercase tracking-wider">Platform Fee Charge (10%)</div>
+                        <div className="text-2xl font-bold text-rose-500">Rs. {(adminCommission || 0).toLocaleString()}</div>
+                        <div className="text-xs text-rose-400 font-bold mt-1.5 uppercase tracking-wider">Platform Fee Charge (10%)</div>
                     </div>
                 </div>
             </div>
 
-            {/* ─── RECENT ORDERS ─── */}
+            {/* ─── RECENT ORDERS (Headings Bolded) ─── */}
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-2xs">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-base font-normal text-gray-900 uppercase tracking-tight">Recent Orders</h3>
-                    <button className="text-sm text-emerald-600 font-normal hover:text-emerald-700 hover:underline bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-xl transition-all">
+                    <h3 className="text-base font-bold text-gray-900 uppercase tracking-tight">Recent Orders</h3>
+                    <button className="text-sm text-emerald-600 font-semibold hover:text-emerald-700 hover:underline bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-xl transition-all">
                         View All History
                     </button>
                 </div>
@@ -220,18 +181,18 @@ const VendorOverview = () => {
                             return (
                                 <div key={order._id} className="flex justify-between items-center py-4.5 transition-colors px-1">
                                     <div className="space-y-1">
-                                        <h4 className="text-base font-normal text-gray-900 tracking-tight">
+                                        <h4 className="text-base font-bold text-gray-900 tracking-tight">
                                             ORD-{String(order._id).slice(-3).toUpperCase()}
                                         </h4>
-                                        <p className="text-sm text-gray-400 font-normal">
+                                        <p className="text-sm text-gray-500 font-medium">
                                             {order.customer?.name || 'Aarav Sharma'} <span className="text-gray-200 mx-1.5">•</span> {orderDate}
                                         </p>
                                     </div>
                                     <div className="text-right flex flex-col items-end gap-2">
-                                        <div className="text-lg font-light text-gray-900">
+                                        <div className="text-lg font-bold text-gray-900">
                                             Rs. {(vendorTotal || 145 + idx * 35).toLocaleString()}
                                         </div>
-                                        <div className={`text-[11px] font-medium px-3 py-1 rounded-full border tracking-wider uppercase ${getStatusStyles(order.status)}`}>
+                                        <div className={`text-[11px] font-bold px-3 py-1 rounded-full border tracking-wider uppercase ${getStatusStyles(order.status)}`}>
                                             {order.status || 'Delivered'}
                                         </div>
                                     </div>
