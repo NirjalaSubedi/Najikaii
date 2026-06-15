@@ -91,7 +91,7 @@ const VendorOverview = () => {
                         <Store size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-bold text-gray-900 tracking-tight">{totalProducts || 0}</div>
+                        <div className="text-3xl text-gray-900 tracking-tight">{totalProducts || 0}</div>
                         <div className="text-sm text-gray-700 font-semibold mt-1">Total Products</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">5 active profiles</div>
                     </div>
@@ -103,7 +103,7 @@ const VendorOverview = () => {
                         <Package size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-bold text-gray-900 tracking-tight">{totalOrders || 0}</div>
+                        <div className="text-3xl text-gray-900 tracking-tight">{totalOrders || 0}</div>
                         <div className="text-sm text-gray-700 font-semibold mt-1">Total Orders</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">3 pending approval</div>
                     </div>
@@ -115,7 +115,7 @@ const VendorOverview = () => {
                         <TrendingUp size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-bold text-gray-900 tracking-tight">Rs. {(totalSales || 0).toLocaleString()}</div>
+                        <div className="text-3xl text-gray-900 tracking-tight">Rs. {(totalSales || 0).toLocaleString()}</div>
                         <div className="text-sm text-gray-700 font-semibold mt-1">This Month Revenue</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">Gross volume scale</div>
                     </div>
@@ -127,7 +127,7 @@ const VendorOverview = () => {
                         <CreditCard size={22} className="stroke-[1.8]" />
                     </div>
                     <div className="mt-5">
-                        <div className="text-4xl font-bold text-gray-900 tracking-tight">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
+                        <div className="text-3xl text-gray-900 tracking-tight">Rs. {(vendorEarnings || 0).toLocaleString()}</div>
                         <div className="text-sm text-gray-700 font-semibold mt-1">Your Net Earnings</div>
                         <div className="text-xs text-gray-400 font-normal mt-0.5">90% cutout share</div>
                     </div>
