@@ -4,9 +4,10 @@ const AddProduct = () => {
   const [product, setProduct] = useState({
     name: '',
     description: '',
-    price: '',
-    discountPrice: '',
+    actualPrice: '',
+    sellingPrice: '',
     category: '',
+    unitType: '',
     stock: '',
   });
   const [image, setImage] = useState(null);
@@ -22,7 +23,7 @@ const AddProduct = () => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Client-side display placeholder
+      setImagePreview(URL.createObjectURL(file)); 
     }
   };
 
@@ -33,26 +34,34 @@ const AddProduct = () => {
     const formData = new FormData();
     formData.append('name', product.name);
     formData.append('description', product.description);
-    formData.append('price', product.price);
-    formData.append('discountPrice', product.discountPrice);
+    formData.append('actualPrice', product.actualPrice); 
+    formData.append('sellingPrice', product.sellingPrice); 
     formData.append('category', product.category);
+    formData.append('unitType', product.unitType); 
     formData.append('stock', product.stock);
-    if (image) formData.append('productImage', image);
+    if (image) formData.append('image', image);
 
     try {
-      // Direct local development fallback API
-      const response = await fetch('http://localhost:5000/api/products/add', {
+      const response = await fetch('http://localhost:5000/api/auth/add-products', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('vendorToken')}` 
+          'Authorization': `Bearer ${localStorage.getItem('token')}` 
         },
         body: formData,
       });
 
       const data = await response.json();
-      if (response.ok) {
+      if (response.ok || data.success) {
         alert('Product added successfully!');
-        setProduct({ name: '', description: '', price: '', discountPrice: '', category: '', stock: '' });
+        setProduct({ 
+          name: '', 
+          description: '', 
+          actualPrice: '', 
+          sellingPrice: '', 
+          category: '', 
+          unitType: '', 
+          stock: '' 
+        });
         setImage(null);
         setImagePreview(null);
       } else {
@@ -60,7 +69,7 @@ const AddProduct = () => {
       }
     } catch (error) {
       console.error("API Connection Error:", error);
-      alert('Local Server connected successfully (Simulated response)');
+      alert('Something went wrong. Please check your connection.');
     } finally {
       setLoading(false);
     }
@@ -73,7 +82,6 @@ const AddProduct = () => {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Fields */}
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Product Title *</label>
@@ -106,8 +114,8 @@ const AddProduct = () => {
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Original Price (Rs.) *</label>
                 <input
                   type="number"
-                  name="price"
-                  value={product.price}
+                  name="actualPrice"
+                  value={product.actualPrice}
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
@@ -115,12 +123,13 @@ const AddProduct = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Offer Price (Rs.)</label>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Offer/Selling Price (Rs.) *</label>
                 <input
                   type="number"
-                  name="discountPrice"
-                  value={product.discountPrice}
+                  name="sellingPrice"
+                  value={product.sellingPrice}
                   onChange={handleInputChange}
+                  required
                   className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
                   placeholder="220"
                 />
@@ -128,7 +137,6 @@ const AddProduct = () => {
             </div>
           </div>
 
-          {/* Right Fields */}
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Category *</label>
@@ -147,20 +155,39 @@ const AddProduct = () => {
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Stock Stock Count *</label>
-              <input
-                type="number"
-                name="stock"
-                value={product.stock}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
-                placeholder="15"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Stock Count *</label>
+                <input
+                  type="number"
+                  name="stock"
+                  value={product.stock}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                  placeholder="15"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Unit Type *</label>
+                <select
+                  name="unitType"
+                  value={product.unitType}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
+                >
+                  <option value="">Select Unit</option>
+                  <option value="pcs">pcs (Pieces)</option>
+                  <option value="kg">kg (Kilogram)</option>
+                  <option value="ltr">ltr (Litre)</option>
+                  <option value="packet">packet</option>
+                  <option value="gram">gram</option>
+                </select>
+              </div>
             </div>
 
-            {/* Upload Box matching your clean UI layout */}
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1">Product Showcase Image *</label>
               <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:bg-gray-50 relative min-h-[120px] flex items-center justify-center">
@@ -187,7 +214,6 @@ const AddProduct = () => {
           </div>
         </div>
 
-        {/* Buttons matching theme color scheme */}
         <div className="pt-4 border-t border-gray-100 flex justify-end">
           <button
             type="submit"
@@ -196,7 +222,7 @@ const AddProduct = () => {
               loading ? 'bg-emerald-300 cursor-wait' : 'bg-emerald-500 hover:bg-emerald-600 active:scale-95 transition-all'
             }`}
           >
-            {loading ? 'Publishing Link...' : 'Publish Product'}
+            {loading ? 'Publishing...' : 'Publish Product'}
           </button>
         </div>
       </form>
