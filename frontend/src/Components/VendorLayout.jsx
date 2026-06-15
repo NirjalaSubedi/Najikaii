@@ -17,7 +17,6 @@ const VendorLayout = () => {
     const location = useLocation();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-    // Balanced icon sizes for subtle layout look
     const menuItems = [
         { name: 'Overview', path: '/vendor/dashboard', icon: <LayoutDashboard size={16} /> },
         { name: 'My Products', path: '/vendor/my-products', icon: <ShoppingBag size={16} /> },
@@ -30,11 +29,9 @@ const VendorLayout = () => {
     return (
         <div className="min-h-screen bg-[#f9fafb] font-sans w-full flex flex-col antialiased">
             
-            {/* ─── TOP HORIZONTAL NAVBAR ─── */}
             <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
                 <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
                     
-                    {/* Left: Brand Identity (Perfect size matching image_56b72a.png) */}
                     <div className="flex items-center gap-3">
                         <div className="bg-emerald-500 text-white p-1.5 rounded-lg flex items-center justify-center shadow-sm">
                             <ShoppingBag size={18} className="stroke-[2.5]" />
@@ -47,7 +44,6 @@ const VendorLayout = () => {
                         </div>
                     </div>
 
-                    {/* Center: Navigation Links (Clean text-sm layout) */}
                     <nav className="hidden lg:flex items-center gap-1">
                         {menuItems.map((item) => {
                             const isActive = location.pathname === item.path;
@@ -55,7 +51,7 @@ const VendorLayout = () => {
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${
                                         isActive 
                                         ? 'bg-emerald-50 text-emerald-600' 
                                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
@@ -116,7 +112,6 @@ const VendorLayout = () => {
                 </div>
             </header>
 
-            {/* ─── MAIN CONTENT WRAPPER ─── */}
             <main className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8">
                 
                 {/* Low Stock Alert Panel */}

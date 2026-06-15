@@ -86,29 +86,33 @@ const VendorOverview = () => {
     return (
         <div className="w-full space-y-7 text-left font-sans animate-fadeIn">
 
+            {/* ─── LOW STOCK BANNER (Thulo Container & Sized Up Inner Items) ─── */}
             {lowStockProducts && lowStockProducts.length > 0 && (
-                <div className="bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-6">
-                    <div className="flex items-center gap-2.5 mb-5">
-                        <AlertTriangle size={18} className="text-amber-600 stroke-[2]" />
-                        <span className="text-base font-medium text-amber-900">Low Stock Alert!</span>
-                        <span className="text-xs bg-[#fdedd0] text-amber-800 px-3 py-0.5 rounded-full font-medium">
+                <div className="bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-7 shadow-xs">
+                    
+                    {/* Header Label Block */}
+                    <div className="flex items-center gap-3 mb-6">
+                        <AlertTriangle size={22} className="text-amber-600 stroke-[2]" />
+                        <span className="text-lg font-medium text-amber-900">Low Stock Alert!</span>
+                        <span className="text-sm bg-[#fdedd0] text-amber-800 px-3.5 py-1 rounded-full font-medium">
                             {lowStockProducts.length} products
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Grids with thicker p-5 and text sizes */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         {lowStockProducts.map(p => (
-                            <div key={p._id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-4 shadow-2xs">
+                            <div key={p._id} className="flex items-center justify-between bg-white border border-gray-100 rounded-2xl p-5 shadow-xs">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-50/40 flex items-center justify-center text-amber-600 border border-amber-100/30 flex-shrink-0">
-                                        <Package size={20} className="stroke-[1.5]" />
+                                    <div className="w-12 h-12 rounded-xl bg-amber-50/40 flex items-center justify-center text-amber-600 border border-amber-100/30 flex-shrink-0">
+                                        <Package size={22} className="stroke-[1.5]" />
                                     </div>
                                     <div>
-                                        <div className="text-base font-medium text-gray-900">{p.name}</div>
-                                        <div className="text-sm text-[#e11d48] font-normal mt-0.5">Only {p.stock} left!</div>
+                                        <div className="text-lg font-medium text-gray-900 tracking-tight">{p.name}</div>
+                                        <div className="text-sm text-[#e11d48] font-normal mt-1">Only {p.stock} left!</div>
                                     </div>
                                 </div>
-                                <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 transition-colors">
+                                <button className="text-base text-emerald-600 hover:text-emerald-700 font-medium px-3 py-1.5 transition-colors">
                                     Update
                                 </button>
                             </div>
@@ -117,6 +121,7 @@ const VendorOverview = () => {
                 </div>
             )}
 
+            {/* ─── TOP METRICS GRID ─── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {/* Total Products */}
                 <div className="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col justify-between min-h-[160px]">
@@ -167,7 +172,7 @@ const VendorOverview = () => {
                 </div>
             </div>
 
-            {/*COMMISSION BREAKDOWN*/}
+            {/* ─── COMMISSION BREAKDOWN ─── */}
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-2xs">
                 <h4 className="text-base font-normal text-gray-900 mb-5 tracking-tight uppercase">Commission Breakdown</h4>
                 
@@ -196,7 +201,7 @@ const VendorOverview = () => {
                 </div>
             </div>
 
-            {/*RECENT ORDERS*/}
+            {/* ─── RECENT ORDERS ─── */}
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-2xs">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-base font-normal text-gray-900 uppercase tracking-tight">Recent Orders</h3>
