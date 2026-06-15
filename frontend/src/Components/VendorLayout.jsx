@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
     LayoutDashboard, 
     ShoppingBag, 
@@ -15,7 +15,11 @@ import {
 
 const VendorLayout = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    
+    // Backend bata aune low stock products ko state
+    const [lowStockProducts, setLowStockProducts] = useState([]);
 
     const menuItems = [
         { name: 'Overview', path: '/vendor/dashboard', icon: <LayoutDashboard size={16} /> },
@@ -25,6 +29,36 @@ const VendorLayout = () => {
         { name: 'Earnings', path: '/vendor/earnings', icon: <CreditCard size={16} /> },
         { name: 'Profile', path: '/vendor/profile', icon: <User size={16} /> }
     ];
+
+    // Fetch Low Stock Products From Backend
+    useEffect(() => {
+        const fetchLowStockData = async () => {
+            try {
+                const token = localStorage.getItem('token'); 
+
+                // FIXED: URL changed to backend port 5000 and added /api/auth path
+                const response = await fetch('http://localhost:5000/api/auth/getLowStockProducts', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    setLowStockProducts(data.products);
+                }
+            } catch (error) {
+                console.error("Low stock data fetch garna error aayo:", error);
+            }
+        };
+
+        // Vendor dashboard path ma huda matra backend api hit garne
+        if (location.pathname === '/vendor/dashboard') {
+            fetchLowStockData();
+        }
+    }, [location.pathname]);
 
     return (
         <div className="min-h-screen bg-[#f9fafb] font-sans w-full flex flex-col antialiased">
@@ -113,7 +147,8 @@ const VendorLayout = () => {
 
             <main className="flex-1 w-full max-w-[1000px] mx-auto px-6 py-8">
                 
-                {location.pathname === '/vendor/dashboard' && (
+                {/* 1. PATH CHECK  2. DYNAMICALLY RENDERED ONLY IF LOW STOCK ITEMS EXIST */}
+                {location.pathname === '/vendor/dashboard' && lowStockProducts.length > 0 && (
                     <div className="mb-6 bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-5 text-left shadow-2xs">
                         
                         {/* Header Section */}
@@ -121,29 +156,31 @@ const VendorLayout = () => {
                             <AlertTriangle size={18} className="text-amber-600 stroke-[2]" />
                             <h3 className="text-base font-medium text-amber-900">Low Stock Alert!</h3>
                             <span className="text-xs bg-[#fdedd0] text-amber-800 px-2.5 py-0.5 rounded-full font-medium">
-                                3 products
+                                {lowStockProducts.length} {lowStockProducts.length === 1 ? 'product' : 'products'}
                             </span>
                         </div>
 
+                        {/* Dynamic Grid Layout baata loop gareko items */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {[
-                                { name: 'Alphonso Mangoes', stock: '8 left!' },
-                                { name: 'Cherry Tomatoes', stock: '5 left!' },
-                                { name: 'Red Apple Pack', stock: '3 left!' }
-                            ].map((prod, idx) => (
-                                <div key={idx} className="bg-white border border-gray-100 rounded-xl p-3.5 flex items-center justify-between shadow-3xs">
+                            {lowStockProducts.map((prod) => (
+                                <div key={prod._id} className="bg-white border border-gray-100 rounded-xl p-3.5 flex items-center justify-between shadow-3xs">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-amber-50/40 flex items-center justify-center text-amber-600 border border-amber-100/30 flex-shrink-0">
                                             <Package size={18} className="stroke-[1.5]" />
                                         </div>
                                         <div>
                                             <h4 className="text-sm font-medium text-gray-900 tracking-tight">{prod.name}</h4>
-                                            <p className="text-xs text-[#e11d48] font-normal mt-0.5">Only {prod.stock}</p>
+                                            <p className="text-xs text-[#e11d48] font-normal mt-0.5">
+                                                Only {prod.stock} {prod.unitType || 'pcs'} left!
+                                            </p>
                                         </div>
                                     </div>
-                                    <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 transition-colors">
+                                    <Link 
+                                        to={`/vendor/my-products`}
+                                        className="text-xs text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 transition-colors"
+                                    >
                                         Update
-                                    </button>
+                                    </Link>
                                 </div>
                             ))}
                         </div>
