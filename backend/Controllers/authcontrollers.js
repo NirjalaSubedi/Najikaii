@@ -145,7 +145,9 @@ exports.login= async (req,res)=>{
                 email:founduser.email,
                 phonenumber:founduser.PhoneNumber,
                 address:founduser.Address,
-                role: founduser.role
+                role: founduser.role,
+                shopName: founduser.shopName,
+                shopImage: founduser.shopImage
             }
         });
     }catch(e){
@@ -316,7 +318,7 @@ exports.GetMyProfileInfo= async (req,res)=>{
         res.status(200).json({
             success:true,
             message:"success in fetching logedin user info",
-            userInfo
+            userInfo  
         })
 
     }catch(error){
