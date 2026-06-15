@@ -64,7 +64,6 @@ const VendorLayout = () => {
                         })}
                     </nav>
 
-                    {/* Right: Vendor Details & Actions */}
                     <div className="flex items-center gap-4">
                         {/* Notification Bell */}
                         <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors relative">
@@ -72,7 +71,7 @@ const VendorLayout = () => {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full"></span>
                         </button>
 
-                        {/* Profile Pill Block */}
+                        {/* Profile*/}
                         <div className="relative">
                             <button 
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -112,35 +111,37 @@ const VendorLayout = () => {
                 </div>
             </header>
 
-            <main className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8">
+            <main className="flex-1 w-full max-w-[1000px] mx-auto px-6 py-8">
                 
-                {/* Low Stock Alert Panel */}
                 {location.pathname === '/vendor/dashboard' && (
-                    <div className="mb-6 bg-amber-50/40 border border-amber-100 rounded-2xl p-4 text-left">
-                        <div className="flex items-center gap-2 mb-3">
-                            <AlertTriangle size={16} className="text-amber-600 stroke-[2.5]" />
-                            <h3 className="text-xs font-bold text-amber-800">Low Stock Alert!</h3>
-                            <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">
+                    <div className="mb-6 bg-[#fefaf0] border border-amber-200/60 rounded-2xl p-5 text-left shadow-2xs">
+                        
+                        {/* Header Section */}
+                        <div className="flex items-center gap-2.5 mb-4">
+                            <AlertTriangle size={18} className="text-amber-600 stroke-[2]" />
+                            <h3 className="text-base font-medium text-amber-900">Low Stock Alert!</h3>
+                            <span className="text-xs bg-[#fdedd0] text-amber-800 px-2.5 py-0.5 rounded-full font-medium">
                                 3 products
                             </span>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {[
                                 { name: 'Alphonso Mangoes', stock: '8 left!' },
                                 { name: 'Cherry Tomatoes', stock: '5 left!' },
                                 { name: 'Red Apple Pack', stock: '3 left!' }
                             ].map((prod, idx) => (
-                                <div key={idx} className="bg-white border border-amber-100/50 rounded-xl p-2.5 flex items-center justify-between shadow-xs">
-                                    <div className="flex items-center gap-2.5">
-                                        <div className="w-8 h-8 rounded-lg bg-amber-50/60 flex items-center justify-center text-amber-600">
-                                            <Package size={16} />
+                                <div key={idx} className="bg-white border border-gray-100 rounded-xl p-3.5 flex items-center justify-between shadow-3xs">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-amber-50/40 flex items-center justify-center text-amber-600 border border-amber-100/30 flex-shrink-0">
+                                            <Package size={18} className="stroke-[1.5]" />
                                         </div>
                                         <div>
-                                            <h4 className="text-xs font-bold text-gray-800">{prod.name}</h4>
-                                            <p className="text-[10px] text-rose-600 font-semibold">Only {prod.stock}</p>
+                                            <h4 className="text-sm font-medium text-gray-900 tracking-tight">{prod.name}</h4>
+                                            <p className="text-xs text-[#e11d48] font-normal mt-0.5">Only {prod.stock}</p>
                                         </div>
                                     </div>
-                                    <button className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
+                                    <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 transition-colors">
                                         Update
                                     </button>
                                 </div>
@@ -149,7 +150,6 @@ const VendorLayout = () => {
                     </div>
                 )}
 
-                {/* Dynamic Sub-pages Output view block */}
                 <div className="w-full transition-all duration-300">
                     <Outlet />
                 </div>
