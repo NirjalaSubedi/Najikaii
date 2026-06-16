@@ -59,13 +59,18 @@ exports.getmyProduct = async (req, res) => {
     }
 };
 
-// displaying all product 
 exports.getAllProducts = async (req, res) => {
     try {
-        const { lat, lng, sort } = req.query;
+        const { lat, lng, sort, category } = req.query;
+
+        const productFilter = {};
+        
+        if (category && category.toLowerCase() !== 'all' && category !== '') {
+            productFilter.category = category; 
+        }
 
         if (!lat || !lng) {
-            const products = await product.find().populate('vendor', 'name email shopName');
+            const products = await product.find(productFilter).populate('vendor', 'name email shopName');
             return res.status(200).json({
                 success: true,
                 count: products.length,
@@ -75,7 +80,8 @@ exports.getAllProducts = async (req, res) => {
 
         const userLat = parseFloat(lat);
         const userLng = parseFloat(lng);
-        const products = await product.find().populate('vendor', 'name email shopName location');
+        
+        const products = await product.find(productFilter).populate('vendor', 'name email shopName location');
 
         const productsWithDistance = products.map((item) => {
             const productData = item.toObject();
@@ -145,7 +151,6 @@ exports.getProductById = async (req, res) => {
 // only product owner can update product
 exports.updateProducts = async (req, res) => {
     try {
-        // taking product id from URL
         let productdata = await product.findById(req.params.id);
         if (!productdata) {
             return res.status(404).json({
@@ -217,7 +222,6 @@ exports.deleteProduct = async (req, res) => {
 // Get low stock products for the logged-in vendor
 exports.getLowStockProducts = async (req, res) => {
     try {
-        // dynamic threshold checking value setup (Fallback to 10 if not defined)
         const threshold = parseInt(req.query.threshold) || 10;
         
         const lowStockProducts = await product.find({
