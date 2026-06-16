@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require("path");
+
 const authRoutes=require('./routes/authroutes');
 const orderRoutes=require('./routes/orderroutes');
 const paymentRoutes= require('./routes/Paymentroute');
@@ -37,6 +39,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/order',orderRoutes);
 app.use('/api/payment',paymentRoutes);
 app.use('/api/shops',shopRoutes);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
