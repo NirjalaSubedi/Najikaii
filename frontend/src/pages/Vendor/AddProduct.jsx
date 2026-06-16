@@ -42,7 +42,7 @@ const AddProduct = () => {
     if (image) formData.append('image', image);
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/add-products', {
+      const response = await fetch('http://localhost:5000/api/auth/add-product', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}` 
@@ -145,13 +145,14 @@ const AddProduct = () => {
                 value={product.category}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
+                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white capitalize"
               >
+                {/* MATCHED: Updated Dropdown options to align perfectly with image_59fd80.png dynamic keys */}
                 <option value="">Select Category</option>
-                <option value="groceries">Groceries & Daily Essentials</option>
-                <option value="electronics">Electronics & Gadgets</option>
-                <option value="bakery">Bakery & Cafe Menu</option>
-                <option value="clothing">Clothing & Fashion</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="fruits">Fruits</option>
+                <option value="dairy">Dairy</option>
+                <option value="meat">Meat</option>
               </select>
             </div>
 
