@@ -20,6 +20,7 @@ import Orders from "./pages/admin/Orders";
 
 import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
+import MyProducts from "./pages/Vendor/MyProducts";
 import AddProduct from "./pages/Vendor/AddProduct";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -65,6 +66,7 @@ function App() {
 
           <Route path="/vendor" element={<VendorLayout />}>
             <Route path="dashboard" element={<VendorOverview />} />
+            <Route path="MyProducts" elements={<MyProducts/>}/>
             <Route path="add-product" element={<AddProduct />} />
 
 
