@@ -25,7 +25,7 @@ exports.Addproduct = async (req, res) => {
             category,
             unitType,
             stock,
-            image
+            image:req.file.path
         });
 
         await newProduct.save();
