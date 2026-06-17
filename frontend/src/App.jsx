@@ -68,8 +68,6 @@ function App() {
             <Route path="dashboard" element={<VendorOverview />} />
             <Route path="MyProducts" elements={<MyProducts/>}/>
             <Route path="add-product" element={<AddProduct />} />
-
-
           </Route>
 
       </Routes>
