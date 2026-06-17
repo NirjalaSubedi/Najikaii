@@ -18,29 +18,26 @@ const VendorLayout = () => {
     const navigate = useNavigate();
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     
-    // State for low stock products
     const [lowStockProducts, setLowStockProducts] = useState([]);
     
-    // State to store dynamic Shop Name fetched from backend
     const [shopName, setShopName] = useState('Loading...');
 
     const menuItems = [
         { name: 'Overview', path: '/vendor/dashboard', icon: <LayoutDashboard size={16} /> },
-        { name: 'My Products', path: '/vendor/my-products', icon: <ShoppingBag size={16} /> },
+        { name: 'My Products', path: '/vendor/MyProducts', icon: <ShoppingBag size={16} /> }, 
         { name: 'Add Product', path: '/vendor/add-product', icon: <PlusCircle size={16} /> },
         { name: 'Orders', path: '/vendor/orders', icon: <ClipboardList size={16} /> },
         { name: 'Earnings', path: '/vendor/earnings', icon: <CreditCard size={16} /> },
         { name: 'Profile', path: '/vendor/profile', icon: <User size={16} /> }
     ];
 
-    // MATCHED & FIXED: Fetch Vendor Profile Data using correct backend route
+    // Fetch Vendor Profile Data using backend route
     useEffect(() => {
         const fetchVendorProfile = async () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) return;
 
-                // CHANGED: /api/auth/profile -> /api/auth/MyProfileInfo to match backend router
                 const response = await fetch('http://localhost:5000/api/auth/MyProfileInfo', {
                     method: 'GET',
                     headers: {
@@ -51,7 +48,6 @@ const VendorLayout = () => {
 
                 const data = await response.json();
                 
-                // Backend controller response validation
                 if (data.success && data.userInfo) {
                     setShopName(data.userInfo.shopName || data.userInfo.name || 'My Shop');
                 } else if (data.success && data.user) { 
@@ -94,7 +90,6 @@ const VendorLayout = () => {
         }
     }, [location.pathname]);
 
-    // Helper to extract initials for the avatar
     const getInitials = (name) => {
         if (!name || name === 'Loading...') return 'V';
         return name.split(' ').filter(Boolean).map(word => word[0]).join('').slice(0, 2).toUpperCase();
@@ -127,7 +122,7 @@ const VendorLayout = () => {
                                     to={item.path}
                                     className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${
                                         isActive 
-                                        ? 'bg-emerald-50 text-emerald-600' 
+                                        ? 'bg-emerald-50 text-emerald-600 font-semibold' 
                                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
                                 >
@@ -216,8 +211,9 @@ const VendorLayout = () => {
                                             </p>
                                         </div>
                                     </div>
+                                    {/* FIXED: Changed path to matched CamelCase pattern */}
                                     <Link 
-                                        to={`/vendor/my-products`}
+                                        to={`/vendor/MyProducts`}
                                         className="text-xs text-emerald-600 hover:text-emerald-700 font-medium px-2 py-1 transition-colors"
                                     >
                                         Update
