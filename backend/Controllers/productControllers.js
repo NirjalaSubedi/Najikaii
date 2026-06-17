@@ -1,4 +1,4 @@
-const product = require('../models/ProductModels');
+const Product = require('../models/ProductModels'); // Fixed uppercase 'Product' to match usage
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -11,36 +11,39 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return R * c;
 };
 
-// for adding new product
 exports.Addproduct = async (req, res) => {
-    try {
-        const { name, description, actualPrice, sellingPrice, category, unitType, stock, image } = req.body;
-        
-        const newProduct = new product({
-            vendor: req.user.id,
-            name,
-            description,
-            actualPrice,   
-            sellingPrice,  
-            category,
-            unitType,
-            stock,
-            image:req.file.path
-        });
+  try {
+    const { name, description, actualPrice, sellingPrice, category, unitType, stock } = req.body;
 
-        await newProduct.save();
-        
-        res.status(201).json({
-            success: true,
-            message: "Product successfully database ma create vayo",
-            product: newProduct
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Please upload an image" });
     }
+
+    // Fixed database layout insertion here
+    const newProduct = new Product({
+      vendor: req.user.id, // Linked product to logged-in Vendor identity
+      name,
+      description,
+      actualPrice: Number(actualPrice), 
+      sellingPrice: Number(sellingPrice),
+      category,
+      unitType,
+      stock: Number(stock),              
+      image: req.file.path            
+    });
+
+    await newProduct.save();
+
+    res.status(201).json({ 
+      success: true, 
+      message: "Product added successfully!", 
+      product: newProduct 
+    });
+
+  } catch (error) {
+    console.error("Error in Addproduct:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getmyProduct = async (req, res) => {
@@ -80,7 +83,6 @@ exports.getAllProducts = async (req, res) => {
 
         const userLat = parseFloat(lat);
         const userLng = parseFloat(lng);
-        
         const products = await product.find(productFilter).populate('vendor', 'name email shopName location');
 
         const productsWithDistance = products.map((item) => {

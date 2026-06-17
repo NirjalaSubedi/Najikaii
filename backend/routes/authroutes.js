@@ -35,7 +35,9 @@ router.get('/test',authmiddlewares,(req,res)=>{
     })
 });
 
-router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),Addproduct);
+const upload = require('../middlewares/multerConfig');
+
+router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),upload.single('image'),Addproduct);
 
 // Display only my products
 router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduct);
