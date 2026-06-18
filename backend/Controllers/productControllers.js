@@ -1,4 +1,4 @@
-const Product = require('../models/ProductModels'); // Fixed uppercase 'Product' to match usage
+const product = require('../models/ProductModels'); // Fixed uppercase 'Product' to match usage
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -19,9 +19,9 @@ exports.Addproduct = async (req, res) => {
       return res.status(400).json({ success: false, message: "Please upload an image" });
     }
 
-    // Fixed database layout insertion here
-    const newProduct = new Product({
-      vendor: req.user.id, // Linked product to logged-in Vendor identity
+    //database layout insertion
+    const newProduct = new product({
+      vendor: req.user.id,
       name,
       description,
       actualPrice: Number(actualPrice), 
