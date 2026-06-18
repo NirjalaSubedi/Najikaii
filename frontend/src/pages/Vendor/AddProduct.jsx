@@ -180,11 +180,12 @@ const AddProduct = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
                 >
                   <option value="">Select Unit</option>
-                  <option value="pcs">pcs (Pieces)</option>
+                  <option value="piece">pcs (Pieces)</option>
                   <option value="kg">kg (Kilogram)</option>
-                  <option value="ltr">ltr (Litre)</option>
+                  <option value="liter">ltr (Litre)</option>
                   <option value="packet">packet</option>
                   <option value="gram">gram</option>
+                  <option value="bundle">bundle</option>
                 </select>
               </div>
             </div>
