@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ShoppingBag, ChevronDown, ChevronUp, Clock, Truck, CheckCircle2, XCircle, Package } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ShoppingBag, ChevronDown, ChevronUp, Clock, Truck, CheckCircle2, XCircle, Package, Settings } from 'lucide-react';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -7,12 +7,15 @@ const Orders = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const dropdownRef = useRef(null);
 
   const filters = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered'];
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orders/vieworders', {
+      const response = await fetch('http://localhost:5000/api/order/vieworders', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -34,10 +37,19 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
+    
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdownId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
+    setOpenDropdownId(null);
     try {
       const response = await fetch(`http://localhost:5000/api/auth/update-status/${orderId}`, {
         method: 'PUT',
@@ -53,7 +65,7 @@ const Orders = () => {
           prevOrders.map(ord => ord._id === orderId ? { ...ord, status: newStatus } : ord)
         );
       } else {
-        alert(data.message || "Unable to  update status");
+        alert(data.message || "Unable to update status");
       }
     } catch (error) {
       console.error("Status update error:", error);
@@ -80,6 +92,23 @@ const Orders = () => {
         return 'bg-rose-50 text-rose-700 border-rose-100';
       default:
         return 'bg-gray-50 text-gray-700 border-gray-100';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return <Clock size={14} className="text-amber-600" />;
+      case 'processing':
+        return <Settings size={14} className="text-blue-600 animate-spin" style={{ animationDuration: '3s' }} />;
+      case 'shipped':
+        return <Truck size={14} className="text-purple-600" />;
+      case 'delivered':
+        return <CheckCircle2 size={14} className="text-emerald-600" />;
+      case 'cancelled':
+        return <XCircle size={14} className="text-rose-600" />;
+      default:
+        return <Clock size={14} className="text-gray-600" />;
     }
   };
 
@@ -121,7 +150,7 @@ const Orders = () => {
       {filteredOrders.length === 0 ? (
         <div className="text-center py-16 text-gray-400 text-sm border-2 border-dashed border-gray-100 rounded-2xl bg-white">
           <ShoppingBag className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-            no orders to fetch 
+          no orders to fetch 
         </div>
       ) : (
         <div className="space-y-4">
@@ -129,15 +158,17 @@ const Orders = () => {
             const isExpanded = expandedOrder === order._id;
             const currentTotal = order.vendorSpecificTotal ?? order.totalAmount ?? 0;
             const orderIndexString = `ORD-${String(index + 1).padStart(3, '0')}`;
+            const isDropdownOpen = openDropdownId === order._id;
+            const isSelectDisabled = updatingId === order._id || order.status === 'Cancelled';
 
             return (
               <div 
                 key={order._id}
-                className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200 transition-all shadow-xs overflow-hidden"
+                className="bg-white rounded-2xl border border-gray-100 hover:border-gray-200 transition-all shadow-xs relative"
               >
                 <div 
                   onClick={() => toggleExpand(order._id)}
-                  className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer select-none group"
+                  className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer select-none group rounded-t-2xl"
                 >
                   <div className="flex flex-wrap items-center gap-3 text-left">
                     <span className="font-bold text-gray-900 text-base">{orderIndexString}</span>
@@ -172,7 +203,7 @@ const Orders = () => {
                 </div>
 
                 {isExpanded && (
-                  <div className="bg-gray-50/50 border-t border-gray-50 p-5 text-left transition-all">
+                  <div className="bg-gray-50/50 border-t border-gray-50 p-5 text-left transition-all rounded-b-2xl">
                     <div className="mb-5">
                       <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Items Ordered</h4>
                       <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50 overflow-hidden">
@@ -209,23 +240,46 @@ const Orders = () => {
                         <span>To update orders change the status</span>
                       </div>
 
-                      <div className="relative w-full sm:w-auto">
-                        <select
-                          disabled={updatingId === order._id || order.status === 'Cancelled'}
-                          value={order.status || 'Pending'}
-                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                          className="w-full sm:w-44 bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                      <div className="relative w-full sm:w-48" ref={isDropdownOpen ? dropdownRef : null}>
+                        <button
+                          type="button"
+                          disabled={isSelectDisabled}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenDropdownId(isDropdownOpen ? null : order._id);
+                          }}
+                          className="w-full bg-gray-50/70 hover:bg-gray-50 border border-gray-200 hover:border-emerald-400/60 text-gray-800 pl-9 pr-10 py-2 rounded-xl text-xs font-semibold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 text-left flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                          <option value="Pending">🕒 Pending</option>
-                          <option value="Processing">⚙️ Processing</option>
-                          <option value="Shipped">🚚 Shipped</option>
-                          <option value="Delivered">✅ Delivered</option>
-                          <option value="Cancelled" disabled>❌ Cancelled</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
-                          <ChevronDown size={14} />
-                        </div>
+                          <div className="absolute left-3.5 pointer-events-none z-10 flex items-center">
+                            {getStatusIcon(order.status)}
+                          </div>
+                          <span className="truncate ml-1">{order.status || 'Pending'}</span>
+                          <div className="absolute right-3.5 pointer-events-none text-gray-400">
+                            <ChevronDown size={14} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                          </div>
+                        </button>
+
+                        {isDropdownOpen && (
+                          <div className="absolute left-0 z-[100] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden top-full animate-in fade-in duration-100">
+                            {['Pending', 'Processing', 'Shipped', 'Delivered'].map((statusOption) => (
+                              <button
+                                key={statusOption}
+                                type="button"
+                                onClick={() => handleStatusChange(order._id, statusOption)}
+                                className={`w-full text-left px-3 py-2 text-xs font-semibold flex items-center gap-2.5 transition-colors ${
+                                  (order.status || 'Pending').toLowerCase() === statusOption.toLowerCase()
+                                    ? 'bg-emerald-50 text-emerald-700'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                {getStatusIcon(statusOption)}
+                                <span>{statusOption}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
+
                     </div>
 
                   </div>
