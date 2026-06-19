@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Edit2, Trash2, AlertTriangle } from 'lucide-react';
+
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
     const fetchMyProducts = async () => {
       try {
@@ -47,7 +49,7 @@ const MyProducts = () => {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs max-w-6xl mx-auto mt-2">
-      {/* Top Header Search Bar */}
+      {/* Top Header & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="text-left">
           <h2 className="text-xl font-bold text-gray-900">My Products</h2>
@@ -72,8 +74,8 @@ const MyProducts = () => {
           No products found. Add a product to see it here!
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr className="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50/50 rounded-t-xl">
                 <th className="py-4 px-4 rounded-l-xl">Product</th>
@@ -90,31 +92,39 @@ const MyProducts = () => {
                 
                 return (
                   <tr key={item._id} className="hover:bg-gray-50/80 transition-colors group">
-                    <td className="py-4 px-4 flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        <img
-                          src={`http://localhost:5000/${item.image}`}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
-                        />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="font-semibold text-gray-900 capitalize truncate max-w-[200px]">{item.name}</h4>
-                        {isLowStock && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium mt-0.5 bg-amber-50 px-1.5 py-0.5 rounded-md">
-                            <AlertTriangle size={10} /> Low Stock
-                          </span>
-                        )}
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-3 min-w-[200px]">
+                        <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200/60 overflow-hidden flex-shrink-0 block relative">
+                          <img
+                            src={`http://localhost:5000/${item.image}`}
+                            alt={item.name}
+                            className="w-full h-full object-cover block"
+                            onError={(e) => { 
+                          
+                              e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' font-family='sans-serif' font-size='14' fill='%239ca3af' dominant-baseline='middle' text-anchor='middle'>No Image</text></svg>";
+                            }}
+                          />
+                        </div>
+                        <div className="text-left leading-tight">
+                          <h4 className="font-semibold text-gray-900 capitalize truncate max-w-[180px]">{item.name}</h4>
+                          {isLowStock && (
+                            <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 font-medium mt-1 bg-amber-50 px-1.5 py-0.5 rounded-md">
+                              <AlertTriangle size={10} /> Low Stock
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
 
+                    {/* Category Column */}
                     <td className="py-4 px-4 text-gray-500 capitalize">{item.category}</td>
 
+                    {/* Price Column */}
                     <td className="py-4 px-4 font-bold text-gray-900">
                       Rs. {item.sellingPrice}
                     </td>
 
+                    {/* Stock Count Column */}
                     <td className="py-4 px-4">
                       <span className={`font-semibold ${isLowStock ? 'text-rose-600' : 'text-gray-600'}`}>
                         {item.stock}
@@ -122,6 +132,7 @@ const MyProducts = () => {
                       <span className="text-xs text-gray-400 ml-1">{item.unitType || 'pcs'}</span>
                     </td>
 
+                    {/* Status Column */}
                     <td className="py-4 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         item.stock > 0 
