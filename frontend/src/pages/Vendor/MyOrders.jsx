@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ShoppingBag, ChevronDown, ChevronUp, Clock, Truck, CheckCircle2, XCircle, Package, Settings } from 'lucide-react';
 
 const Orders = () => {
@@ -9,7 +9,6 @@ const Orders = () => {
   const [updatingId, setUpdatingId] = useState(null);
   
   const [openDropdownId, setOpenDropdownId] = useState(null);
-  const dropdownRef = useRef(null);
 
   const filters = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered'];
 
@@ -39,7 +38,7 @@ const Orders = () => {
     fetchOrders();
     
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (!event.target.closest('[data-dropdown="true"]')) {
         setOpenDropdownId(null);
       }
     };
@@ -50,6 +49,9 @@ const Orders = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     setOpenDropdownId(null);
+    
+    console.log(`Sending update request for Order: ${orderId} to status: ${newStatus}`);
+
     try {
       const response = await fetch(`http://localhost:5000/api/auth/update-status/${orderId}`, {
         method: 'PUT',
@@ -59,16 +61,21 @@ const Orders = () => {
         },
         body: JSON.stringify({ status: newStatus })
       });
+
       const data = await response.json();
+      console.log("Backend Response:", data);
+
       if (response.ok || data.success) {
         setOrders(prevOrders =>
           prevOrders.map(ord => ord._id === orderId ? { ...ord, status: newStatus } : ord)
         );
+        alert(`Status successfully updated to ${newStatus}!`);
       } else {
-        alert(data.message || "Unable to update status");
+        alert(`Backend Error: ${data.message || "Failed to update status on server"}`);
       }
     } catch (error) {
-      console.error("Status update error:", error);
+      console.error("Status update catch error:", error);
+      alert(`Network Error: Backend सँग कनेक्सन हुन सकेन। URL चेक गर्नुहोस्।`);
     } finally {
       setUpdatingId(null);
     }
@@ -240,7 +247,7 @@ const Orders = () => {
                         <span>To update orders change the status</span>
                       </div>
 
-                      <div className="relative w-full sm:w-48" ref={isDropdownOpen ? dropdownRef : null}>
+                      <div className="relative w-full sm:w-48" data-dropdown="true">
                         <button
                           type="button"
                           disabled={isSelectDisabled}
@@ -260,12 +267,15 @@ const Orders = () => {
                         </button>
 
                         {isDropdownOpen && (
-                          <div className="absolute left-0 z-[100] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden top-full animate-in fade-in duration-100">
+                          <div className="absolute left-0 z-[100] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden top-full">
                             {['Pending', 'Processing', 'Shipped', 'Delivered'].map((statusOption) => (
                               <button
                                 key={statusOption}
                                 type="button"
-                                onClick={() => handleStatusChange(order._id, statusOption)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleStatusChange(order._id, statusOption);
+                                }}
                                 className={`w-full text-left px-3 py-2 text-xs font-semibold flex items-center gap-2.5 transition-colors ${
                                   (order.status || 'Pending').toLowerCase() === statusOption.toLowerCase()
                                     ? 'bg-emerald-50 text-emerald-700'
