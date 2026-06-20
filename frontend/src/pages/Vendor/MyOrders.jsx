@@ -9,7 +9,7 @@ const Orders = () => {
   const [updatingId, setUpdatingId] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
-  const filters = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered'];
+  const filters = ['All', 'Pending', 'Confirmed', 'Delivered', 'Cancelled'];
 
   const fetchOrders = async () => {
     try {
@@ -88,10 +88,8 @@ const Orders = () => {
     switch (status?.toLowerCase()) {
       case 'pending':
         return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'processing':
+      case 'confirmed':
         return 'bg-blue-50 text-blue-700 border-blue-100';
-      case 'shipped':
-        return 'bg-purple-50 text-purple-700 border-purple-100';
       case 'delivered':
         return 'bg-emerald-50 text-emerald-700 border-emerald-100';
       case 'cancelled':
@@ -105,10 +103,8 @@ const Orders = () => {
     switch (status?.toLowerCase()) {
       case 'pending':
         return <Clock size={14} className="text-amber-600" />;
-      case 'processing':
-        return <Settings size={14} className="text-blue-600 animate-spin" style={{ animationDuration: '3s' }} />;
-      case 'shipped':
-        return <Truck size={14} className="text-purple-600" />;
+      case 'confirmed':
+        return <CheckCircle2 size={14} className="text-blue-600" />;
       case 'delivered':
         return <CheckCircle2 size={14} className="text-emerald-600" />;
       case 'cancelled':
@@ -165,7 +161,11 @@ const Orders = () => {
             const currentTotal = order.vendorSpecificTotal ?? order.totalAmount ?? 0;
             const orderIndexString = `ORD-${String(index + 1).padStart(3, '0')}`;
             const isDropdownOpen = openDropdownId === order._id;
-            const isSelectDisabled = updatingId === order._id || order.status === 'Cancelled';
+            
+            const isSelectDisabled = 
+              updatingId === order._id || 
+              order.status === 'Delivered' || 
+              order.status === 'Cancelled';
 
             return (
               <div 
@@ -243,7 +243,11 @@ const Orders = () => {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100">
                       <div className="flex items-center gap-2.5 text-xs text-gray-500">
                         <Package size={16} className="text-gray-400" />
-                        <span>To update orders change the status</span>
+                        {order.status === 'Delivered' || order.status === 'Cancelled' ? (
+                          <span className="text-rose-500 font-medium">This order is completed and status cannot be changed.</span>
+                        ) : (
+                          <span>To update orders change the status</span>
+                        )}
                       </div>
 
                       <div className="relative w-full sm:w-48" data-dropdown="true">
@@ -267,7 +271,7 @@ const Orders = () => {
 
                         {isDropdownOpen && (
                           <div className="absolute left-0 z-[999] bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden">
-                            {['Pending', 'Processing', 'Shipped', 'Delivered'].map((statusOption) => (
+                            {['Pending', 'Confirmed', 'Delivered', 'Cancelled'].map((statusOption) => (
                               <button
                                 key={statusOption}
                                 type="button"
