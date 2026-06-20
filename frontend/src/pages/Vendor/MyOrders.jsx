@@ -7,7 +7,6 @@ const Orders = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
-  
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const filters = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered'];
@@ -53,7 +52,7 @@ const Orders = () => {
     console.log(`Sending update request for Order: ${orderId} to status: ${newStatus}`);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/update-status/${orderId}`, {
+      const response = await fetch(`http://localhost:5000/api/order/update-status/${orderId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -210,10 +209,10 @@ const Orders = () => {
                 </div>
 
                 {isExpanded && (
-                  <div className="bg-gray-50/50 border-t border-gray-50 p-5 text-left transition-all rounded-b-2xl">
+                  <div className="bg-gray-50/50 border-t border-gray-50 p-5 text-left transition-all rounded-b-2xl relative z-10">
                     <div className="mb-5">
                       <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Items Ordered</h4>
-                      <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50 overflow-hidden">
+                      <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
                         {order.items?.map((item) => (
                           <div key={item._id} className="p-3 flex items-center justify-between gap-4 text-sm">
                             <div className="flex items-center gap-3">
@@ -267,7 +266,7 @@ const Orders = () => {
                         </button>
 
                         {isDropdownOpen && (
-                          <div className="absolute left-0 z-[100] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden top-full">
+                          <div className="absolute left-0 z-[999] bottom-full mb-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl py-1 overflow-hidden">
                             {['Pending', 'Processing', 'Shipped', 'Delivered'].map((statusOption) => (
                               <button
                                 key={statusOption}
@@ -289,9 +288,7 @@ const Orders = () => {
                           </div>
                         )}
                       </div>
-
                     </div>
-
                   </div>
                 )}
               </div>
