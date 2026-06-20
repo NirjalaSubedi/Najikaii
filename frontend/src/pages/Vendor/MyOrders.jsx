@@ -75,7 +75,7 @@ const Orders = () => {
       }
     } catch (error) {
       console.error("Status update catch error:", error);
-      alert(`Network Error: Backend सँग कनेक्सन हुन सकेन। URL चेक गर्नुहोस्।`);
+      alert(`Network Error: cannot provide connection with backend`);
     } finally {
       setUpdatingId(null);
     }
