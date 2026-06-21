@@ -140,31 +140,37 @@ const Earnings = () => {
           {/* 0 - 1 km */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1 border-b border-gray-50">
             <span>0 - 1 km</span>
-            <span className="bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 20</span>
+            <span className="bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 0</span>
           </div>
 
           {/* 1 - 2 km */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1 border-b border-gray-50">
             <span>1 - 2 km</span>
-            <span className="bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 30</span>
+            <span className="bg-emerald-50 text-emerald-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 10</span>
           </div>
 
           {/* 2 - 3 km */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1 border-b border-gray-50">
             <span>2 - 3 km</span>
-            <span className="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 40</span>
+            <span className="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 20</span>
           </div>
 
           {/* 3 - 5 km */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1 border-b border-gray-50">
-            <span>3 - 5 km</span>
-            <span className="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 55</span>
+            <span>3 - 4km</span>
+            <span className="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 30</span>
+          </div>
+
+          {/* 3 - 5 km */}
+          <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1 border-b border-gray-50">
+            <span>4 - 5km</span>
+            <span className="bg-amber-50 text-amber-600 px-2.5 py-0.5 rounded-md font-bold">Rs. 40</span>
           </div>
 
           {/* 5+ km */}
           <div className="flex items-center justify-between text-xs font-semibold text-gray-600 py-1">
             <span>5+ km</span>
-            <span className="bg-rose-50 text-rose-500 px-2.5 py-0.5 rounded-md font-bold">Rs. 70+</span>
+            <span className="bg-rose-50 text-rose-500 px-2.5 py-0.5 rounded-md font-bold">Rs. 50+</span>
           </div>
         </div>
 
