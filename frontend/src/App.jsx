@@ -23,6 +23,7 @@ import VendorOverview from "./pages/Vendor/Overview";
 import MyProducts from "./pages/Vendor/MyProducts";
 import AddProduct from "./pages/Vendor/AddProduct";
 import VendorOrders from "./pages/Vendor/MyOrders";
+import Earnings from "./pages/Vendor/VendorEarrings";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ConfirmDelete from './components/ConfirmDelete';
@@ -70,7 +71,7 @@ function App() {
             <Route path="MyProducts" element={<MyProducts />} />
             <Route path="add-product" element={<AddProduct />} />
             <Route path="orders" element={<VendorOrders/>}/>
-
+            <Route path="earnings" element={<Earnings/>}/>
           </Route>
 
       </Routes>
