@@ -8,6 +8,7 @@ const authRoutes=require('./routes/authroutes');
 const orderRoutes=require('./routes/orderroutes');
 const paymentRoutes= require('./routes/Paymentroute');
 const shopRoutes= require('./routes/shopsroutes');
+const Earningsroute= require('./routes/Earningsroutes');
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/order',orderRoutes);
 app.use('/api/payment',paymentRoutes);
 app.use('/api/shops',shopRoutes);
+app.use ('/api/Earnings',Earningsroute);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
