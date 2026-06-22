@@ -8,8 +8,6 @@ const formatDistance = (distance) => {
   if (distance === undefined || distance === null || Number.isNaN(Number(distance))) {
     return '1.4 km away';
   }
-
-  return `${Number(distance).toFixed(1)} km away`;
 };
 
 const ProductDetailModal = ({ product, loading, error, onClose }) => {
@@ -53,7 +51,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
   const vendor = product?.vendor || {};
   const shopName = vendor?.shopName || vendor?.name || 'Najikai Shop Owner';
   const distance = formatDistance(product?.distance);
-  const deliveryCharge = product?.deliveryCharge ?? Math.max(15, Math.round((Number(product?.distance) || 1.5) * 20));
+  const deliveryCharge = product?.deliveryCharge ?? Math.max(0, Math.round((Number(product?.distance) || 1.5) * 20));
   const deliveryTime = product?.deliveryTime || '15-25 min';
   const rating = Number(product?.rating || 4.6).toFixed(1);
   const reviews = product?.reviewsCount ?? 78;
@@ -61,191 +59,204 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
   const totalPrice = sellingPrice * Math.max(currentQuantity, 1);
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4 py-0 sm:py-6">
-      <div className="absolute inset-0 bg-black/55 backdrop-blur-sm" onClick={onClose} />
-
-      <div className="relative w-full sm:max-w-190 max-h-dvh sm:max-h-[90vh] overflow-y-auto bg-[#f7f7f4] sm:rounded-[28px] shadow-2xl shadow-black/30 border border-white/10">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 z-20 h-10 w-10 rounded-full bg-white text-slate-900 shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-        >
-          <X size={20} />
-        </button>
-
-        {loading ? (
-          <div className="min-h-[70vh] flex items-center justify-center text-sm font-semibold text-gray-500">
-            Loading product details...
+    <div className="fixed inset-0 z-50 bg-[#fafafa] overflow-y-auto h-screen w-screen text-left antialiased selection:bg-emerald-100">
+      
+      <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 py-4 sm:px-8">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">
+              {product?.category}
+            </span>
+            <h1 className="text-sm text-slate-800 line-clamp-1 max-w-[200px] sm:max-w-xs">{name}</h1>
           </div>
-        ) : error ? (
-          <div className="min-h-[70vh] flex items-center justify-center p-8 text-center">
-            <div className="max-w-sm space-y-3">
-              <div className="text-lg font-black text-slate-900">Product load huna sakena</div>
-              <p className="text-sm text-gray-500">{error}</p>
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex items-center justify-center rounded-full bg-[#00B56A] px-4 py-2 text-sm font-bold text-white"
-              >
-                Close
-              </button>
-            </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-10 w-10 rounded-full bg-zinc-600 text-white flex items-center justify-center"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="h-[calc(100vh-72px)] w-full flex items-center justify-center text-sm font-bold text-gray-400 animate-pulse">
+          Loading product view...
+        </div>
+      ) : error ? (
+        <div className="h-[calc(100vh-72px)] w-full flex items-center justify-center p-6 text-center">
+          <div className="max-w-md bg-white border border-gray-100 rounded-3xl p-8 shadow-xs">
+            <div className="text-lg font-bold text-slate-900 mb-2">Product load huna sakena</div>
+            <p className="text-sm text-gray-500 mb-6">{error}</p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl bg-[#00B56A] px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-[1.02]"
+            >
+              Go Back
+            </button>
           </div>
-        ) : (
-          <div>
-            <div className="relative h-65 sm:h-80 overflow-hidden bg-slate-900">
-              <img
-                src={product?.image || 'https://via.placeholder.com/800x600'}
-                alt={name}
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-black/20" />
-
-              <div className="absolute left-4 bottom-5 flex gap-2 flex-wrap max-w-[70%]">
-                {product?.isFastDelivery !== false && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#00B56A] px-3 py-1 text-[11px] font-extrabold text-white shadow-lg">
-                    <Zap size={12} /> Fast Delivery
-                  </span>
-                )}
-                {discountPercentage > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FF4D4F] px-3 py-1 text-[11px] font-extrabold text-white shadow-lg">
-                    -{discountPercentage}% OFF
-                  </span>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="absolute top-4 right-4 h-10 w-10 rounded-full bg-white text-slate-900 shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="bg-white px-4 sm:px-6 pb-5 pt-5 sm:pt-6">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="space-y-3 sm:pr-4">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#00B56A]">
-                      {product?.category || 'Dairy'}
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            
+            <div className="lg:col-span-6 space-y-4">
+              <div className="relative aspect-square sm:aspect-4/3 lg:aspect-square w-full overflow-hidden bg-slate-100 rounded-[32px] shadow-xs border border-gray-100 group">
+                <img
+                  src={product?.image || 'https://via.placeholder.com/800x600'}
+                  alt={name}
+                  className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
+                />
+                
+                <div className="absolute left-5 bottom-5 flex flex-col gap-2">
+                  {product?.isFastDelivery !== false && (
+                    <span className="inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-xs px-3.5 py-2 text-xs text-emerald-600 shadow-sm border border-emerald-100/20">
+                      <Zap size={14} className="fill-emerald-600 text-emerald-600" /> Fast Delivery
                     </span>
-                    <span className="text-xs font-bold text-gray-400">per {product?.stock ? `${product.stock}${unitType}` : `400${unitType}`}</span>
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-tight">{name}</h2>
-
-                  <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
-                    <span className="inline-flex items-center gap-1.5"><Store size={15} className="text-[#00B56A]" /> {shopName}</span>
-                    <span className="inline-flex items-center gap-1.5"><Star size={15} className="fill-amber-400 text-amber-400" /> {rating} <span className="text-slate-400">({reviews} reviews)</span></span>
-                    <span className="inline-flex items-center gap-1.5 text-[#00A86B]"><MapPin size={15} /> {distance}</span>
-                  </div>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <div className="text-2xl sm:text-3xl font-black text-[#00A86B] leading-none">Rs. {sellingPrice}</div>
-                  {actualPrice > sellingPrice && (
-                    <div className="text-xs sm:text-sm text-slate-400 font-semibold line-through">Rs. {actualPrice}</div>
                   )}
-                  <div className="text-[11px] sm:text-xs font-medium text-slate-400">per {product?.stock ? `${product.stock}${unitType}` : `400${unitType}`}</div>
+                  {discountPercentage > 0 && (
+                    <span className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-2 text-xs font-bold text-white shadow-sm">
+                      -{discountPercentage}% OFF
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-slate-800 font-bold text-base">
+                      <Store size={18} className="text-emerald-500" />
+                      <span>{shopName}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <span className="inline-flex items-center gap-1"><Star size={13} className="fill-amber-400 text-amber-400" /> {rating} ({reviews})</span>
+                      <span>•</span>
+                      <span className="inline-flex items-center gap-1 text-emerald-600"><MapPin size={13} /> {distance}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-emerald-600 tracking-tight">Rs. {sellingPrice}</div>
+                    {actualPrice > sellingPrice && (
+                      <div className="text-sm text-slate-400 line-through">Rs. {actualPrice}</div>
+                    )}
+                    <div className="text-[10px] uppercase text-slate-400 mt-0.5">
+                      per {product?.stock ? `${product.stock}${unitType}` : `400${unitType}`}
+                    </div>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-4">
+                  {name}
+                </h2>
+
+                <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-8">
+                  {description}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 mb-8">
+                  <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700"><BadgePercent size={18} /></div>
+                    <div>
+                      <div className="text-[11px] text-slate-400 uppercase tracking-wider">Unit Size</div>
+                      <div className="text-slate-800 text-sm">{product?.stock || 400} {unitType}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700"><ShoppingCart size={18} /></div>
+                    <div>
+                      <div className="text-[11px] text-slate-400 uppercase tracking-wider">Delivery Charge</div>
+                      <div className="text-slate-800 text-sm">Rs. {deliveryCharge}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700"><Clock3 size={18} /></div>
+                    <div>
+                      <div className="text-[11px] text-slate-400 uppercase tracking-wider">Delivery Time</div>
+                      <div className="text-slate-800 text-sm">{deliveryTime}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700"><ShieldCheck size={18} /></div>
+                    <div>
+                      <div className="text-[11px] text-slate-400 uppercase tracking-wider">Availability</div>
+                      <div className={`text-sm ${isOutOfStock ? 'text-rose-500' : 'text-emerald-600'}`}>
+                        {isOutOfStock ? 'Out of Stock' : 'In Stock'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <p className="mt-5 text-sm sm:text-[15px] leading-7 text-slate-500">{description}</p>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-white flex items-center justify-center text-[#00B56A] shadow-sm"><BadgePercent size={18} /></div>
+              <div className="space-y-4 pt-6 border-t border-slate-100">
+                <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-xs">
                   <div>
-                    <div className="text-xs font-semibold text-slate-400">Unit Size</div>
-                    <div className="font-bold text-slate-900">{product?.stock || 400}{unitType}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-white flex items-center justify-center text-[#00B56A] shadow-sm"><ShoppingCart size={18} /></div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-400">Delivery Charge</div>
-                    <div className="font-bold text-slate-900">Rs. {deliveryCharge}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-white flex items-center justify-center text-[#00B56A] shadow-sm"><Clock3 size={18} /></div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-400">Delivery Time</div>
-                    <div className="font-bold text-slate-900">{deliveryTime}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl bg-slate-50 border border-slate-100 p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-white flex items-center justify-center text-[#00B56A] shadow-sm"><ShieldCheck size={18} /></div>
-                  <div>
-                    <div className="text-xs font-semibold text-slate-400">Availability</div>
-                    <div className="font-bold text-slate-900">{isOutOfStock ? 'Out of Stock' : 'In Stock'}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-3xl bg-slate-50 border border-slate-100 px-4 py-4 sm:px-5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <div className="text-sm font-bold text-slate-700">Quantity</div>
-                    <div className="text-xs text-slate-400 mt-1">Choose amount before checkout</div>
+                    <span className="text-xs text-slate-800 block">Select Quantity</span>
+                    <span className="text-[11px] text-slate-400">Manage order amount bundle</span>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3 rounded-2xl bg-white border border-slate-200 px-3 py-2 shadow-sm">
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/60 rounded-xl p-1">
                       <button
                         type="button"
                         onClick={() => removeFromCart(currentProductKey)}
-                        className="h-9 w-9 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center hover:bg-slate-100 transition-colors"
+                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all"
                       >
-                        <Minus size={16} />
+                        <Minus size={14} />
                       </button>
-                      <span className="min-w-8 text-center text-lg font-black text-slate-900">{Math.max(currentQuantity, 1)}</span>
+                      <span className="w-9 text-center text-sm text-slate-900">{Math.max(currentQuantity, 1)}</span>
                       <button
                         type="button"
                         onClick={() => addToCart(product)}
-                        className="h-9 w-9 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center hover:bg-slate-100 transition-colors"
+                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all"
                       >
-                        <Plus size={16} />
+                        <Plus size={14} />
                       </button>
                     </div>
-
-                    <div className="text-[#00A86B] font-black text-base">= Rs. {totalPrice}</div>
+                    
+                    <div className="text-emerald-600 font-bold text-base min-w-[85px] text-right">
+                      Rs. {totalPrice.toLocaleString()}
+                    </div>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => addToCart(product)}
+                    disabled={isOutOfStock}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-800 shadow-xs transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:bg-gray-50"
+                  >
+                    <ShoppingCart size={16} />
+                    Add to Cart
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addToCart(product);
+                      navigate('/checkout', { state: { items: [{ ...product, quantity: Math.max(currentQuantity, 1) }] } });
+                    }}
+                    disabled={isOutOfStock}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-5 py-4 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#009E5B] hover:shadow-md disabled:cursor-not-allowed disabled:bg-gray-300"
+                  >
+                    <Zap size={16} className="fill-white" />
+                    Order Now
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => addToCart(product)}
-                  disabled={isOutOfStock}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#00B56A] px-5 py-4 text-base font-black text-[#00B56A] transition-all hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:bg-gray-50"
-                >
-                  <ShoppingCart size={18} />
-                  Add to Cart
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    addToCart(product);
-                    navigate('/checkout', { state: { items: [{ ...product, quantity: Math.max(currentQuantity, 1) }] } });
-                  }}
-                  disabled={isOutOfStock}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#00B56A] px-5 py-4 text-base font-black text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-[#009E5B] disabled:cursor-not-allowed disabled:bg-gray-300"
-                >
-                  <Zap size={18} />
-                  Order Now
-                </button>
-              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 
