@@ -244,3 +244,21 @@ exports.getLowStockProducts = async (req, res) => {
         });
     }
 };
+
+exports.getSimilarProducts = async (req, res) => {
+  try {
+    const { category, currentProductId } = req.query;
+
+    const similarProducts = await product.find({
+      category: category,
+      _id: { $ne: currentProductId }
+    }).limit(4);
+
+    res.status(200).json({
+      success: true,
+      products: similarProducts
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

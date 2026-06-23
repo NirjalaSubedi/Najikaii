@@ -3,7 +3,7 @@ const router= express.Router();
 const {register,login,updateProfile,deleteuser,confirmDeleteUser,GetMyProfileInfo,getAllUserInfo,updateVendorStatus,googleLogin,resendOtp,getUserCount}= require('../Controllers/authcontrollers');
 const { getVendorOverview } = require('../Controllers/shopcontrollers');
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const{Addproduct, getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct,getLowStockProducts}= require("../Controllers/productControllers");
+const{Addproduct,getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct,getLowStockProducts,getSimilarProducts}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
 const {AddToCart,GetCart,RemoveFromCart,ClearCart}= require("../Controllers/cartcontrolletrs");
 
@@ -46,6 +46,8 @@ router.get('/my-products', authmiddlewares, authorizeRoles('Vendor'),getmyProduc
 router.get('/all-products',getAllProducts );
 
 router.get('/product/:id', getProductById);
+
+router.get('/similarproduct',getSimilarProducts);
 
 // Vendor dashboard overview
 router.get('/vendor-overview', authmiddlewares, authorizeRoles('Vendor'), getVendorOverview);
