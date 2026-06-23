@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Star, MapPin, Store, Clock3, ShieldCheck, Minus, Plus, Zap, ShoppingCart, BadgePercent } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
+import axios from 'axios'; // Axios fetch handler integrate gareko
 
 const formatDistance = (distance) => {
   if (distance === undefined || distance === null || Number.isNaN(Number(distance))) {
@@ -15,6 +16,40 @@ const formatDistance = (distance) => {
 const ProductDetailModal = ({ product, loading, error, onClose }) => {
   const { cartItems, addToCart, removeFromCart } = useCart();
   const navigate = useNavigate();
+
+  // Similar products collection trigger state
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
+
+  // Similar Products Fetch Logic
+  useEffect(() => {
+    const fetchSimilarProducts = async () => {
+      const currentProductId = product?._id || product?.id;
+      const category = product?.category;
+
+      if (!currentProductId || !category) return;
+
+      try {
+        setSimilarLoading(true);
+        // Auth route path strictly tracking mapping parameter matching query
+        const response = await axios.get(
+          `http://localhost:5000/api/auth/similarproduct?category=${category}&currentProductId=${currentProductId}`
+        );
+        
+        if (response.data.success) {
+          setSimilarProducts(response.data.products);
+        }
+      } catch (err) {
+        console.error("Error fetching similar items stack:", err);
+      } finally {
+        setSimilarLoading(false);
+      }
+    };
+
+    if (product) {
+      fetchSimilarProducts();
+    }
+  }, [product]);
 
   useEffect(() => {
     if (!product && !loading && !error) return undefined;
@@ -263,12 +298,25 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
             </div>
           </div>
 
+          {/* Dynamic Filtered Similar Products Grid */}
           <div className="mt-16 pt-10 border-t border-slate-200/60">
-            <h3 className="text-base font-bold text-slate-800 mb-1">Similar products</h3>
+            <h3 className="text-base font-bold text-slate-800 mb-4">Similar Products</h3>
             
-            <div className="max-w-xs">
-              <ProductCard product={product} onClick={() => console.log("Card Preview Clicked")} />
-            </div>
+            {similarLoading ? (
+              <div className="text-xs text-gray-400 animate-pulse">Loading similar categories...</div>
+            ) : similarProducts.length === 0 ? (
+              <div className="text-xs text-gray-400">No other similar products found.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {similarProducts.map((item) => (
+                  <ProductCard 
+                    key={item._id || item.id} 
+                    product={item} 
+                    onClick={() => console.log("Card Preview Clicked")} 
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
