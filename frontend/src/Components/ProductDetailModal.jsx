@@ -3,11 +3,13 @@ import { createPortal } from 'react-dom';
 import { X, Star, MapPin, Store, Clock3, ShieldCheck, Minus, Plus, Zap, ShoppingCart, BadgePercent } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
 import { useNavigate } from 'react-router-dom';
+import ProductCard from './ProductCard';
 
 const formatDistance = (distance) => {
   if (distance === undefined || distance === null || Number.isNaN(Number(distance))) {
     return '1.4 km away';
   }
+  return `${Number(distance).toFixed(1)} km away`;
 };
 
 const ProductDetailModal = ({ product, loading, error, onClose }) => {
@@ -35,7 +37,12 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
   if (!product && !loading && !error) return null;
 
   const currentProductKey = product?._id || product?.id;
-  const cartItem = cartItems.find((item) => String(item._id || item.id) === String(currentProductKey));
+  
+  const cartItem = cartItems?.find((item) => {
+    const nestedProduct = item.product || item;
+    const itemKey = nestedProduct._id || nestedProduct.id || nestedProduct.productId;
+    return String(itemKey) === String(currentProductKey);
+  });
   const currentQuantity = cartItem ? cartItem.quantity : 0;
 
   const name = product?.name || 'Unnamed Product';
@@ -59,7 +66,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
   const totalPrice = sellingPrice * Math.max(currentQuantity, 1);
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 bg-[#fafafa] overflow-y-auto h-screen w-screen text-left antialiased selection:bg-emerald-100">
+    <div className="fixed inset-0 z-50 bg-[#fafafa] overflow-y-auto min-h-screen w-screen text-left antialiased selection:bg-emerald-100 pb-16">
       
       <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 py-4 sm:px-8">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -72,7 +79,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="h-10 w-10 rounded-full bg-zinc-600 text-white flex items-center justify-center"
+            className="h-10 w-10 rounded-full bg-zinc-600 text-white flex items-center justify-center cursor-pointer hover:bg-zinc-700 transition-colors"
           >
             <X size={18} />
           </button>
@@ -99,7 +106,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
         </div>
       ) : (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             <div className="lg:col-span-6 space-y-4">
               <div className="relative aspect-square sm:aspect-4/3 lg:aspect-square w-full overflow-hidden bg-slate-100 rounded-[32px] shadow-xs border border-gray-100 group">
@@ -124,7 +131,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
               </div>
             </div>
 
-            <div className="lg:col-span-6 flex flex-col justify-between">
+            <div className="lg:col-span-6 space-y-6">
               <div>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-5 mb-5">
                   <div className="space-y-1">
@@ -154,11 +161,11 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
                   {name}
                 </h2>
 
-                <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-8">
+                <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-6">
                   {description}
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 mb-8">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center gap-3 shadow-xs">
                     <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700"><BadgePercent size={18} /></div>
                     <div>
@@ -198,7 +205,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
               <div className="space-y-4 pt-6 border-t border-slate-100">
                 <div className="bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between shadow-xs">
                   <div>
-                    <span className="text-xs text-slate-800 block">Select Quantity</span>
+                    <span className="text-xs text-slate-800 block font-bold">Select Quantity</span>
                     <span className="text-[11px] text-slate-400">Manage order amount bundle</span>
                   </div>
 
@@ -207,15 +214,15 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
                       <button
                         type="button"
                         onClick={() => removeFromCart(currentProductKey)}
-                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all"
+                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
                       >
                         <Minus size={14} />
                       </button>
-                      <span className="w-9 text-center text-sm text-slate-900">{Math.max(currentQuantity, 1)}</span>
+                      <span className="w-9 text-center text-sm font-bold text-slate-900">{Math.max(currentQuantity, 1)}</span>
                       <button
                         type="button"
                         onClick={() => addToCart(product)}
-                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all"
+                        className="h-8 w-8 rounded-lg bg-white border border-slate-100 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
                       >
                         <Plus size={14} />
                       </button>
@@ -232,7 +239,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
                     type="button"
                     onClick={() => addToCart(product)}
                     disabled={isOutOfStock}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-800 shadow-xs transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:bg-gray-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm font-bold text-slate-800 shadow-xs transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:bg-gray-50 cursor-pointer"
                   >
                     <ShoppingCart size={16} />
                     Add to Cart
@@ -245,7 +252,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
                       navigate('/checkout', { state: { items: [{ ...product, quantity: Math.max(currentQuantity, 1) }] } });
                     }}
                     disabled={isOutOfStock}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-5 py-4 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#009E5B] hover:shadow-md disabled:cursor-not-allowed disabled:bg-gray-300"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-5 py-4 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#009E5B] hover:shadow-md disabled:cursor-not-allowed disabled:bg-gray-300 cursor-pointer"
                   >
                     <Zap size={16} className="fill-white" />
                     Order Now
@@ -255,6 +262,15 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
 
             </div>
           </div>
+
+          <div className="mt-16 pt-10 border-t border-slate-200/60">
+            <h3 className="text-base font-bold text-slate-800 mb-1">Similar products</h3>
+            
+            <div className="max-w-xs">
+              <ProductCard product={product} onClick={() => console.log("Card Preview Clicked")} />
+            </div>
+          </div>
+
         </div>
       )}
     </div>
