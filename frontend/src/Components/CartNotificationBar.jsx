@@ -1,17 +1,35 @@
-import React, { useEffect } from 'react'; // useEffect thapiyo
+import React, { useEffect, useState, useRef } from 'react';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../hooks/CartContext';
 
 const CartNotificationBar = () => {
   const { cartItems } = useCart();
-const totalItems = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);;
+  const [isVisible, setIsVisible] = useState(false);
+  const isFirstRender = useRef(true);
+
+  const totalItems = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   useEffect(() => {
-    console.log("Cart change tracking triggered! Current total items:", totalItems);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (totalItems > 0) {
+      setIsVisible(true);
+
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
   }, [cartItems, totalItems]);
 
-  if (totalItems === 0) return null;
+  if (!isVisible || totalItems === 0) return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm animate-bounce-short">
