@@ -6,17 +6,24 @@ import { useCart } from '../hooks/CartContext';
 const CartNotificationBar = () => {
   const { cartItems } = useCart();
   const [isVisible, setIsVisible] = useState(false);
-  const isFirstRender = useRef(true);
+  
+  const prevTotalItems = useRef(null);
+  const isInitialLoad = useRef(true);
 
   const totalItems = cartItems.reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isInitialLoad.current && totalItems === 0) {
       return;
     }
 
-    if (totalItems > 0) {
+    if (prevTotalItems.current === null) {
+      prevTotalItems.current = totalItems;
+      isInitialLoad.current = false;
+      return;
+    }
+
+    if (totalItems > prevTotalItems.current) {
       setIsVisible(true);
 
       const timer = setTimeout(() => {
@@ -24,9 +31,10 @@ const CartNotificationBar = () => {
       }, 5000);
 
       return () => clearTimeout(timer);
-    } else {
-      setIsVisible(false);
-    }
+    } 
+    
+    prevTotalItems.current = totalItems;
+    
   }, [cartItems, totalItems]);
 
   if (!isVisible || totalItems === 0) return null;

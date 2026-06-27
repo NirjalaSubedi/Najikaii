@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, ShoppingCart, Heart, ChevronDown, User, LogOut, Settings, Package, Trash2, ChevronRight } from 'lucide-react';
+import { Search, MapPin, ShoppingCart, ChevronDown, User, LogOut, Settings, Package, Trash2, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
 import { toast } from 'react-toastify'; 
@@ -126,10 +126,6 @@ const Navbar = ({ Address }) => {
 
       {/* Actions & Profile */}
       <div className="flex items-center gap-3.5">
-        <button className="p-2 text-slate-700 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all">
-          <Heart size={20} strokeWidth={2} />
-        </button>
-        
         <button className="relative p-2 bg-[#00B56A] text-white rounded-xl hover:bg-[#009e5b] transition-all shadow-md shadow-[#00B56A]/10">
           <ShoppingCart size={20} strokeWidth={2.5} />
           <span className="absolute -top-1 -right-1 bg-[#FF4D4D] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white">0</span>
