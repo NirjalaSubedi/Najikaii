@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Star, Plus, Minus, Zap, Store, MapPin } from 'lucide-react';
+import { Star, Plus, Minus, Zap, Store, MapPin } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
 
 const ProductCard = ({ product, onClick }) => {
@@ -99,14 +99,6 @@ const ProductCard = ({ product, onClick }) => {
             </span>
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={(event) => event.stopPropagation()}
-          className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-gray-400 hover:text-red-500 transition-all duration-200"
-        >
-          <Heart size={16} />
-        </button>
 
         <img
           src={image}
