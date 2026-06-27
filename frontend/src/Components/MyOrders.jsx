@@ -108,12 +108,12 @@ const MyOrders = () => {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate(-1)} 
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl transition-all"
+              className="p-2 hover:bg-slate-100 border border-slate-200/80 rounded-xl transition-all"
             >
               <ArrowLeft size={16} className="text-slate-700" />
             </button>
             <div>
-              <h1 className="text-xl md:text-2xl font-extrabold text-[#00B56A] tracking-tight">My Orders</h1>
+              <h1 className="text-xl font-bold text-[#00B56A]">My Orders</h1>
               <p className="text-xs font-medium text-slate-400 mt-0.5">Track and manage your dynamic retail purchases</p>
             </div>
           </div>

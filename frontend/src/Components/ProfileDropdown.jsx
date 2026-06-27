@@ -59,7 +59,7 @@ const ProfileDropdown = ({ onClose }) => {
                 <>
                     <button 
                         onClick={onClose}
-                        className="flex items-center gap-3 text-gray-800 font-bold text-sm mb-6 hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-3 text-gray-800 font-bold mb-6 hover:opacity-80 transition-opacity"
                     >
                         <ArrowLeft size={16} strokeWidth={2.5} />
                         <span>My Profile</span>
@@ -134,7 +134,7 @@ const ProfileDropdown = ({ onClose }) => {
 
                     <button 
                         onClick={() => setIsEditing(true)}
-                        className="w-full bg-[#00B56A] text-white py-3 rounded-2xl font-bold hover:bg-[#009e5b] transition-all text-sm shadow-md shadow-green-100 active:scale-[0.99]"
+                        className="w-full bg-[#00B56A] text-white py-3 rounded-2xl font-bold hover:bg-[#009e5b] transition-all shadow-md shadow-green-100 active:scale-[0.99]"
                     >
                         Edit Profile
                     </button>
