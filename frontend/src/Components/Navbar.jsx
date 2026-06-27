@@ -5,6 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify'; 
 import ProfileDropdown from "./ProfileDropdown";
 import EditProfile from "./EditProfile";
+import { useCart } from '../hooks/CartContext'; 
 
 const Navbar = ({ Address }) => {
   const navigate = useNavigate();
@@ -13,6 +14,10 @@ const Navbar = ({ Address }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { cart } = useCart(); 
+
+  // Total items calculation yadi cart array vitra quantity xa vane total sum garne, natra array length
+  const totalCartItems = cart?.reduce((total, item) => total + (item.quantity || 1), 0) || 0;
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -126,9 +131,16 @@ const Navbar = ({ Address }) => {
 
       {/* Actions & Profile */}
       <div className="flex items-center gap-3.5">
-        <button className="relative p-2 bg-[#00B56A] text-white rounded-xl hover:bg-[#009e5b] transition-all shadow-md shadow-[#00B56A]/10">
+        <button 
+          onClick={() => navigate('/cart')}
+          className="relative p-2 bg-[#00B56A] text-white rounded-xl hover:bg-[#009e5b] transition-all shadow-md shadow-[#00B56A]/10"
+        >
           <ShoppingCart size={20} strokeWidth={2.5} />
-          <span className="absolute -top-1 -right-1 bg-[#FF4D4D] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white">0</span>
+          {totalCartItems > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#FF4D4D] text-white text-[10px] font-black px-1.5 py-0.5 rounded-full border border-white animate-pulse">
+              {totalCartItems}
+            </span>
+          )}
         </button>
 
         {user ? (
@@ -207,7 +219,6 @@ const Navbar = ({ Address }) => {
                         <ChevronRight size={14} className="text-slate-300 group-hover:text-slate-400" />
                       </button>
 
-                      {/* CHANGED SECTION: Dashboard item renamed to My Orders */}
                       <button
                         onClick={() => { setShowDropdown(false); navigate("/my-orders"); }}
                         className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-[#F8F9FA] transition-colors text-left group"
