@@ -7,10 +7,13 @@ import NearbyShops from "../Components/NearbyShops";
 import ProductGrid from "../Components/ProductGrid";
 import Footer from "../Components/Footer";
 import { useLocationWatcher } from "../hooks/useLocationWatcher";
+import { useProductFilter } from "../hooks/useProductFilter"; 
 import CartNotificationBar from "../Components/CartNotificationBar";
 
 const Home = () => {
   const { userAddress, setUserAddress, coords, setCoords } = useLocationWatcher();
+  const { selectedCategory, setSelectedCategory } = useProductFilter();
+
   return (
     <>
       <Navbar Address={userAddress} />
@@ -19,10 +22,13 @@ const Home = () => {
       )}
       <ImageBanner />
       <NearbyShops coords={coords} />
-      <CategorySelector />
-      <ProductGrid coords={coords}/>
+      
+      <CategorySelector 
+        activeCategory={selectedCategory} 
+        setActiveCategory={setSelectedCategory} 
+      />
+      <ProductGrid coords={coords} selectedCategory={selectedCategory} />
       <Footer />
-
       <CartNotificationBar/>
     </>
   );

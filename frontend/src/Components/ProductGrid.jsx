@@ -4,7 +4,7 @@ import { Loader2, SlidersHorizontal } from "lucide-react";
 import axios from "axios";
 import ProductDetailModal from "./ProductDetailModal";
 
-const ProductGrid = ({ coords }) => {
+const ProductGrid = ({ coords, selectedCategory }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSort, setActiveSort] = useState("Nearest First");
@@ -64,14 +64,31 @@ const ProductGrid = ({ coords }) => {
     fetchAllMarketplaceProducts();
   }, [lat, lng, activeSort]);
 
+  // Robust Filtering Engine: Cleans strings and checks for plural/singular matches
+  const filteredProducts = !selectedCategory || selectedCategory === "All"
+    ? products
+    : products.filter(product => {
+        if (!product.category) return false;
+        
+        const dbCategory = product.category.toLowerCase().trim();
+        const uiCategory = selectedCategory.toLowerCase().trim();
+        
+        // Matches exactly OR handles plural variations (e.g., "fruits" matches "fruit")
+        return dbCategory === uiCategory || 
+               dbCategory.includes(uiCategory) || 
+               uiCategory.includes(dbCategory);
+      });
+
   return (
     <div className="w-full px-6 py-8 space-y-6">
       
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-100">
         <div>
-          <h2 className="text-xl font-black text-gray-900 tracking-tight">All Products</h2>
+          <h2 className="text-xl font-black text-gray-900 tracking-tight">
+            {selectedCategory === "All" ? "All Products" : `${selectedCategory}`}
+          </h2>
           <p className="text-xs font-bold text-gray-400 mt-0.5">
-            {products.length} {products.length === 1 ? 'item' : 'items'} found near you
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'} found near you
           </p>
         </div>
 
@@ -100,9 +117,9 @@ const ProductGrid = ({ coords }) => {
           <Loader2 className="animate-spin text-[#00B56A]" size={28} />
           <span>Loading nearby marketplace products...</span>
         </div>
-      ) : products.length > 0 ? (
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {products.map((singleItem) => (
+          {filteredProducts.map((singleItem) => (
             <ProductCard
               key={singleItem._id || singleItem.id}
               product={singleItem}
@@ -112,7 +129,7 @@ const ProductGrid = ({ coords }) => {
         </div>
       ) : (
         <div className="text-center py-20 text-xs font-bold text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm">
-          Product block collection available chaina current area radius vitra!
+          यो क्याटेगरीमा प्रडक्टहरू उपलब्ध छैनन्!
         </div>
       )}
 

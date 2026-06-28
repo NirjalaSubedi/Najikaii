@@ -1,16 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 
-export const useProductFilter = (initialProducts) => {
+export const useProductFilter = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
-
-  const filteredProducts = useMemo(() => {
-    if (selectedCategory === "All") return initialProducts;
-    return initialProducts.filter(product => product.category === selectedCategory);
-  }, [selectedCategory, initialProducts]);
 
   return {
     selectedCategory,
     setSelectedCategory,
-    filteredProducts
   };
 };
