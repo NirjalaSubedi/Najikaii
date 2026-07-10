@@ -73,11 +73,16 @@ exports.getAllProducts = async (req, res) => {
         }
 
         if (!lat || !lng) {
-            const products = await product.find(productFilter).populate('vendor', 'name email shopName');
+            const products = await product.find(productFilter).populate('vendor', 'name email shopName location');
+            const normalizedProducts = products.map((item) => {
+                const productData = item.toObject();
+                productData.distance = null;
+                return productData;
+            });
             return res.status(200).json({
                 success: true,
-                count: products.length,
-                products
+                count: normalizedProducts.length,
+                products: normalizedProducts
             });
         }
 
@@ -129,6 +134,7 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductById = async (req, res) => {
     try {
+        const { lat, lng } = req.query;
         const productData = await product.findById(req.params.id).populate('vendor', 'name email shopName location shopImage');
 
         if (!productData) {
@@ -138,9 +144,35 @@ exports.getProductById = async (req, res) => {
             });
         }
 
+        const productObj = productData.toObject();
+
+        if (lat && lng) {
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+            const vendorCoords = productObj.vendor?.location?.coordinates;
+
+            if (
+                Number.isFinite(userLat) &&
+                Number.isFinite(userLng) &&
+                Array.isArray(vendorCoords) &&
+                vendorCoords.length === 2
+            ) {
+                productObj.distance = calculateDistance(
+                    userLat,
+                    userLng,
+                    vendorCoords[1],
+                    vendorCoords[0]
+                );
+            } else {
+                productObj.distance = null;
+            }
+        } else {
+            productObj.distance = null;
+        }
+
         res.status(200).json({
             success: true,
-            product: productData
+            product: productObj
         });
     } catch (error) {
         res.status(500).json({

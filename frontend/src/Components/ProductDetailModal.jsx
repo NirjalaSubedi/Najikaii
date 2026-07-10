@@ -7,8 +7,8 @@ import ProductCard from './ProductCard';
 import axios from 'axios'; 
 
 const formatDistance = (distance) => {
-  if (distance === undefined || distance === null || Number.isNaN(Number(distance))) {
-    return '1.4 km away';
+  if (!Number.isFinite(Number(distance))) {
+    return 'Distance unavailable';
   }
   return `${Number(distance).toFixed(1)} km away`;
 };

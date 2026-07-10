@@ -18,6 +18,20 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const resolveProductId = (item) => {
+  if (!item) return null;
+  if (item.product && typeof item.product === 'object') {
+    return item.product._id || item.product.id || null;
+  }
+  return item.product || item._id || item.id || null;
+};
+
+const resolveProductData = (item) => {
+  if (!item) return {};
+  if (item.product && typeof item.product === 'object') return item.product;
+  return item;
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,8 +81,16 @@ const Checkout = () => {
         setLoading(true);
         setError('');
         const firstItem = items[0];
+        const firstProductId = resolveProductId(firstItem);
+
+        if (!firstProductId) {
+          setError('Product id resolve garna sakiyena. Cart refresh garera फेरि try garnus.');
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.post('http://localhost:5000/api/order/estimate-order', {
-          productId: firstItem._id || firstItem.id,
+          productId: firstProductId,
           quantity: firstItem.quantity || 1,
           customerCoords: coords,
         }, {
@@ -94,7 +116,8 @@ const Checkout = () => {
   }, [items, coords]);
 
   const subtotal = deliveryInfo?.subTotal || items.reduce((acc, item) => {
-    const price = Number(item.sellingPrice ?? item.actualPrice ?? 0);
+    const productData = resolveProductData(item);
+    const price = Number(productData.sellingPrice ?? productData.actualPrice ?? 0);
     return acc + (price * (item.quantity || 1));
   }, 0);
 
@@ -121,9 +144,9 @@ const Checkout = () => {
 
       const payload = {
         items: items.map((item) => ({
-          product: item._id || item.id,
+          product: resolveProductId(item),
           quantity: item.quantity || 1,
-        })),
+        })).filter((item) => item.product),
         paymentMethod: formData.paymentMethod,
         customerCoords: coords,
         shippingDetails: {
@@ -134,6 +157,11 @@ const Checkout = () => {
           note: formData.note
         }
       };
+
+      if (!payload.items.length) {
+        setError('Valid product id bhetiyena. Cart refresh garera फेरि try garnus.');
+        return;
+      }
 
       // 1. First, create main order tracking in database
       const orderResponse = await axios.post('http://localhost:5000/api/order/placeorder', payload, {
@@ -333,22 +361,22 @@ const Checkout = () => {
 
               <div className="space-y-4 max-h-[280px] overflow-y-auto pr-1">
                 {items.map((item) => (
-                  <div key={item._id || item.id} className="flex items-center justify-between gap-3">
+                  <div key={resolveProductId(item) || item._id || item.id} className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <img src={item.image || 'https://via.placeholder.com/64'} alt={item.name} className="h-12 w-12 rounded-xl object-cover border border-slate-100" />
+                      <img src={resolveProductData(item).image || 'https://via.placeholder.com/64'} alt={resolveProductData(item).name} className="h-12 w-12 rounded-xl object-cover border border-slate-100" />
                       <div>
-                        <div className="text-sm font-bold text-slate-700 max-w-[150px] truncate">{item.name}</div>
+                        <div className="text-sm font-bold text-slate-700 max-w-[150px] truncate">{resolveProductData(item).name}</div>
                         <div className="text-xs font-semibold text-slate-400">× {item.quantity || 1}</div>
                       </div>
                     </div>
-                    <div className="text-sm font-black text-slate-700">Rs. {(Number(item.sellingPrice ?? item.actualPrice ?? 0) * (item.quantity || 1))}</div>
+                    <div className="text-sm font-black text-slate-700">Rs. {(Number(resolveProductData(item).sellingPrice ?? resolveProductData(item).actualPrice ?? 0) * (item.quantity || 1))}</div>
                   </div>
                 ))}
               </div>
 
               <div className="mt-5 border-t border-slate-100 pt-4 space-y-2 text-sm">
                 <div className="flex items-center justify-between text-slate-500 font-medium"><span>Subtotal</span><span className="font-bold text-slate-700">Rs. {subtotal}</span></div>
-                <div className="flex items-center justify-between text-slate-500 font-medium"><span>Delivery ({deliveryInfo ? `${deliveryInfo.distance.toFixed(1)} km` : '0.8 km'})</span><span className="font-bold text-slate-700">Rs. {deliveryInfo?.deliveryCharge ?? 0}</span></div>
+                <div className="flex items-center justify-between text-slate-500 font-medium"><span>Delivery ({Number.isFinite(Number(deliveryInfo?.distance)) ? `${Number(deliveryInfo.distance).toFixed(1)} km` : 'Distance unavailable'})</span><span className="font-bold text-slate-700">Rs. {deliveryInfo?.deliveryCharge ?? 0}</span></div>
                 <div className="flex items-center justify-between text-slate-500 font-medium"><span>Platform Fee (10%)</span><span className="font-bold text-slate-700">Rs. {deliveryInfo ? Math.round(deliveryInfo.adminCommission) : Math.round(subtotal * 0.1)}</span></div>
               </div>
 

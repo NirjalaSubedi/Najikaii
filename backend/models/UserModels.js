@@ -1,4 +1,5 @@
 const mongoose= require('mongoose');
+const Product = require('./ProductModels');
 const userSchema=new mongoose.Schema({
     name:{
         type:String,
@@ -73,5 +74,47 @@ const userSchema=new mongoose.Schema({
 }, {timestamps: true})
 
 userSchema.index({ location: "2dsphere" });
+
+const deleteVendorProducts = async (targetUserId) => {
+    if (!targetUserId) return;
+
+    const vendor = await mongoose.model('User').findById(targetUserId).select('role');
+    if (vendor?.role === 'Vendor') {
+        await Product.deleteMany({ vendor: targetUserId });
+    }
+};
+
+userSchema.pre('findOneAndDelete', async function(next) {
+    try {
+        const targetUser = await this.model.findOne(this.getFilter()).select('_id role');
+        if (targetUser?.role === 'Vendor') {
+            await Product.deleteMany({ vendor: targetUser._id });
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+userSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
+    try {
+        await deleteVendorProducts(this._id);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+userSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+    try {
+        const targetUser = await this.model.findOne(this.getFilter()).select('_id role');
+        if (targetUser?.role === 'Vendor') {
+            await Product.deleteMany({ vendor: targetUser._id });
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 module.exports = mongoose.model('User', userSchema);

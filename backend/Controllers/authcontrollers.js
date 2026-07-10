@@ -1,5 +1,4 @@
 const user=require('../models/UserModels');
-const Product = require('../models/ProductModels');
 const jwt = require('jsonwebtoken');
 const bcryptjs= require('bcryptjs');
 const crypto = require('crypto');
@@ -285,10 +284,6 @@ exports.confirmDeleteUser = async (req, res) => {
                     <p>Yo account pahile nai delete bhaisakeko huna sakchhha.</p>
                 </div>
             `);
-        }
-
-        if (userToDelete.role === 'Vendor') {
-            await Product.deleteMany({ vendor: targetUserId }); 
         }
 
         await user.findByIdAndDelete(targetUserId);

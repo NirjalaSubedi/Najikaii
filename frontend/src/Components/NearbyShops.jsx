@@ -100,7 +100,7 @@ const NearbyShops = ({ coords }) => {
                 {/* Distance Badge */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
                   <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
-                  {shop.distanceInKm ? `${shop.distanceInKm.toFixed(1)} km` : '0.5 km'}
+                  {Number.isFinite(Number(shop.distanceInKm)) ? `${Number(shop.distanceInKm).toFixed(1)} km` : 'Distance unavailable'}
                 </div>
               </div>              
 

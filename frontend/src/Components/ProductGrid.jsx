@@ -24,7 +24,8 @@ const ProductGrid = ({ coords, selectedCategory }) => {
     setDetailError("");
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/auth/product/${productId}`);
+      const query = lat && lng ? `?lat=${lat}&lng=${lng}` : '';
+      const response = await axios.get(`http://localhost:5000/api/auth/product/${productId}${query}`);
       if (response.data?.success && response.data?.product) {
         setSelectedProduct(response.data.product);
       }
@@ -37,13 +38,15 @@ const ProductGrid = ({ coords, selectedCategory }) => {
 
   useEffect(() => {
     const fetchAllMarketplaceProducts = async () => {
+      if (!lat || !lng) {
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        let url = `http://localhost:5000/api/auth/all-products?sort=${encodeURIComponent(activeSort)}`;
-        
-        if (lat && lng) {
-          url += `&lat=${lat}&lng=${lng}`;
-        }
+        let url = `http://localhost:5000/api/auth/all-products?sort=${encodeURIComponent(activeSort)}&lat=${lat}&lng=${lng}`;
 
         console.log("Hitting API via ProductGrid component:", url);
         const response = await axios.get(url);
@@ -116,6 +119,10 @@ const ProductGrid = ({ coords, selectedCategory }) => {
         <div className="w-full h-64 flex flex-col items-center justify-center gap-2 text-gray-400 text-xs font-semibold">
           <Loader2 className="animate-spin text-[#00B56A]" size={28} />
           <span>Loading nearby marketplace products...</span>
+        </div>
+      ) : !lat || !lng ? (
+        <div className="text-center py-20 text-xs font-bold text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm">
+          Product distance herna location enable garnus.
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
