@@ -6,8 +6,11 @@ const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares'
 const{Addproduct,getmyProduct, getAllProducts, getProductById,updateProducts,deleteProduct,getLowStockProducts,getSimilarProducts}= require("../Controllers/productControllers");
 const {verifyOtp}= require("../Controllers/verifyOTP");
 const {AddToCart,GetCart,RemoveFromCart,ClearCart}= require("../Controllers/cartcontrolletrs");
+const upload = require('../middlewares/multerConfig');
 
-router.post('/register',register);
+router.post('/register', upload.single('shopImage'), register);
+
+router.put('/update-userProfile', authmiddlewares, upload.single('shopImage'), updateProfile);
 
 //verify otp
 router.post('/verify-Otp',verifyOtp);
@@ -17,7 +20,6 @@ router.post('/google-login', googleLogin);
 
 //aprove vendor
 router.put('/approve-vendor/:id', authmiddlewares, authorizeRoles('Admin'), updateVendorStatus);
-router.put('/update-userProfile',authmiddlewares,updateProfile);
 router.get('/MyProfileInfo',authmiddlewares,GetMyProfileInfo);
 router.get('/getAllUserInfo',authmiddlewares,authorizeRoles('Admin'),getAllUserInfo);
 
@@ -35,7 +37,6 @@ router.get('/test',authmiddlewares,(req,res)=>{
     })
 });
 
-const upload = require('../middlewares/multerConfig');
 
 router.post('/add-product',authmiddlewares,authorizeRoles('Vendor'),upload.single('image'),Addproduct);
 

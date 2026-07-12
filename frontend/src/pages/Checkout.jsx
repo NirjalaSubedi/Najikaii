@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, MapPin, BadgeInfo, CreditCard, Truck, CircleCheckBig } from 'lucide-react';
+import { ArrowLeft, MapPin, CreditCard, Truck, CircleCheckBig } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
 
 const loadSavedCoords = () => {
@@ -32,6 +32,17 @@ const resolveProductData = (item) => {
   return item;
 };
 
+const loadPendingCheckoutItems = () => {
+  try {
+    const raw = localStorage.getItem('checkoutItems');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,6 +51,8 @@ const Checkout = () => {
   const initialItems = useMemo(() => {
     const stateItems = location.state?.items;
     if (Array.isArray(stateItems) && stateItems.length > 0) return stateItems;
+    const pendingItems = loadPendingCheckoutItems();
+    if (pendingItems.length > 0) return pendingItems;
     return cartItems;
   }, [cartItems, location.state]);
 
@@ -64,8 +77,28 @@ const Checkout = () => {
   }, [initialItems]);
 
   useEffect(() => {
+    if (Array.isArray(location.state?.items) && location.state.items.length > 0) {
+      localStorage.setItem('checkoutItems', JSON.stringify(location.state.items));
+    }
+  }, [location.state]);
+
+  useEffect(() => {
     const fetchEstimate = async () => {
       if (!items || items.length === 0) {
+        try {
+          const cartResponse = await axios.get('http://localhost:5000/api/auth/GetCart', {
+            withCredentials: true,
+            headers: getAuthHeaders(),
+          });
+
+          if (cartResponse.data?.success && Array.isArray(cartResponse.data.cart) && cartResponse.data.cart.length > 0) {
+            setItems(cartResponse.data.cart);
+            setLoading(false);
+            return;
+          }
+        } catch {
+        }
+
         setLoading(false);
         setError('No products selected for checkout.');
         return;
@@ -115,24 +148,27 @@ const Checkout = () => {
     fetchEstimate();
   }, [items, coords]);
 
-  const subtotal = deliveryInfo?.subTotal || items.reduce((acc, item) => {
-    const productData = resolveProductData(item);
-    const price = Number(productData.sellingPrice ?? productData.actualPrice ?? 0);
-    return acc + (price * (item.quantity || 1));
-  }, 0);
+  const subtotal = useMemo(() => {
+    return deliveryInfo?.subTotal || items.reduce((acc, item) => {
+      const productData = resolveProductData(item);
+      const price = Number(productData.sellingPrice ?? productData.actualPrice ?? 0);
+      return acc + (price * (item.quantity || 1));
+    }, 0);
+  }, [deliveryInfo, items]);
 
-  const total = deliveryInfo?.totalAmount || subtotal + (deliveryInfo?.deliveryCharge || 0);
+  const total = useMemo(() => {
+    return deliveryInfo?.totalAmount || subtotal + (deliveryInfo?.deliveryCharge || 0);
+  }, [deliveryInfo, subtotal]);
+
   const selectedPaymentMethod = formData.paymentMethod;
   const isEsewaSelected = selectedPaymentMethod === 'esewa';
   const placeOrderLabel = placingOrder 
     ? 'Processing...' 
     : isEsewaSelected
-      ? 'Place Order & Pay with eSewa →'
+      ? 'Place Order & Pay with eSewa'
       : 'Place Order (Cash on Delivery)';
 
-  // ==================== UPDATE: MODIFIED PAYMENT PIPELINE ====================
   const handlePlaceOrder = async () => {
-    // Form fields valuation check basic requirements
     if (!formData.fullName || !formData.phoneNumber || !formData.address) {
       setError('Required fields (Name, Phone, Address) empty huna bhayena.');
       return;
@@ -163,7 +199,6 @@ const Checkout = () => {
         return;
       }
 
-      // 1. First, create main order tracking in database
       const orderResponse = await axios.post('http://localhost:5000/api/order/placeorder', payload, {
         withCredentials: true,
         headers: getAuthHeaders(),
@@ -174,16 +209,17 @@ const Checkout = () => {
       }
 
       const generatedOrderId = orderResponse.data.order._id || orderResponse.data.order.id;
+      const backendOrderTotal = Number(orderResponse.data.order.totalAmount);
 
-      // 2. Conditional Branching for Payment Modes
       if (formData.paymentMethod === 'COD') {
-        // Cash on delivery scenario direct success navigation route
+        localStorage.removeItem('checkoutItems');
         navigate('/'); 
       } else if (formData.paymentMethod === 'esewa') {
-        // eSewa selection: Call initiation microservice to fetch secure hash
+        const targetAmount = Number.isFinite(backendOrderTotal) ? backendOrderTotal : total;
+        
         const esewaInitResponse = await axios.post('http://localhost:5000/api/payment/initiate-esewa', {
-          amount: total,
-          orderId: generatedOrderId
+          amount: targetAmount.toFixed(2), 
+          orderId: String(generatedOrderId).trim()
         }, {
           withCredentials: true,
           headers: getAuthHeaders(),
@@ -191,17 +227,22 @@ const Checkout = () => {
 
         if (esewaInitResponse.data.success) {
           const { payment_data } = esewaInitResponse.data;
-
-          // 3. Automated Virtual Hidden Form Append Injection
+          
+          const finalPaymentData = {
+            ...payment_data,
+            success_url: "http://localhost:5000/api/payment/esewa-success", 
+            failure_url: "http://localhost:5000/api/payment/esewa-failure"
+          };
+          
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form'; // Sandbox endpoint
+          form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
 
-          Object.keys(payment_data).forEach((key) => {
+          Object.keys(finalPaymentData).forEach((key) => {
             const hiddenField = document.createElement('input');
             hiddenField.type = 'hidden';
             hiddenField.name = key;
-            hiddenField.value = payment_data[key];
+            hiddenField.value = String(finalPaymentData[key]);
             form.appendChild(hiddenField);
           });
 
@@ -218,7 +259,6 @@ const Checkout = () => {
       setPlacingOrder(false);
     }
   };
-  // ===========================================================================
 
   return (
     <div className="min-h-screen bg-[#f7f8fb] text-slate-900 font-sans">
@@ -236,7 +276,6 @@ const Checkout = () => {
             <div className="text-sm font-semibold text-slate-500">Checkout</div>
           </div>
         </div>
-
         <div className="hidden sm:flex items-center gap-2 text-sm font-semibold text-slate-400">
           <span>Cart</span>
           <span>›</span>
@@ -358,7 +397,6 @@ const Checkout = () => {
           <aside className="space-y-6">
             <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
               <div className="mb-4 text-xl font-black tracking-tight">Order Summary</div>
-
               <div className="space-y-4 max-h-[280px] overflow-y-auto pr-1">
                 {items.map((item) => (
                   <div key={resolveProductId(item) || item._id || item.id} className="flex items-center justify-between gap-3">
@@ -383,18 +421,6 @@ const Checkout = () => {
               <div className="mt-4 border-t border-slate-100 pt-4 flex items-center justify-between">
                 <span className="text-lg font-black text-slate-900 tracking-tight">Total</span>
                 <span className="text-2xl font-black text-[#00B56A]">Rs. {total}</span>
-              </div>
-            </section>
-
-            <section className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
-              <div className="mb-4 text-base font-black text-slate-900 tracking-tight">Delivery Charge Breakdown</div>
-              <div className="space-y-3 text-xs font-semibold text-slate-400">
-                <div className="flex items-center justify-between"><span>0–1 km</span><span className="font-bold text-slate-700">Rs. 0</span></div>
-                <div className="flex items-center justify-between"><span>1–2 km</span><span className="font-bold text-slate-700">Rs. 10</span></div>
-                <div className="flex items-center justify-between"><span>2–3 km</span><span className="font-bold text-slate-700">Rs. 20</span></div>
-                <div className="flex items-center justify-between"><span>3–4 km</span><span className="font-bold text-slate-700">Rs. 30</span></div>
-                <div className="flex items-center justify-between"><span>4–5 km</span><span className="font-bold text-slate-700">Rs. 40</span></div>
-                <div className="flex items-center justify-between"><span>5+ km</span><span className="font-bold text-slate-700">Rs. 50</span></div>
               </div>
             </section>
           </aside>

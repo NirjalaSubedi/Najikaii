@@ -17,7 +17,6 @@ import Vendors from "./pages/admin/Vendors";
 import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
 
-
 import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
 import MyProducts from "./pages/Vendor/MyProducts";
@@ -26,6 +25,8 @@ import VendorOrders from "./pages/Vendor/MyOrders";
 import Earnings from "./pages/Vendor/VendorEarrings";
 
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentSuccess"; 
+
 import ConfirmDelete from './components/ConfirmDelete';
 
 import ViewShop from './Components/ViewShop';
@@ -46,7 +47,9 @@ function App() {
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
           
+          {/* Decoupled Payment State Routes */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failed" element={<PaymentFailed />} />
 
           <Route path="/confirm-delete/:token" element={<ConfirmDelete />} />
 
@@ -63,7 +66,6 @@ function App() {
             <Route path="Vendors" element={<Vendors/>}/>
             <Route path="Products" element={<Products/>}/>
             <Route path="Orders" element={<Orders/>}/>
-
           </Route>
 
           <Route path="/vendor" element={<VendorLayout />}>
@@ -73,7 +75,6 @@ function App() {
             <Route path="orders" element={<VendorOrders/>}/>
             <Route path="earnings" element={<Earnings/>}/>
           </Route>
-
       </Routes>
 
       <ToastContainer 
@@ -104,7 +105,6 @@ function App() {
           backgroundColor: "#00B56A"
         }}
       />
-
     </div>
   );
 }

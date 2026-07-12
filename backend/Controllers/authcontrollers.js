@@ -7,73 +7,65 @@ const { find } = require('../models/ProductModels');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-exports.register=async(req,res)=>{
-    try{
-        const {name,email,password,role,PhoneNumber,Address,location,shopName, shopImage}=req.body;
-        //check if user alredy exist
-        let existinguser = await user.findOne({email});
-        if(existinguser){
-             return res.status(400).json({
-                message:"user already exist"
-            })
+exports.register = async (req, res) => {
+    try {
+        const { name, email, password, role, PhoneNumber, Address, location, shopName, shopImage } = req.body;
+
+        // Check if user already exists
+        let existinguser = await user.findOne({ email });
+        if (existinguser) {
+            return res.status(400).json({ message: "User already exists" });
         }
 
-        //Hash password
+        // Hash password
         const salt = await bcryptjs.genSalt(10);
-        const hashpassword= await bcryptjs.hash(password,salt);
+        const hashpassword = await bcryptjs.hash(password, salt);
 
-        //otp generating
-        const otp= crypto.randomInt(100000,999999).toString();
+        // OTP generating
+        const otp = crypto.randomInt(100000, 999999).toString();
         const otpExpire = Date.now() + 10 * 60 * 1000;
 
-        //save user
-        const newuser =new user({name,
+        // Save user
+        const newuser = new user({
+            name,
             email,
-            password:hashpassword,
+            password: hashpassword,
             role,
             PhoneNumber,
             Address,
             location,
             otp,
             otpExpire,
-            isVerified:false,
-            shopName:role==='Vendor'?shopName:undefined,
-            shopImage:role==='Vendor'?shopImage:undefined
+            isVerified: false,
+            // Only assign shop details if role is Vendor
+            shopName: role === 'Vendor' ? shopName : undefined,
+            // Use provided shopImage or a default string if empty
+            shopImage: role === 'Vendor' ? (shopImage || "default_shop_placeholder.jpg") : undefined
         });
+
         await newuser.save();
 
-        //sending email
+        // Sending email
         try {
             await sendEmail({
                 email: newuser.email,
                 subject: 'Najikai App - Email Verification Code',
-                message: `Namaste ${name}, timro verification code ${otp} ho. Yo 10 minute pachi expire hunecha.`
+                message: `Namaste ${name}, your verification code is ${otp}. It will expire in 10 minutes.`
             });
 
             res.status(201).json({
                 success: true,
-                message: "User registered! email ma aayeko OTP check garnuhos.",
+                message: "User registered! Please check your email for the OTP.",
                 email: newuser.email
             });
-
         } catch (mailError) {
-            if(newuser){
-                await user.findByIdAndDelete(newuser.id)
-            }
-            console.log("Email error: ", mailError);
-            return res.status(500).json({
-                 message: "Email pathauna sakiyena." 
-                });
+            await user.findByIdAndDelete(newuser._id);
+            return res.status(500).json({ message: "Could not send verification email." });
         }
-
-    }catch(e){
-        res.status(500).json({
-            error:e.message
-        })
-
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
-}
-
+};
 exports.login= async (req,res)=>{
     try{
         const {email,password}=req.body;
@@ -157,29 +149,40 @@ exports.login= async (req,res)=>{
 //update user profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, PhoneNumber, Address,location,shopName, shopImage } = req.body;
+        const { name, PhoneNumber, Address, location, shopName, shopImage } = req.body;
+        
         if (!req.user) {
-            return res.status(401).json({ message: "Unauthorized: No user found in request" });
+            return res.status(401).json({ message: "Unauthorized: No user found" });
         }
 
-        const userId = req.user.id; 
-        // 1. User khojne ra update garne
+        const userId = req.user.id;
+
+        // Create an update object dynamically
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (PhoneNumber) updateData.PhoneNumber = PhoneNumber;
+        if (Address) updateData.Address = Address;
+        if (location) updateData.location = location;
+        if (shopName) updateData.shopName = shopName;
+        // Only update shopImage if a new string/path is provided
+        if (shopImage) updateData.shopImage = shopImage;
+
+        // Update the user
         const updatedUser = await user.findByIdAndUpdate(
             userId,
-            { name, PhoneNumber, Address,location,shopName, shopImage},
-            { new: true, runValidators: true } 
+            { $set: updateData },
+            { new: true, runValidators: true }
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ message: "User bhetiyena!" });
+            return res.status(404).json({ message: "User not found!" });
         }
 
         res.status(200).json({
             success: true,
-            message: "Profile update bhayo!",
+            message: "Profile updated successfully!",
             user: updatedUser
         });
-
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -477,7 +480,6 @@ exports.getNearbyShops = async (req, res) => {
 };
 
 // Social Login Logic
-// Social Login Logic
 exports.socialLogin = async (req, res) => {
     try {
         const { name, email, googleId, facebookId, avatar, role } = req.body;
@@ -498,8 +500,8 @@ exports.socialLogin = async (req, res) => {
                     id: existingUser._id,
                     name: existingUser.name,
                     email: existingUser.email,
-                    phonenumber: existingUser.PhoneNumber, // <- यो थप्नुहोस्
-                    address: existingUser.Address,         // <- यो थप्नुहोस्
+                    phonenumber: existingUser.PhoneNumber, 
+                    address: existingUser.Address,        
                     role: existingUser.role
                 }
             });

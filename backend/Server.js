@@ -1,22 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+dotenv.config();
 const cors = require('cors');
 const path = require("path");
 
-const authRoutes=require('./routes/authroutes');
-const orderRoutes=require('./routes/orderroutes');
-const paymentRoutes= require('./routes/Paymentroute');
-const shopRoutes= require('./routes/shopsroutes');
-const Earningsroute= require('./routes/Earningsroutes');
-
-dotenv.config();
+const authRoutes = require('./routes/authroutes');
+const orderRoutes = require('./routes/orderroutes');
+const paymentRoutes = require('./routes/Paymentroute'); 
+const shopRoutes = require('./routes/shopsroutes');
+const Earningsroute = require('./routes/Earningsroutes');
 
 const app = express();
 
 app.use(cors({
-    origin:'http://localhost:5173',
-    credentials:true
+    origin: 'http://localhost:5173',
+    credentials: true
 }));
 app.use(express.json()); 
 
@@ -32,17 +31,19 @@ const connectDB = async () => {
 
 connectDB();
 
+// 1. API Routes (Must be declared before general asset paths)
+app.use('/api/auth', authRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/payment', paymentRoutes); // FIXED: Linked cleanly with corrected import variable
+app.use('/api/shops', shopRoutes);
+app.use('/api/Earnings', Earningsroute);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 2. Base Route (Moved below API definitions so it doesn't intercept sub-paths)
 app.get('/', (req, res) => {
     res.send("Najikai API is running...");
 });
-
-app.use('/api/auth', authRoutes);
-app.use('/api/order',orderRoutes);
-app.use('/api/payment',paymentRoutes);
-app.use('/api/shops',shopRoutes);
-app.use ('/api/Earnings',Earningsroute);
-
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -282,7 +282,9 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
                     type="button"
                     onClick={() => {
                       addToCart(product);
-                      navigate('/checkout', { state: { items: [{ ...product, quantity: Math.max(currentQuantity, 1) }] } });
+                      const checkoutItems = [{ ...product, quantity: Math.max(currentQuantity, 1) }];
+                      localStorage.setItem('checkoutItems', JSON.stringify(checkoutItems));
+                      navigate('/checkout', { state: { items: checkoutItems } });
                     }}
                     disabled={isOutOfStock}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-5 py-4 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#009E5B] hover:shadow-md disabled:cursor-not-allowed disabled:bg-gray-300 cursor-pointer"

@@ -12,44 +12,93 @@ const PaymentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  const [status, setStatus] = useState('verifying'); // verifying, success, error
+  const [status, setStatus] = useState('verifying');
   const [message, setMessage] = useState('Verifying your eSewa transaction security context...');
   const [orderDetails, setOrderDetails] = useState(null);
+  const [failureCode, setFailureCode] = useState('');
 
   useEffect(() => {
     const verifyTransaction = async () => {
       const queryParams = new URLSearchParams(location.search);
+      const explicitStatus = queryParams.get('status');
       const encodedData = queryParams.get('data');
+      const reason = queryParams.get('reason');
+      const detail = queryParams.get('detail');
+      const orderIdFromUrl = queryParams.get('orderId'); // URL बाट आउने orderId समात्ने
 
-      if (!encodedData) {
-        setStatus('error');
-        setMessage('Missing transaction response tokens from payment gateway.');
+      const reasonMessageMap = {
+        missing_data: 'Payment response data bhetiyena. Please retry from checkout.',
+        incomplete_status: 'Payment complete status ma pugena. eSewa ma transaction completion check garnus.',
+        signature_mismatch: 'Payment signature verify garna milena. Please retry from checkout.',
+        invalid_order_id: 'Order reference invalid chha. Please retry from checkout.',
+        order_not_found: 'Order record bhetiyena. Please create order again from checkout.',
+        amount_mismatch: 'Payment amount ra order total mismatch bhayo. Please retry from checkout.',
+        server_error: 'Verification server error aayo. Please retry in a moment.',
+        gateway_failed: 'eSewa gateway le transaction reject garyo. Please retry payment.'
+      };
+
+      // १. यदि ब्याकइन्डले पहिले नै भेरिफाई गरेर 'success' रिडाइरेक्ट गरिसकेको छ भने
+      if (explicitStatus === 'success') {
+        setStatus('success');
+        setMessage('Payment successfully verified.');
+        if (orderIdFromUrl) {
+          setOrderDetails({ _id: orderIdFromUrl, id: orderIdFromUrl });
+        }
+        localStorage.removeItem('checkoutItems');
         return;
       }
 
-      try {
-        //Forward the base64 string directly to your backend microservice
-        const response = await axios.post('http://localhost:5000/api/payment/verify-esewa', 
-          { data: encodedData },
-          {
-            withCredentials: true,
-            headers: getAuthHeaders(),
-          }
-        );
-
-        if (response.data?.success) {
-          setStatus('success');
-          setMessage('Payment successfully verified via eSewa secure channels!');
-          setOrderDetails(response.data.order);
-        } else {
-          setStatus('error');
-          setMessage(response.data?.message || 'Transaction declaration rejected by backend.');
-        }
-      } catch (err) {
-        console.error('Verification workflow crashed:', err);
+      // २. यदि ब्याकइन्डबाटै 'failed' वा 'cancelled' को फ्ल्याग आइसकेको छ भने
+      if (explicitStatus === 'failed' || explicitStatus === 'cancelled') {
         setStatus('error');
-        setMessage(err.response?.data?.message || 'Network exception during confirmation.');
+        setFailureCode(reason || explicitStatus);
+
+        console.error('[Payment Failed]', {
+          status: explicitStatus,
+          reason,
+          detail,
+          query: Object.fromEntries(queryParams.entries()),
+        });
+
+        const detailMessage = detail ? ` (detail: ${detail})` : '';
+        setMessage((reasonMessageMap[reason] || 'Payment complete bhayena. Tapai le फेरि try garna saknuhuncha.') + detailMessage);
+        return;
       }
+
+      // ३. यदि eSewa बाट सिधै 'data' टोकन फ्रन्टइन्डमा आयो भने ब्याकइन्डमा POST गर्ने
+      if (encodedData) {
+        try {
+          const response = await axios.post('http://localhost:5000/api/payment/verify-esewa', 
+            { data: encodedData },
+            {
+              withCredentials: true,
+              headers: getAuthHeaders(),
+            }
+          );
+
+          if (response.data?.success) {
+            setStatus('success');
+            setMessage('Payment successfully verified via eSewa secure channels!');
+            setOrderDetails(response.data.order);
+            localStorage.removeItem('checkoutItems');
+          } else {
+            setStatus('error');
+            setFailureCode('verification_rejected');
+            setMessage(response.data?.message || 'Transaction declaration rejected by backend.');
+          }
+        } catch (err) {
+          console.error('Verification workflow crashed:', err);
+          setStatus('error');
+          setFailureCode('network_exception');
+          setMessage(err.response?.data?.message || 'Network exception during confirmation.');
+        }
+        return;
+      }
+
+      // ४. यदि URL मा केही पनि छैन भने मात्र MISSING_DATA देखाउने
+      setStatus('error');
+      setFailureCode('missing_data');
+      setMessage('Payment response data bhetiyena. Please retry from checkout.');
     };
 
     verifyTransaction();
@@ -85,10 +134,12 @@ const PaymentSuccess = () => {
                   <span>Order ID:</span>
                   <span className="font-bold text-slate-700 font-mono text-xs">{orderDetails._id || orderDetails.id}</span>
                 </div>
-                <div className="flex justify-between text-slate-500 font-medium">
-                  <span>Total Paid:</span>
-                  <span className="font-black text-[#00B56A]">Rs. {orderDetails.totalAmount || orderDetails.total}</span>
-                </div>
+                {orderDetails.totalAmount && (
+                  <div className="flex justify-between text-slate-500 font-medium">
+                    <span>Total Paid:</span>
+                    <span className="font-black text-[#00B56A]">Rs. {orderDetails.totalAmount}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-slate-500 font-medium">
                   <span>Status:</span>
                   <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">Paid</span>
@@ -100,7 +151,7 @@ const PaymentSuccess = () => {
               <Link to="/" className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 shadow-sm">
                 <Home size={16} /> Home
               </Link>
-              <button onClick={() => navigate('/')} className="flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-4 py-3 text-sm font-black text-white shadow-md shadow-emerald-500/10 transition hover:bg-[#009E5B]">
+              <button onClick={() => navigate('/my-orders')} className="flex items-center justify-center gap-2 rounded-xl bg-[#00B56A] px-4 py-3 text-sm font-black text-white shadow-md shadow-emerald-500/10 transition hover:bg-[#009E5B]">
                 <ShoppingBag size={16} /> My Orders
               </button>
             </div>
@@ -113,12 +164,15 @@ const PaymentSuccess = () => {
               <XCircle className="h-12 w-12" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black tracking-tight text-rose-600">Verification Failed</h2>
+              <h2 className="text-2xl font-black tracking-tight text-rose-600">Payment Failed</h2>
               <p className="text-sm font-semibold text-slate-500 leading-relaxed">{message}</p>
+              {failureCode && (
+                <p className="text-xs font-bold uppercase tracking-wide text-rose-500">Error Code: {failureCode}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-2 pt-2">
-              <button onClick={() => navigate(-1)} className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-800">
+              <button onClick={() => navigate('/checkout')} className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-800">
                 Try Checkout Again
               </button>
               <Link to="/" className="text-xs font-bold text-slate-400 hover:text-slate-600 underline pt-2">

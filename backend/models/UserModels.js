@@ -55,12 +55,14 @@ const userSchema=new mongoose.Schema({
         return this.role === 'Vendor' ? 'Pending' : 'Approved';
     }
     },
-    shopName: { type: String },
-    shopImage: { 
-        type: String, 
-        default: 'https://via.placeholder.com/150' 
+    shopName: { 
+    type: String,
+    required: function() { return this.role === 'Vendor'; }
     },
-
+    shopImage: { 
+    type: String, 
+    default: 'https://via.placeholder.com/150' 
+    },
     otp: {
         type: String
     },
