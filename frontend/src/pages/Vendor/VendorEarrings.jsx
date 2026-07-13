@@ -12,7 +12,7 @@ const Earnings = () => {
 
   const fetchEarningsData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/vendor/earnings-stats', {
+      const response = await fetch('http://localhost:5000/api/Earnings/stats', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
