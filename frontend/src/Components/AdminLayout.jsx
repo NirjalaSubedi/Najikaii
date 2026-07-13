@@ -73,9 +73,9 @@ const AdminLayout = () => {
                         <span className="bg-amber-500 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1 shadow-sm">
                             2 pending
                         </span>
-                        <button className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all">
+                        <Link to="/all-shops" className="border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all flex items-center justify-center cursor-pointer">
                             View Store
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
