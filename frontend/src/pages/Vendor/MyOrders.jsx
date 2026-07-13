@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, ChevronDown, ChevronUp, Clock, Truck, CheckCircle2, XCircle, Package, Settings } from 'lucide-react';
+import { ShoppingBag, ChevronDown, ChevronUp, Clock, CheckCircle2, XCircle, Package } from 'lucide-react';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -10,6 +10,20 @@ const Orders = () => {
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const filters = ['All', 'Pending', 'Confirmed', 'Delivered', 'Cancelled'];
+
+  // Safe Price Selector based on your backend database schema (item.product.price)
+  const getItemPrice = (item) => {
+    if (!item) return 0;
+    return Number(item.product?.price || item.price || 0);
+  };
+
+  const calculateTotal = (items) => {
+    return items?.reduce((acc, item) => {
+      const price = getItemPrice(item);
+      const qty = Number(item.quantity || 0);
+      return acc + (price * qty);
+    }, 0) || 0;
+  };
 
   const fetchOrders = async () => {
     try {
@@ -49,8 +63,6 @@ const Orders = () => {
     setUpdatingId(orderId);
     setOpenDropdownId(null);
     
-    console.log(`Sending update request for Order: ${orderId} to status: ${newStatus}`);
-
     try {
       const response = await fetch(`http://localhost:5000/api/order/update-status/${orderId}`, {
         method: 'PUT',
@@ -62,7 +74,6 @@ const Orders = () => {
       });
 
       const data = await response.json();
-      console.log("Backend Response:", data);
 
       if (response.ok || data.success) {
         setOrders(prevOrders =>
@@ -86,31 +97,21 @@ const Orders = () => {
 
   const getStatusStyles = (status) => {
     switch (status?.toLowerCase()) {
-      case 'pending':
-        return 'bg-amber-50 text-amber-700 border-amber-100';
-      case 'confirmed':
-        return 'bg-blue-50 text-blue-700 border-blue-100';
-      case 'delivered':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case 'cancelled':
-        return 'bg-rose-50 text-rose-700 border-rose-100';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-100';
+      case 'pending': return 'bg-amber-50 text-amber-700 border-amber-100';
+      case 'confirmed': return 'bg-blue-50 text-blue-700 border-blue-100';
+      case 'delivered': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+      case 'cancelled': return 'bg-rose-50 text-rose-700 border-rose-100';
+      default: return 'bg-gray-50 text-gray-700 border-gray-100';
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
-      case 'pending':
-        return <Clock size={14} className="text-amber-600" />;
-      case 'confirmed':
-        return <CheckCircle2 size={14} className="text-blue-600" />;
-      case 'delivered':
-        return <CheckCircle2 size={14} className="text-emerald-600" />;
-      case 'cancelled':
-        return <XCircle size={14} className="text-rose-600" />;
-      default:
-        return <Clock size={14} className="text-gray-600" />;
+      case 'pending': return <Clock size={14} className="text-amber-600" />;
+      case 'confirmed': return <CheckCircle2 size={14} className="text-blue-600" />;
+      case 'delivered': return <CheckCircle2 size={14} className="text-emerald-600" />;
+      case 'cancelled': return <XCircle size={14} className="text-rose-600" />;
+      default: return <Clock size={14} className="text-gray-600" />;
     }
   };
 
@@ -158,7 +159,12 @@ const Orders = () => {
         <div className="space-y-4">
           {filteredOrders.map((order, index) => {
             const isExpanded = expandedOrder === order._id;
-            const currentTotal = order.vendorSpecificTotal ?? order.totalAmount ?? 0;
+            
+            // Fixed dynamic calculation according to populated items
+            const calculatedSum = calculateTotal(order.items);
+            const initialTotal = order.vendorSpecificTotal ?? order.totalAmount ?? 0;
+            const currentTotal = initialTotal > 0 ? initialTotal : calculatedSum;
+
             const orderIndexString = `ORD-${String(index + 1).padStart(3, '0')}`;
             const isDropdownOpen = openDropdownId === order._id;
             
@@ -188,19 +194,17 @@ const Orders = () => {
                     </span>
                     
                     <div className="w-full md:w-auto text-xs text-gray-400 mt-1 md:mt-0 flex flex-wrap gap-x-2 divide-x divide-gray-200">
-                      <span className="text-gray-500 font-medium">{order.customer?.name || 'Customer'}</span>
+                      <span className="text-gray-500 font-medium Object pl-1">{order.customer?.name || 'Customer'}</span>
                       <span className="pl-2">{order.createdAt ? new Date(order.createdAt).toISOString().split('T')[0] : 'मिति उपलब्ध छैन'}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-none pt-3 md:pt-0">
                     <div className="text-right leading-tight">
-                      <div className="text-base font-bold text-gray-900">Rs. {currentTotal}</div>
-                      {order.vendorSpecificTotal !== undefined && (
-                        <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
-                          You earn: Rs. {(currentTotal * 0.9).toFixed(1)}
-                        </div>
-                      )}
+                      <div className="text-base font-bold text-gray-900">Rs. {currentTotal.toFixed(2)}</div>
+                      <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
+                        You earn: Rs. {(currentTotal * 0.9).toFixed(1)}
+                      </div>
                     </div>
                     <div className="text-gray-400 group-hover:text-gray-600 transition-colors">
                       {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
@@ -213,30 +217,35 @@ const Orders = () => {
                     <div className="mb-5">
                       <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Items Ordered</h4>
                       <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
-                        {order.items?.map((item) => (
-                          <div key={item._id} className="p-3 flex items-center justify-between gap-4 text-sm">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                <img 
-                                  src={item.product?.image ? `http://localhost:5000/${item.product.image}` : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%23f3f4f6'/></svg>"} 
-                                  alt={item.product?.name} 
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => { e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' font-family='sans-serif' font-size='14' fill='%239ca3af' dominant-baseline='middle' text-anchor='middle'>No Image</text></svg>"; }}
-                                />
+                        {order.items?.map((item) => {
+                          const singlePrice = getItemPrice(item);
+                          const itemQty = Number(item.quantity || 0);
+                          
+                          return (
+                            <div key={item._id} className="p-3 flex items-center justify-between gap-4 text-sm">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
+                                  <img 
+                                    src={item.product?.image ? `http://localhost:5000/${item.product.image}` : "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%23f3f4f6'/></svg>"} 
+                                    alt={item.product?.name} 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' font-family='sans-serif' font-size='14' fill='%239ca3af' dominant-baseline='middle' text-anchor='middle'>No Image</text></svg>"; }}
+                                  />
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900 capitalize">{item.product?.name || 'Unknown Product'}</p>
+                                  <p className="text-xs text-gray-400">Rate: Rs. {singlePrice.toFixed(2)}</p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="font-semibold text-gray-900 capitalize">{item.product?.name || 'Unknown Product'}</p>
-                                <p className="text-xs text-gray-400">Rate: Rs. {item.price}</p>
+                              <div className="text-right">
+                                <span className="text-xs text-gray-500 font-medium bg-gray-50 border border-gray-100 px-2 py-1 rounded-md">
+                                  Qty: <strong className="text-gray-900">{itemQty}</strong>
+                                </span>
+                                <p className="font-bold text-gray-900 mt-1.5">Rs. {(singlePrice * itemQty).toFixed(2)}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <span className="text-xs text-gray-500 font-medium bg-gray-50 border border-gray-100 px-2 py-1 rounded-md">
-                                Qty: <strong className="text-gray-900">{item.quantity}</strong>
-                              </span>
-                              <p className="font-bold text-gray-900 mt-1.5">Rs. {item.price * item.quantity}</p>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 

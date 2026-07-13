@@ -41,14 +41,7 @@ const Overview = () => {
                 if (usersResponse.data && usersResponse.data.success) {
                     userData = usersResponse.data.data;
                 }
-                //aejual nheysla nirajla sdub4di how njsuyueo jhuesdneiw saipenjsi{}bainshsuiw nitajlaa ejhuadkuesjsei
 
-
-
-
-                
-
-                //Total Order Document Count Analytics mapping
                 let orderCountFromApi = 0;
                 let totalRevenue = 0;
                 let adminCommission = 0;
@@ -60,7 +53,6 @@ const Overview = () => {
                     vendorPayouts = ordersResponse.data.vendorPayouts || 0;
                 }
 
-                //Recent 4 Orders Mapping arrays handler
                 if (recentResponse.data && recentResponse.data.success) {
                     setRecentOrders(recentResponse.data.orders || []);
                 }
