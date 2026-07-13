@@ -186,36 +186,17 @@ exports.getProductById = async (req, res) => {
 exports.updateProducts = async (req, res) => {
     try {
         let productdata = await product.findById(req.params.id);
-        if (!productdata) {
-            return res.status(404).json({
-                success: false,
-                message: "product update garna ko lagi id milena"
-            });
-        }
+        if (!productdata) return res.status(404).json({ success: false, message: "Product bhetiyena" });
 
-        if (productdata.vendor.toString() !== req.user.id) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "Timi yo product ko owner hoinau, update garna mildaina!" 
-            });
-        }
+        const { sellingPrice, stock } = req.body;        
+        productdata.sellingPrice = sellingPrice;
+        productdata.stock = stock;
+        
+        await productdata.save(); 
 
-        productdata = await product.findByIdAndUpdate(req.params.id, req.body, {
-            new: true, 
-            runValidators: true 
-        });
-
-        res.status(200).json({
-            success: true,
-            message: "Product updated successfully!",
-            product: productdata
-        });
-
+        res.status(200).json({ success: true, message: "Product updated", product: productdata });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
