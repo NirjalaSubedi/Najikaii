@@ -223,23 +223,32 @@ exports.getorders = async (req, res) => {
         } else if (userRole === 'customer') {
             query = { customer: userId };
         } else if (userRole === 'vendor') {
-            // Pura order herne query
             query = { "items.vendor": userId };
         }
 
+        // Database schema check: sellingPrice, actualPrice, price key sabai populate garne
         let orders = await Order.find(query)
             .populate('customer', 'name email')
-            .populate('items.product', 'name price image')
+            .populate('items.product', 'name price sellingPrice actualPrice image')
             .populate('items.vendor', 'name email shopName');
 
         if (userRole === 'vendor') {
             orders = orders.map(order => {
                 const orderObj = order.toObject();
+                
+                // Active vendor ko items filter garne
                 orderObj.items = orderObj.items.filter(item => 
-                    item.vendor.toString() === userId.toString()
+                    item.vendor && item.vendor._id.toString() === userId.toString()
                 );
                 
-                orderObj.vendorSpecificTotal = orderObj.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                // Vendor dynamic calculations fixes
+                const vendorTotal = orderObj.items.reduce((acc, item) => {
+                    const price = Number(item.price ?? item.product?.sellingPrice ?? item.product?.actualPrice ?? item.product?.price ?? 0);
+                    return acc + (price * (item.quantity || 0));
+                }, 0);
+                
+                // Dropdown field calculations backend dynamic pass
+                orderObj.vendorSpecificTotal = vendorTotal;
                 
                 return orderObj;
             });
