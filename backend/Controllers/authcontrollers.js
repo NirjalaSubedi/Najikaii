@@ -164,7 +164,6 @@ exports.updateProfile = async (req, res) => {
         if (Address) updateData.Address = Address;
         if (location) updateData.location = location;
         if (shopName) updateData.shopName = shopName;
-        // Only update shopImage if a new file is uploaded or a path/string is provided
         if (req.file) {
             updateData.shopImage = req.file.path.replace(/\\/g, '/');
         } else if (shopImage) {

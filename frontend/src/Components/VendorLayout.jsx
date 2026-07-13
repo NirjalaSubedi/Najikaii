@@ -134,12 +134,6 @@ const VendorLayout = () => {
                     </nav>
 
                     <div className="flex items-center gap-4">
-                        {/* Notification Bell */}
-                        <button className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors relative">
-                            <Bell size={18} />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full"></span>
-                        </button>
-
                         {/* Profile */}
                         <div className="relative">
                             <button 
