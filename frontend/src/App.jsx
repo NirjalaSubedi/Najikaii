@@ -16,6 +16,7 @@ import Users from "./pages/admin/Users";
 import Vendors from "./pages/admin/Vendors";
 import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
+import Commission from "./pages/admin/Commission";
 
 import VendorLayout from "./components/VendorLayout";
 import VendorOverview from "./pages/Vendor/Overview";
@@ -66,6 +67,7 @@ function App() {
             <Route path="Vendors" element={<Vendors/>}/>
             <Route path="Products" element={<Products/>}/>
             <Route path="Orders" element={<Orders/>}/>
+            <Route path="commission" element={<Commission />} />
           </Route>
 
           <Route path="/vendor" element={<VendorLayout />}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, Plus, Minus, Zap, Store, MapPin } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
+import { getImageUrl } from '../utils/image';
 
 const ProductCard = ({ product, onClick }) => {
   const { cartItems, addToCart, removeFromCart } = useCart();
@@ -11,13 +12,13 @@ const ProductCard = ({ product, onClick }) => {
     _id,
     id,
     name = "Unnamed Product",
-    price,                  
-    sellingPrice,          
-    actualPrice,          
-    discountPercentage,   
+    price,
+    sellingPrice,
+    actualPrice,
+    discountPercentage,
     image = "https://via.placeholder.com/300",
-    unitType = "item",   
-    distance,          
+    unitType = "item",
+    distance,
     isFastDelivery = false,
     stock = 0,
     vendor = {}
@@ -25,7 +26,7 @@ const ProductCard = ({ product, onClick }) => {
 
   const displayPrice = price !== undefined && price !== null ? Number(price) : (Number(sellingPrice) || 0);
   const currentProductKey = _id || id;
-  
+
   const cartItem = cartItems?.find((item) => {
     const nestedProduct = item.product || item;
     const itemKey = nestedProduct._id || nestedProduct.id || nestedProduct.productId;
@@ -34,10 +35,10 @@ const ProductCard = ({ product, onClick }) => {
 
   const currentQuantity = cartItem ? cartItem.quantity : 0;
 
-  const calculatedDiscount = discountPercentage 
-    ? discountPercentage 
-    : (actualPrice && actualPrice > displayPrice) 
-      ? Math.round(((actualPrice - displayPrice) / actualPrice) * 100) 
+  const calculatedDiscount = discountPercentage
+    ? discountPercentage
+    : (actualPrice && actualPrice > displayPrice)
+      ? Math.round(((actualPrice - displayPrice) / actualPrice) * 100)
       : null;
 
   const isOutOfStock = stock <= 0;
@@ -46,7 +47,7 @@ const ProductCard = ({ product, onClick }) => {
 
   const handleAddToCart = (event) => {
     event.stopPropagation();
-    
+
     if (isOutOfStock) {
       alert("Yo item out of stock bhayeko le thapna mildaina!");
       return;
@@ -56,7 +57,7 @@ const ProductCard = ({ product, onClick }) => {
       ...product,
       _id: currentProductKey,
       id: currentProductKey,
-      price: displayPrice  
+      price: displayPrice
     });
   };
 
@@ -78,7 +79,7 @@ const ProductCard = ({ product, onClick }) => {
       }}
       className="group relative bg-white rounded-3xl border border-gray-100/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden p-3 min-h-90 cursor-pointer"
     >
-      
+
       <div className="relative w-full h-44 bg-gray-50 rounded-2xl overflow-hidden mb-3">
         {isOutOfStock && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex items-center justify-center">
@@ -103,7 +104,7 @@ const ProductCard = ({ product, onClick }) => {
         </div>
 
         <img
-          src={image}
+          src={getImageUrl(image)}
           alt={name}
           className={`w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 ${isOutOfStock ? 'grayscale-[40%]' : ''}`}
           loading="lazy"
@@ -117,9 +118,9 @@ const ProductCard = ({ product, onClick }) => {
               <Store size={13} className="text-gray-400" />
               <span className="truncate">{vendor?.shopName || "Najikai Shop Owner"}</span>
             </span>
-            
+
             <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 font-extrabold">
-              <MapPin size={10}/> {distanceLabel}
+              <MapPin size={10} /> {distanceLabel}
             </span>
           </div>
 
@@ -154,19 +155,19 @@ const ProductCard = ({ product, onClick }) => {
 
           {currentQuantity > 0 && !isOutOfStock ? (
             <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-full border border-emerald-200 bg-emerald-50 min-w-22.5 shadow-sm h-8">
-              <button 
+              <button
                 type="button"
                 onClick={handleRemoveFromCart}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
               >
                 <Minus size={14} strokeWidth={3} />
               </button>
-              
+
               <span className="text-xs font-black text-emerald-950 w-4 text-center">
                 {currentQuantity}
               </span>
-              
-              <button 
+
+              <button
                 type="button"
                 onClick={handleAddToCart}
                 className="text-[#00B56A] hover:text-emerald-700 p-0.5 transition-colors duration-150 active:scale-90"
@@ -175,15 +176,14 @@ const ProductCard = ({ product, onClick }) => {
               </button>
             </div>
           ) : (
-            <button 
+            <button
               type="button"
               disabled={isOutOfStock}
               onClick={handleAddToCart}
-              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 h-8 ${
-                isOutOfStock 
+              className={`flex items-center justify-center gap-1 px-3 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 active:scale-95 h-8 ${isOutOfStock
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed hidden'
                   : 'bg-[#00B56A] hover:bg-[#009E5B] text-white'
-              }`}
+                }`}
             >
               <Plus size={14} strokeWidth={3} />
               <span>Add</span>

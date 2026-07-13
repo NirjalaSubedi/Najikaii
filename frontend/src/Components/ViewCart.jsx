@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, Minus, Trash2, Loader2, ShoppingBag } from 'lucide-rea
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ProductDetailModal from './ProductDetailModal';
+import { getImageUrl } from '../utils/image';
 
 const ViewCart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -109,7 +110,7 @@ const ViewCart = () => {
                     }}
                     className="flex items-center gap-4 flex-1 cursor-pointer group"
                   >
-                    <img src={product.image || 'https://via.placeholder.com/80?text=Product'} alt={product.title || product.name} className="w-20 h-20 object-cover rounded-2xl bg-slate-50 border border-slate-100 group-hover:opacity-90 transition-opacity" />
+                    <img src={getImageUrl(product.image, 'https://via.placeholder.com/80?text=Product')} alt={product.title || product.name} className="w-20 h-20 object-cover rounded-2xl bg-slate-50 border border-slate-100 group-hover:opacity-90 transition-opacity" />
                     <div>
                       <h3 className="font-bold text-slate-800 text-sm tracking-tight mb-0.5 line-clamp-1 group-hover:text-[#00B56A] transition-colors">{product.title || product.name || 'Unknown Product'}</h3>
                       <p className="text-[11px] font-bold text-slate-400 mb-1">Stock: {product.stock ?? 0} pieces available</p>

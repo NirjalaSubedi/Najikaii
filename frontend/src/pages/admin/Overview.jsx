@@ -21,11 +21,19 @@ const Overview = () => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
+                const token = localStorage.getItem('token');
+                const config = {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': token ? `Bearer ${token}` : '',
+                        'Content-Type': 'application/json'
+                    }
+                };
                 
                 const [usersResponse, ordersResponse, recentResponse] = await Promise.all([
-                    axios.get('http://localhost:5000/api/auth/getUserCount', { withCredentials: true }),
-                    axios.get('http://localhost:5000/api/order/getOrderCount', { withCredentials: true }),
-                    axios.get('http://localhost:5000/api/order/getRecentOrders',{withCredentials:true})
+                    axios.get('http://localhost:5000/api/auth/getUserCount', config),
+                    axios.get('http://localhost:5000/api/order/getOrderCount', config),
+                    axios.get('http://localhost:5000/api/order/getRecentOrders', config)
                 ]);
 
                 //Auth Users Data Mapping
@@ -42,8 +50,14 @@ const Overview = () => {
 
                 //Total Order Document Count Analytics mapping
                 let orderCountFromApi = 0;
+                let totalRevenue = 0;
+                let adminCommission = 0;
+                let vendorPayouts = 0;
                 if (ordersResponse.data && ordersResponse.data.success) {
                     orderCountFromApi = ordersResponse.data.totalOrders;
+                    totalRevenue = ordersResponse.data.totalRevenue || 0;
+                    adminCommission = ordersResponse.data.adminCommission || 0;
+                    vendorPayouts = ordersResponse.data.vendorPayouts || 0;
                 }
 
                 //Recent 4 Orders Mapping arrays handler
@@ -57,7 +71,10 @@ const Overview = () => {
                     customers: userData.customers || 0,
                     vendors: userData.vendors || 0,
                     pendingVendors: userData.pendingVendors || 0,
-                    totalOrders: orderCountFromApi || 0 
+                    totalOrders: orderCountFromApi || 0,
+                    totalRevenue: totalRevenue,
+                    adminCommission: adminCommission,
+                    vendorPayouts: vendorPayouts
                 }));
 
             } catch (err) {

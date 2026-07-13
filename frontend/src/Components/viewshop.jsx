@@ -61,11 +61,23 @@ const ViewShop = () => {
     );
   }
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://via.placeholder.com/150";
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+      return imagePath;
+    }
+    if (imagePath === 'default_shop_placeholder.jpg') {
+      return 'https://via.placeholder.com/150';
+    }
+    const cleanPath = imagePath.replace(/\\/g, '/');
+    return `http://localhost:5000/${cleanPath}`;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16">
       <div className="relative h-64 md:h-80 bg-slate-900 overflow-hidden">
         <img 
-          src={shop?.shopImage || 'https://via.placeholder.com/150'} 
+          src={getImageUrl(shop?.shopImage)} 
           alt={shop?.shopName || shop?.name || "Shop Image"}
           className="w-full h-full object-cover opacity-70"
           onError={(e) => {
@@ -140,7 +152,7 @@ const ViewShop = () => {
                 <div key={product._id} className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:shadow-slate-100 transition-all flex flex-col group">
                   <div className="h-40 bg-slate-50 relative overflow-hidden">
                     <img 
-                      src={product.image || "https://images.unsplash.com/photo-1542838132-92c53300491e"} 
+                      src={getImageUrl(product.image, "https://images.unsplash.com/photo-1542838132-92c53300491e")} 
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, MapPin, CreditCard, Truck, CircleCheckBig } from 'lucide-react';
 import { useCart } from '../hooks/CartContext';
+import { getImageUrl } from '../utils/image';
 
 const loadSavedCoords = () => {
   try {
@@ -214,44 +215,63 @@ const Checkout = () => {
       if (formData.paymentMethod === 'COD') {
         localStorage.removeItem('checkoutItems');
         navigate('/'); 
-      } else if (formData.paymentMethod === 'esewa') {
-        const targetAmount = Number.isFinite(backendOrderTotal) ? backendOrderTotal : total;
-        
-        const esewaInitResponse = await axios.post('http://localhost:5000/api/payment/initiate-esewa', {
-          amount: targetAmount.toFixed(2), 
-          orderId: String(generatedOrderId).trim()
-        }, {
-          withCredentials: true,
-          headers: getAuthHeaders(),
-        });
+      } 
+      
+      
 
-        if (esewaInitResponse.data.success) {
-          const { payment_data } = esewaInitResponse.data;
-          
-          const finalPaymentData = {
-            ...payment_data,
-            success_url: "http://localhost:5000/api/payment/esewa-success", 
-            failure_url: "http://localhost:5000/api/payment/esewa-failure"
-          };
-          
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+      else if (formData.paymentMethod === 'esewa') {
+  const targetAmount = Number.isFinite(backendOrderTotal) ? backendOrderTotal : total;
+  
+  const esewaInitResponse = await axios.post('http://localhost:5000/api/payment/initiate-esewa', {
+    amount: targetAmount.toFixed(2), 
+    orderId: String(generatedOrderId).trim()
+  }, {
+    withCredentials: true,
+    headers: getAuthHeaders(),
+  });
 
-          Object.keys(finalPaymentData).forEach((key) => {
-            const hiddenField = document.createElement('input');
-            hiddenField.type = 'hidden';
-            hiddenField.name = key;
-            hiddenField.value = String(finalPaymentData[key]);
-            form.appendChild(hiddenField);
-          });
+  if (esewaInitResponse.data.success) {
+    const { payment_data } = esewaInitResponse.data;
+    
+    // eSewa v2 ko lagi strict ordering (Yo order backend sanga milnu parchha)
+    const fields = {
+      amount: Number(payment_data.amount).toFixed(2),
+      tax_amount: "0.00",
+      total_amount: Number(payment_data.total_amount).toFixed(2),
+      transaction_uuid: String(payment_data.transaction_uuid),
+      product_code: String(payment_data.product_code),
+      product_service_charge: "0.00",
+      product_delivery_charge: "0.00",
+      success_url: "http://localhost:5000/api/payment/esewa-success",
+      failure_url: "http://localhost:5000/api/payment/esewa-failure",
+      signed_field_names: payment_data.signed_field_names,
+      signature: payment_data.signature
+    };
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
 
-          document.body.appendChild(form);
-          form.submit();
-        } else {
-          setError('eSewa transaction hash injection failed backend sequence ma.');
-        }
-      }
+    // Loop garera sabai fields form ma add garne
+    Object.keys(fields).forEach((key) => {
+      const hiddenField = document.createElement('input');
+      hiddenField.type = 'hidden';
+      hiddenField.name = key;
+      hiddenField.value = fields[key];
+      form.appendChild(hiddenField);
+    });
+
+    document.body.appendChild(form);
+    form.submit(); // Form automatically submit hunchha
+  } else {
+    setError('eSewa transaction initiation failed.');
+  }
+}
+      
+  
+
+
+
     } catch (err) {
       console.error("Order workflow execution crashed:", err);
       setError(err.response?.data?.message || err.message || 'Order execution error workflow.');
@@ -401,7 +421,7 @@ const Checkout = () => {
                 {items.map((item) => (
                   <div key={resolveProductId(item) || item._id || item.id} className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <img src={resolveProductData(item).image || 'https://via.placeholder.com/64'} alt={resolveProductData(item).name} className="h-12 w-12 rounded-xl object-cover border border-slate-100" />
+                      <img src={getImageUrl(resolveProductData(item).image, 'https://via.placeholder.com/64')} alt={resolveProductData(item).name} className="h-12 w-12 rounded-xl object-cover border border-slate-100" />
                       <div>
                         <div className="text-sm font-bold text-slate-700 max-w-[150px] truncate">{resolveProductData(item).name}</div>
                         <div className="text-xs font-semibold text-slate-400">× {item.quantity || 1}</div>

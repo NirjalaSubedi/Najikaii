@@ -8,8 +8,8 @@ const NearbyShops = ({ coords }) => {
   const [error, setError] = useState(null);
 
   const processedShops = shops
-    .filter(shop => shop.distanceInKm <= 5) 
-    .sort((a, b) => a.distanceInKm - b.distanceInKm) 
+    .filter(shop => shop.distanceInKm <= 5)
+    .sort((a, b) => a.distanceInKm - b.distanceInKm)
     .slice(0, 4);
 
   useEffect(() => {
@@ -41,20 +41,25 @@ const NearbyShops = ({ coords }) => {
     }
   };
 
+  // Helper to format image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://via.placeholder.com/150";
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+      return imagePath;
+    }
+    if (imagePath === 'default_shop_placeholder.jpg') {
+      return 'https://via.placeholder.com/150';
+    }
+    // Converts backslashes to forward slashes and ensures full URL
+    const cleanPath = imagePath.replace(/\\/g, '/');
+    return `http://localhost:5000/${cleanPath}`;
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <Loader2 className="animate-spin text-[#00B56A] mb-2" size={40} />
         <p className="text-gray-500 animate-pulse">Searching nearby shops...</p>
-      </div>
-    );
-  }
-
-  if (error && shops.length === 0) {
-    return (
-      <div className="flex flex-col items-center py-10 text-gray-500">
-        <AlertCircle size={40} className="mb-2 opacity-20" />
-        <p>{error}</p>
       </div>
     );
   }
@@ -78,15 +83,24 @@ const NearbyShops = ({ coords }) => {
               key={shop._id} 
               className="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-50"
             >
-              {/* Image Container */}
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={shop.shopImage || "https://via.placeholder.com/400x300?text=Shop+Image"} 
-                  alt={shop.shopName || shop.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                
-                {/* View Shop Hover Button */}
+              <div className="relative h-48 overflow-hidden bg-gray-100">
+                {shop.shopImage ? (
+                  <img
+                    src={getImageUrl(shop.shopImage)}
+                    alt={shop.shopName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // This stops the loop: replace with a simple colored box (SVG)
+                      e.target.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e5e7eb%22%2F%3E%3C%2Fsvg%3E";
+                      e.target.onerror = null; // IMPORTANT: This kills the infinite loop
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    No Image
+                  </div>
+                )}
+ 
                 <div className='absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'>
                   <Link 
                     to={`/shop/${shop._id}`} 
@@ -97,46 +111,24 @@ const NearbyShops = ({ coords }) => {
                   </Link>
                 </div>
 
-                {/* Distance Badge */}
                 <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-900 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-sm">
-                  <MapPin size={12} className="text-[#00B56A]" fill="#00B56A" fillOpacity="0.2" />
-                  {Number.isFinite(Number(shop.distanceInKm)) ? `${Number(shop.distanceInKm).toFixed(1)} km` : 'Distance unavailable'}
+                  <MapPin size={12} className="text-[#00B56A]" />
+                  {Number.isFinite(Number(shop.distanceInKm)) ? `${Number(shop.distanceInKm).toFixed(1)} km` : 'N/A'}
                 </div>
-              </div>              
+              </div>             
 
-              {/* Content Section */}
               <div className="p-5">
-                <h3 className="font-bold text-lg text-gray-900 truncate mb-1">
-                  {shop.shopName || shop.name}
-                </h3>
-                
+                <h3 className="font-bold text-lg text-gray-900 truncate mb-1">{shop.shopName || shop.name}</h3>
                 <div className="flex items-center text-gray-400 text-xs mb-4">
                   <MapPin size={12} className="mr-1" />
-                  <span className="truncate">
-                    {shop.Address?.street ? `${shop.Address.street}, ` : ''}
-                    {shop.Address?.city || 'Jhumka'}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                  <div className="flex items-center gap-1">
-                    <div className="bg-yellow-50 p-1 rounded-md">
-                      <Star size={14} className="text-yellow-500" fill="currentColor" />
-                    </div>
-                    <span className="font-bold text-sm text-gray-700">{shop.rating || '4.8'}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1.5 text-gray-500 text-[11px] font-medium bg-gray-50 px-3 py-1 rounded-full">
-                    <Clock size={12} className="text-[#00B56A]" />
-                    15-25 min
-                  </div>
+                  <span className="truncate">{shop.Address?.city}</span>
                 </div>
               </div>
             </div>
           ))
         ) : (
           <div className="col-span-full text-center py-20 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
-            <p className="text-gray-400 font-medium">aahile 5km vitra kunaii pani shop available xaiina </p>
+            <p className="text-gray-400 font-medium">No shops found within 5km.</p>
           </div>
         )}
       </div>

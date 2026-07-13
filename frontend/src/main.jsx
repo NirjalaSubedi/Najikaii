@@ -19,5 +19,5 @@ createRoot(document.getElementById('root')).render(
         </CartProvider>
       </GoogleOAuthProvider>
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 )

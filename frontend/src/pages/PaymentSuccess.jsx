@@ -24,7 +24,7 @@ const PaymentSuccess = () => {
       const encodedData = queryParams.get('data');
       const reason = queryParams.get('reason');
       const detail = queryParams.get('detail');
-      const orderIdFromUrl = queryParams.get('orderId'); // URL बाट आउने orderId समात्ने
+      const orderIdFromUrl = queryParams.get('orderId'); 
 
       const reasonMessageMap = {
         missing_data: 'Payment response data bhetiyena. Please retry from checkout.',
@@ -37,7 +37,6 @@ const PaymentSuccess = () => {
         gateway_failed: 'eSewa gateway le transaction reject garyo. Please retry payment.'
       };
 
-      // १. यदि ब्याकइन्डले पहिले नै भेरिफाई गरेर 'success' रिडाइरेक्ट गरिसकेको छ भने
       if (explicitStatus === 'success') {
         setStatus('success');
         setMessage('Payment successfully verified.');
@@ -48,7 +47,6 @@ const PaymentSuccess = () => {
         return;
       }
 
-      // २. यदि ब्याकइन्डबाटै 'failed' वा 'cancelled' को फ्ल्याग आइसकेको छ भने
       if (explicitStatus === 'failed' || explicitStatus === 'cancelled') {
         setStatus('error');
         setFailureCode(reason || explicitStatus);
@@ -65,7 +63,6 @@ const PaymentSuccess = () => {
         return;
       }
 
-      // ३. यदि eSewa बाट सिधै 'data' टोकन फ्रन्टइन्डमा आयो भने ब्याकइन्डमा POST गर्ने
       if (encodedData) {
         try {
           const response = await axios.post('http://localhost:5000/api/payment/verify-esewa', 
@@ -95,7 +92,6 @@ const PaymentSuccess = () => {
         return;
       }
 
-      // ४. यदि URL मा केही पनि छैन भने मात्र MISSING_DATA देखाउने
       setStatus('error');
       setFailureCode('missing_data');
       setMessage('Payment response data bhetiyena. Please retry from checkout.');

@@ -3,13 +3,13 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Package, Clock, CheckCircle2, XCircle, ArrowLeft, Calendar, RefreshCw, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from '../utils/image';
 
 const MyOrders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Customer Orders
   const fetchOrders = async () => {
     try {
       setLoading(true);
@@ -54,7 +54,6 @@ const MyOrders = () => {
     }
   };
 
-  // Modern Status Badges Component with Icons
   const renderStatusBadge = (status) => {
     switch (status) {
       case 'Pending':
@@ -178,7 +177,7 @@ const MyOrders = () => {
                     <div key={idx} className="flex items-center justify-between py-4 first:pt-0 last:pb-0 gap-4">
                       <div className="flex items-center gap-4">
                         <img 
-                          src={item.product?.image || "https://images.unsplash.com/photo-1542838132-92c53300491e"} 
+                          src={getImageUrl(item.product?.image, "https://images.unsplash.com/photo-1542838132-92c53300491e")} 
                           alt={item.product?.name || "Product"} 
                           className="w-14 h-14 object-cover rounded-xl bg-slate-50 border border-slate-100 shrink-0 shadow-inner"
                         />

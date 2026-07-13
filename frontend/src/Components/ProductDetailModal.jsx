@@ -5,6 +5,7 @@ import { useCart } from '../hooks/CartContext';
 import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import axios from 'axios'; 
+import { getImageUrl } from '../utils/image'; 
 
 const formatDistance = (distance) => {
   if (!Number.isFinite(Number(distance))) {
@@ -144,7 +145,7 @@ const ProductDetailModal = ({ product, loading, error, onClose }) => {
             <div className="lg:col-span-6 space-y-4">
               <div className="relative aspect-square sm:aspect-4/3 lg:aspect-square w-full overflow-hidden bg-slate-100 rounded-[32px] shadow-xs border border-gray-100 group">
                 <img
-                  src={product?.image || 'https://via.placeholder.com/800x600'}
+                  src={getImageUrl(product?.image, 'https://via.placeholder.com/800x600')}
                   alt={name}
                   className="h-full w-full object-cover group-hover:scale-102 transition-transform duration-700 ease-out"
                 />

@@ -34,10 +34,21 @@ const Vendors = () => {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchVendors();
     }, []);
+
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return "https://via.placeholder.com/150";
+        if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('data:')) {
+            return imagePath;
+        }
+        if (imagePath === 'default_shop_placeholder.jpg') {
+            return 'https://via.placeholder.com/150';
+        }
+        const cleanPath = imagePath.replace(/\\/g, '/');
+        return `http://localhost:5000/${cleanPath}`;
+    };
 
     const handleStatusUpdate = async (vendorId, newStatus) => {
         try {
@@ -126,8 +137,8 @@ const Vendors = () => {
                                 <div className="flex items-start gap-4">
                                     {/* Shop Image Or Fallback Icon */}
                                     <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-[#00B56A] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                        {vendor.shopImage && vendor.shopImage !== 'https://via.placeholder.com/150' ? (
-                                            <img src={vendor.shopImage} alt={vendor.shopName} className="w-full h-full object-cover" />
+                                        {vendor.shopImage ? (
+                                            <img src={getImageUrl(vendor.shopImage)} alt={vendor.shopName} className="w-full h-full object-cover" />
                                         ) : (
                                             <Store size={22} />
                                         )}

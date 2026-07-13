@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Loader2, Trash2, ShoppingBag, AlertCircle } from 'lucide-react';
+import { getImageUrl } from '../../utils/image';
 
 const Products = () => {
     const [productsList, setProductsList] = useState([]);
@@ -117,7 +118,7 @@ const Products = () => {
                                         <td className="py-4 px-6 flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                 {product.image ? (
-                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(product.image)} alt={product.name} className="w-full h-full object-cover" />
                                                 ) : (
                                                     <ShoppingBag size={18} className="text-gray-400" />
                                                 )}

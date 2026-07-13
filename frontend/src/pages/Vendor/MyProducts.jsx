@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Edit2, Trash2, AlertTriangle } from 'lucide-react';
+import { getImageUrl } from '../../utils/image';
 
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
@@ -96,7 +97,7 @@ const MyProducts = () => {
                       <div className="flex items-center gap-3 min-w-[200px]">
                         <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200/60 overflow-hidden flex-shrink-0 block relative">
                           <img
-                            src={`http://localhost:5000/${item.image}`}
+                            src={getImageUrl(item.image)}
                             alt={item.name}
                             className="w-full h-full object-cover block"
                             onError={(e) => { 

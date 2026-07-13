@@ -116,12 +116,11 @@ const Orders = () => {
                         <tbody className="divide-y divide-gray-50 text-xs font-semibold text-gray-700">
                             {ordersList.length > 0 ? (
                                 ordersList.map((order, index) => {
-                                    const vendorName = order.items && order.items[0]?.product?.vendor?.name 
-                                        || order.items && order.items[0]?.vendor?.name 
+                                    const vendorName = order.items && (order.items[0]?.vendor?.shopName || order.items[0]?.vendor?.name) 
                                         || "Local Vendor";
 
                                     const grossTotal = order.totalAmount || 0;
-                                    const deliveryCost = order.deliveryCharge ?? 30; // default template markup if empty
+                                    const deliveryCost = order.deliveryCharge ?? 0;
                                     const computedCommission = order.adminCommission || Math.round(grossTotal * 0.1);
                                     const netVendorEarning = order.vendorEarnings || (grossTotal - computedCommission);
 
@@ -133,7 +132,7 @@ const Orders = () => {
                                             </td>
                                             
                                             <td className="py-4 px-6 text-gray-700 font-medium">
-                                                {order.customer?.name || "Aarav Sharma"}
+                                                {order.customer?.name || "Unknown Customer"}
                                             </td>
                                             
                                             <td className="py-4 px-6 text-gray-500 font-medium">
