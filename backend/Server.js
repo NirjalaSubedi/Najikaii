@@ -30,17 +30,19 @@ const connectDB = async () => {
 };
 
 connectDB();
-
-// 1. API Routes (Must be declared before general asset paths)
 app.use('/api/auth', authRoutes);
 app.use('/api/order', orderRoutes);
-app.use('/api/payment', paymentRoutes); // FIXED: Linked cleanly with corrected import variable
+app.use('/api/payment', paymentRoutes); 
 app.use('/api/shops', shopRoutes);
 app.use('/api/Earnings', Earningsroute);
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 2. Base Route (Moved below API definitions so it doesn't intercept sub-paths)
+app.use((req, res, next) => {
+    if (req.url.startsWith('/uploads')) {
+        return res.status(404).send('Image not found');
+    }
+    next();
+});
 app.get('/', (req, res) => {
     res.send("Najikai API is running...");
 });

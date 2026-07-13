@@ -1,7 +1,7 @@
 const express =require('express');
 const router= express.Router();
 const {authmiddlewares,authorizeRoles}= require('../middlewares/authmiddlewares');
-const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder,getOrderCount,getRecentOrders,estimateOrder}=require('../Controllers/ordercontrollers');
+const {PlaceOrder,getorders,UpdateOrderStatus,CancelOrder,getOrderCount,getRecentOrders,estimateOrder,getAdminCommissionStats}=require('../Controllers/ordercontrollers');
 
 router.post('/placeorder',authmiddlewares,authorizeRoles('Customer'),PlaceOrder);
 router.post('/estimate-order', authmiddlewares, authorizeRoles('Customer'), estimateOrder);
@@ -13,4 +13,5 @@ router.put('/update-status/:orderId', authmiddlewares, authorizeRoles('vendor','
 router.put('/cancel/:orderId', authmiddlewares, authorizeRoles('Customer', 'admin', 'Admin'), CancelOrder);
 router.get('/getOrderCount',authmiddlewares, authorizeRoles('Admin'),getOrderCount);
 router.get('/getRecentOrders',authmiddlewares, authorizeRoles('Admin'),getRecentOrders);
+router.get('/admin-commission-stats',authmiddlewares, authorizeRoles('Admin'),getAdminCommissionStats);
 module.exports=router;

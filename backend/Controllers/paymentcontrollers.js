@@ -22,8 +22,8 @@ exports.initiateEsewa = async (req, res) => {
             });
         }
 
-        const secretKey = process.env.ESEWA_SECRET_KEY || "8gBm/:&EnhH.1/q";
-        const productCode = process.env.ESEWA_PRODUCT_CODE || "EPAYTEST";
+        const secretKey = process.env.ESEWA_SECRET_KEY;
+        const productCode = process.env.ESEWA_PRODUCT_CODE;
         
         const totalAmountStr = Number(amount).toFixed(2);
         const transactionUuid = String(orderId).trim();
@@ -63,38 +63,25 @@ exports.initiateEsewa = async (req, res) => {
 exports.esewaPayment = async (req, res) => {
     try {
         const dataToken = req.query.data || req.body.data;
-
-        if (!dataToken) {
-            if (req.method === 'GET') {
-                console.error('[eSewa Verify] Missing encoded data in callback', { query: req.query });
-                return redirectFailure(res, 'missing_data', 'encoded_data_missing');
-            }
-            return res.status(400).json({ success: false, message: "Encoded data missing" });
-        }
+        if (!dataToken) return redirectFailure(res, 'missing_data', 'encoded_data_missing');
 
         const normalizedToken = String(dataToken).trim().replace(/ /g, '+');
         const decodedString = Buffer.from(normalizedToken, 'base64').toString('utf-8');
         const decoded = JSON.parse(decodedString);
-
-        console.log("Decoded eSewa Verification Payload:", decoded);
+        const cleanEsewaAmount = String(decoded.total_amount).replace(/,/g, '');
 
         if (decoded.status !== 'COMPLETE') {
-            if (req.method === 'GET') {
-                console.error('[eSewa Verify] Incomplete status received', { status: decoded.status, transaction_uuid: decoded.transaction_uuid });
-                return redirectFailure(res, 'incomplete_status', decoded.status);
-            }
-            return res.status(400).json({ success: false, message: `Payment status is incomplete: ${decoded.status}` });
+            return redirectFailure(res, 'incomplete_status', decoded.status);
         }
 
-        const secretKey = process.env.ESEWA_SECRET_KEY || "8gBm/:&EnhH.1/q";
-
-        const signedFields = String(decoded.signed_field_names || '')
-            .split(',')
-            .map((field) => field.trim())
-            .filter(Boolean);
+        const secretKey = process.env.ESEWA_SECRET_KEY;
+        const signedFields = String(decoded.signed_field_names || '').split(',').map(f => f.trim()).filter(Boolean);
 
         const expectedDataString = signedFields
-            .map((field) => `${field}=${decoded[field] ?? ''}`)
+            .map((field) => {
+                if (field === 'total_amount') return `${field}=${cleanEsewaAmount}`;
+                return `${field}=${decoded[field] ?? ''}`;
+            })
             .join(',');
 
         const generatedHash = crypto
@@ -104,101 +91,51 @@ exports.esewaPayment = async (req, res) => {
             .trim();
 
         const receivedSignature = String(decoded.signature || '').trim();
-
-        const generatedBuffer = Buffer.from(generatedHash, 'utf-8');
-        const receivedBuffer = Buffer.from(receivedSignature, 'utf-8');
-
-        if (generatedBuffer.length !== receivedBuffer.length || !crypto.timingSafeEqual(generatedBuffer, receivedBuffer)) {
-            if (req.method === 'GET') {
-                console.error('[eSewa Verify] Signature mismatch detected', {
-                    expectedDataString,
-                    generatedHash,
-                    receivedSignature,
-                });
-                return redirectFailure(res, 'signature_mismatch', 'signature_check_failed');
-            }
-            return res.status(401).json({ success: false, message: "Security Warning: Signature Mismatch!" });
+        
+        if (generatedHash !== receivedSignature) {
+            console.error('[eSewa Verify] Signature mismatch', { expectedDataString, generatedHash, receivedSignature });
+            return redirectFailure(res, 'signature_mismatch', 'signature_check_failed');
         }
 
-        const existingPayment = await Payment.findOne({ transactionId: decoded.transaction_code }).populate('order');
-        if (existingPayment) {
-            if (req.method === 'GET') {
-                return res.redirect(`http://localhost:5173/payment-success?status=success&orderId=${existingPayment.order?._id || ''}`);
-            }
-            return res.status(200).json({
-                success: true,
-                message: 'Payment already verified earlier.',
-                order: existingPayment.order
-            });
-        }
-
-        const uuidParts = String(decoded.transaction_uuid || '').split('-').map((part) => part.trim());
-        const parsedOrderId = uuidParts.find((part) => mongoose.Types.ObjectId.isValid(part)) || uuidParts[0] || '';
-
-        if (!mongoose.Types.ObjectId.isValid(parsedOrderId)) {
-            console.error(`Invalid MongoDB ObjectId detected: "${parsedOrderId}"`);
-            if (req.method === 'GET') {
-                return redirectFailure(res, 'invalid_order_id', parsedOrderId);
-            }
-            return res.status(400).json({ success: false, message: `Invalid Order ID format: '${parsedOrderId}'` });
-        }
+        const uuidParts = String(decoded.transaction_uuid || '').split('-').map((p) => p.trim());
+        const parsedOrderId = uuidParts.find((part) => mongoose.Types.ObjectId.isValid(part)) || uuidParts[0];
 
         const order = await Order.findById(parsedOrderId);
-        if (!order) {
-            if (req.method === 'GET') {
-                console.error('[eSewa Verify] Order not found for ID:', parsedOrderId);
-                return redirectFailure(res, 'order_not_found', parsedOrderId);
-            }
-            return res.status(404).json({ success: false, message: "Order not found in database repository." });
+        if (!order) return redirectFailure(res, 'order_not_found', parsedOrderId);
+
+        const cleanOrderAmount = Number(order.totalAmount).toFixed(2);
+        const floatEsewaAmount = Number(cleanEsewaAmount).toFixed(2);
+
+        if (cleanOrderAmount !== floatEsewaAmount) {
+            return redirectFailure(res, 'amount_mismatch', `order:${cleanOrderAmount}|esewa:${floatEsewaAmount}`);
         }
 
-        const cleanEsewaAmount = Number(String(decoded.total_amount).replace(/,/g, ''));
-        const cleanOrderAmount = Number(order.totalAmount);
+        const existingPayment = await Payment.findOne({ transactionId: decoded.transaction_code });
+        
+        if (!existingPayment) {
+            const newPayment = new Payment({
+                order: order._id,
+                user: order.customer,
+                transactionId: decoded.transaction_code,
+                amount: cleanEsewaAmount,
+                paymentMethod: 'esewa',
+                status: 'completed',
+                paymentDetails: decoded
+            });
+            await newPayment.save();
 
-        if (Math.abs(cleanOrderAmount - cleanEsewaAmount) > 0.01) {
-            if (req.method === 'GET') {
-                console.error('[eSewa Verify] Amount mismatch detected', {
-                    orderId: order._id,
-                    orderAmount: cleanOrderAmount,
-                    esewaAmount: cleanEsewaAmount,
-                });
-                return redirectFailure(res, 'amount_mismatch', `order:${cleanOrderAmount}|esewa:${cleanEsewaAmount}`);
-            }
-            return res.status(400).json({ success: false, message: "Critical Risk: Amount mismatch detected!" });
+            order.isPaid = true;
+            order.paymentInfo = newPayment._id;
+            order.status = 'Confirmed';
+            await order.save();
+            console.log(newPayment);
         }
 
-        const newPayment = new Payment({
-            order: order._id,
-            user: order.customer,
-            transactionId: decoded.transaction_code,
-            amount: cleanEsewaAmount,
-            paymentMethod: 'esewa',
-            status: 'completed',
-            paymentDetails: decoded
-        });
-        await newPayment.save();
-
-        order.isPaid = true; 
-        order.paymentInfo = newPayment._id;
-        order.status = 'Confirmed';
-        await order.save();
-
-        if (req.method === 'GET') {
-            return res.redirect(`http://localhost:5173/payment-success?status=success&orderId=${order._id}`);
-        }
-
-        return res.status(200).json({ 
-            success: true, 
-            message: "Payment successfully verified and order confirmed!", 
-            order 
-        });
+        return res.redirect(`http://localhost:5173/payment-success?status=success&orderId=${order._id}`);
 
     } catch (error) {
-        console.error("eSewa verification critical exception:", error);
-        if (req.method === 'GET') {
-            return redirectFailure(res, 'server_error', error.message);
-        }
-        return res.status(500).json({ success: false, message: "Internal server error occurred.", error: error.message });
+        console.error("eSewa verification error:", error);
+        return redirectFailure(res, 'server_error', error.message);
     }
 };
 

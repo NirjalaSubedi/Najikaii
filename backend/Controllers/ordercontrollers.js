@@ -3,7 +3,7 @@ const User = require('../models/UserModels');
 const Product = require('../models/ProductModels');
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Earth's radius in km
+    const R = 6371; // Earth radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -229,7 +229,8 @@ exports.getorders = async (req, res) => {
 
         let orders = await Order.find(query)
             .populate('customer', 'name email')
-            .populate('items.product', 'name price image');
+            .populate('items.product', 'name price image')
+            .populate('items.vendor', 'name email shopName');
 
         if (userRole === 'vendor') {
             orders = orders.map(order => {
@@ -334,12 +335,28 @@ exports.CancelOrder = async (req, res) => {
 exports.getOrderCount = async (req, res) => {
     try {
         const totalOrders = await Order.countDocuments({});
+        
+        // Calculate financial statistics from Delivered orders
+        const deliveredOrders = await Order.find({ status: 'Delivered' });
+        
+        let totalRevenue = 0;
+        let adminCommission = 0;
+        let vendorPayouts = 0;
+        
+        deliveredOrders.forEach(order => {
+            totalRevenue += (order.subTotal || 0);
+            adminCommission += (order.adminCommission || (order.subTotal * 0.10));
+            vendorPayouts += (order.vendorEarnings || (order.subTotal * 0.90));
+        });
 
-        console.log("FETCHED LIVE ORDERS COUNT:", totalOrders);
+        console.log("FETCHED LIVE ORDERS COUNT:", totalOrders, "REVENUE:", totalRevenue);
 
         return res.status(200).json({
             success: true,
-            totalOrders: totalOrders
+            totalOrders: totalOrders,
+            totalRevenue: Math.round(totalRevenue),
+            adminCommission: Math.round(adminCommission),
+            vendorPayouts: Math.round(vendorPayouts)
         });
     } catch (error) {
         console.error("Order Analytics count failed:", error);
@@ -357,7 +374,8 @@ exports.getRecentOrders = async(req,res)=>{
         .sort({ createdAt: -1 })
             .limit(4)    
             .populate('customer', 'name')
-            .populate('items.product', 'name');
+            .populate('items.product', 'name')
+            .populate('items.vendor', 'name shopName');
         return res.status(200).json({
             success: true,
             orders: recentorders
@@ -370,4 +388,61 @@ exports.getRecentOrders = async(req,res)=>{
             error:error.message
         })
     }
-}
+};
+
+exports.getAdminCommissionStats = async (req, res) => {
+    try {
+        const deliveredOrders = await Order.find({ status: 'Delivered' })
+            .populate('customer', 'name email')
+            .populate('items.vendor', 'name email shopName')
+            .sort({ createdAt: -1 });
+
+        let totalRevenue = 0;
+        let totalCommission = 0;
+        let totalVendorPayouts = 0;
+
+        const transactions = deliveredOrders.map(order => {
+            const revenue = order.subTotal || 0;
+            const commission = order.adminCommission || (revenue * 0.10);
+            const vendorEarnings = order.vendorEarnings || (revenue * 0.90);
+
+            totalRevenue += revenue;
+            totalCommission += commission;
+            totalVendorPayouts += vendorEarnings;
+
+            // Get main vendor info
+            const vendorNames = order.items.map(item => item.vendor?.shopName || item.vendor?.name || 'Local Vendor');
+            const uniqueVendors = [...new Set(vendorNames)].join(', ');
+
+            return {
+                orderId: order._id,
+                date: order.createdAt,
+                customerName: order.customer?.name || 'Unknown Customer',
+                vendorName: uniqueVendors,
+                totalAmount: order.totalAmount,
+                subTotal: revenue,
+                commissionRate: 10,
+                adminCommission: Math.round(commission),
+                vendorEarnings: Math.round(vendorEarnings),
+                paymentMethod: order.paymentMethod,
+                status: order.status
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            totalRevenue: Math.round(totalRevenue),
+            totalCommission: Math.round(totalCommission),
+            totalVendorPayouts: Math.round(totalVendorPayouts),
+            averageCommission: transactions.length > 0 ? Math.round(totalCommission / transactions.length) : 0,
+            transactions
+        });
+    } catch (error) {
+        console.error("Admin commission stats fetch failed:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load admin commission statistics",
+            error: error.message
+        });
+    }
+};

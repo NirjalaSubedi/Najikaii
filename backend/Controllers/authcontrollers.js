@@ -39,8 +39,8 @@ exports.register = async (req, res) => {
             isVerified: false,
             // Only assign shop details if role is Vendor
             shopName: role === 'Vendor' ? shopName : undefined,
-            // Use provided shopImage or a default string if empty
-            shopImage: role === 'Vendor' ? (shopImage || "default_shop_placeholder.jpg") : undefined
+            // Use uploaded file path or provided/fallback image
+            shopImage: role === 'Vendor' ? (req.file ? req.file.path.replace(/\\/g, '/') : (shopImage || "https://via.placeholder.com/150")) : undefined
         });
 
         await newuser.save();
@@ -164,8 +164,12 @@ exports.updateProfile = async (req, res) => {
         if (Address) updateData.Address = Address;
         if (location) updateData.location = location;
         if (shopName) updateData.shopName = shopName;
-        // Only update shopImage if a new string/path is provided
-        if (shopImage) updateData.shopImage = shopImage;
+        // Only update shopImage if a new file is uploaded or a path/string is provided
+        if (req.file) {
+            updateData.shopImage = req.file.path.replace(/\\/g, '/');
+        } else if (shopImage) {
+            updateData.shopImage = shopImage;
+        }
 
         // Update the user
         const updatedUser = await user.findByIdAndUpdate(
