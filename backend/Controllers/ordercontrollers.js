@@ -236,18 +236,15 @@ exports.getorders = async (req, res) => {
             orders = orders.map(order => {
                 const orderObj = order.toObject();
                 
-                // Active vendor ko items filter garne
                 orderObj.items = orderObj.items.filter(item => 
                     item.vendor && item.vendor._id.toString() === userId.toString()
                 );
                 
-                // Vendor dynamic calculations fixes
                 const vendorTotal = orderObj.items.reduce((acc, item) => {
                     const price = Number(item.price ?? item.product?.sellingPrice ?? item.product?.actualPrice ?? item.product?.price ?? 0);
                     return acc + (price * (item.quantity || 0));
                 }, 0);
                 
-                // Dropdown field calculations backend dynamic pass
                 orderObj.vendorSpecificTotal = vendorTotal;
                 
                 return orderObj;
@@ -344,10 +341,7 @@ exports.CancelOrder = async (req, res) => {
 exports.getOrderCount = async (req, res) => {
     try {
         const totalOrders = await Order.countDocuments({});
-        
-        // Calculate financial statistics from Delivered orders
         const deliveredOrders = await Order.find({ status: 'Delivered' });
-        
         let totalRevenue = 0;
         let adminCommission = 0;
         let vendorPayouts = 0;

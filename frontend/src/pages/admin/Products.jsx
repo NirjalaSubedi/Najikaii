@@ -27,7 +27,7 @@ const Products = () => {
                 setProductsList(response.data.products);
             }
         } catch (err) {
-            console.error("Najikai master catalog error:", err);
+            console.error("Catalog fetch error:", err);
             setError(err.response?.data?.message || "Server bata products fetch garna sakiyena.");
         } finally {
             setLoading(false);
@@ -74,7 +74,6 @@ const Products = () => {
 
     return (
         <div className="w-full space-y-6 animate-fadeIn px-1">
-            {/* Title Block Header */}
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-xl font-black text-gray-900 tracking-tight">ALL Products</h2>
@@ -112,9 +111,8 @@ const Products = () => {
                         </thead>
                         <tbody className="divide-y divide-gray-50 text-xs font-medium text-gray-700">
                             {productsList.length > 0 ? (
-                                productsList.map((product, index) => (
-                                    <tr key={product._id || index} className="hover:bg-gray-50/30 transition-colors">
-                                        
+                                productsList.map((product) => (
+                                    <tr key={product._id} className="hover:bg-gray-50/30 transition-colors">
                                         <td className="py-4 px-6 flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                 {product.image ? (
@@ -125,39 +123,32 @@ const Products = () => {
                                             </div>
                                             <span className="font-bold text-gray-900">{product.name || "Unnamed Product"}</span>
                                         </td>
-                                        
                                         <td className="py-4 px-6 text-gray-500">
                                             {product.vendor?.shopName || product.vendor?.name || "Najikai Supplier"}
                                         </td>
-                                        
-                                        {/* Category field display */}
                                         <td className="py-4 px-6 text-gray-500">
                                             {product.category || "General"}
                                         </td>
                                         
+                                        {/* PRICE FIX: Backend bata pathayeko displayPrice prayog gareko */}
                                         <td className="py-4 px-6 font-black text-gray-900">
-                                            Rs. {product.price || 0}
+                                            Rs. {product.displayPrice || 0}
                                         </td>
                                         
-                                        {/* Stock with low warning threshold detection */}
                                         <td className="py-4 px-6">
                                             <span className={`font-bold ${product.stock <= 5 ? 'text-red-500 font-extrabold bg-red-50/50 px-2 py-0.5 rounded-md' : 'text-gray-700'}`}>
                                                 {product.stock || 0}
                                             </span>
                                         </td>
                                         
-                                        {/* Status Tags Pills handling active state */}
                                         <td className="py-4 px-6">
                                             <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
-                                                product.stock === 0
-                                                    ? 'bg-red-50 text-red-600 border-red-100' 
-                                                    : 'bg-green-50 text-green-600 border-green-100'
+                                                product.stock === 0 ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-600 border-green-100'
                                             }`}>
                                                 {product.stock === 0 ? 'inactive' : 'active'}
                                             </span>
                                         </td>
 
-                                        {/* Admin Action Action controller (Trash Option) */}
                                         <td className="py-4 px-6">
                                             <div className="flex items-center justify-center">
                                                 <button 

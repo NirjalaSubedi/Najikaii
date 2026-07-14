@@ -40,7 +40,7 @@ const MyOrders = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:5000/api/orders/cancel/${orderId}`, {}, {
+      const res = await axios.put(`http://localhost:5000/api/order/cancel/${orderId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

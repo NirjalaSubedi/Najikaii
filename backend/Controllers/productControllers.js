@@ -72,32 +72,19 @@ exports.getAllProducts = async (req, res) => {
             productFilter.category = category; 
         }
 
-        if (!lat || !lng) {
-            const products = await product.find(productFilter).populate('vendor', 'name email shopName location');
-            const normalizedProducts = products.map((item) => {
-                const productData = item.toObject();
-                productData.distance = null;
-                return productData;
-            });
-            return res.status(200).json({
-                success: true,
-                count: normalizedProducts.length,
-                products: normalizedProducts
-            });
-        }
-
-        const userLat = parseFloat(lat);
-        const userLng = parseFloat(lng);
-        const products = await product.find(productFilter).populate('vendor', 'name email shopName location');
+        const products = await product.find(productFilter)
+            .populate('vendor', 'name email shopName location')
+            .select('name sellingPrice actualPrice price stock image category vendor rating');
 
         const productsWithDistance = products.map((item) => {
             const productData = item.toObject();
+            productData.displayPrice = Number(productData.sellingPrice ?? productData.actualPrice ?? productData.price ?? 0);
             const vendorCoords = productData.vendor?.location?.coordinates;
 
-            if (Array.isArray(vendorCoords) && vendorCoords.length === 2) {
+            if (lat && lng && Array.isArray(vendorCoords) && vendorCoords.length === 2) {
                 productData.distance = calculateDistance(
-                    userLat,
-                    userLng,
+                    parseFloat(lat),
+                    parseFloat(lng),
                     vendorCoords[1],
                     vendorCoords[0]
                 );
@@ -108,14 +95,14 @@ exports.getAllProducts = async (req, res) => {
             return productData;
         });
 
-        if (sort === "Price: Low→High") {
-            productsWithDistance.sort((a, b) => (a.sellingPrice ?? a.actualPrice ?? 0) - (b.sellingPrice ?? b.actualPrice ?? 0));
-        } else if (sort === "Price: High→Low") {
-            productsWithDistance.sort((a, b) => (b.sellingPrice ?? b.actualPrice ?? 0) - (a.sellingPrice ?? a.actualPrice ?? 0));
+        if (sort === "Price: Low - High") {
+            productsWithDistance.sort((a, b) => a.displayPrice - b.displayPrice);
+        } else if (sort === "Price: High-Low") {
+            productsWithDistance.sort((a, b) => b.displayPrice - a.displayPrice);
         } else if (sort === "Top Rated") {
             productsWithDistance.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         } else {
-            productsWithDistance.sort((a, b) => (a.distance ?? Number.POSITIVE_INFINITY) - (b.distance ?? Number.POSITIVE_INFINITY));
+            productsWithDistance.sort((a, b) => a.distance - b.distance);
         }
 
         res.status(200).json({
