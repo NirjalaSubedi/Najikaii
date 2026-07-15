@@ -447,9 +447,9 @@ exports.getNearbyShops = async (req, res) => {
                         type: "Point",
                         coordinates: [parseFloat(lng), parseFloat(lat)]
                     },
-                    distanceField: "distanceFromMe", // Naya field jaha distance calculate hunchha
-                    maxDistance: distance * 1000, // KM lai meters ma badaleko
-                    query: { role: 'Vendor', status: 'Approved' }, // Khali approved vendors matra
+                    distanceField: "distanceFromMe",
+                    maxDistance: distance * 1000,
+                    query: { role: 'Vendor', status: 'Approved' },
                     spherical: true
                 }
             },
@@ -466,7 +466,7 @@ exports.getNearbyShops = async (req, res) => {
                     shopName: 1,
                     shopImage: 1,
                     Address: 1,
-                    distanceInKm: { $round: ["$distanceInKm", 2] } // 2 decimal digit ma round gareko
+                    distanceInKm: { $round: ["$distanceInKm", 2] }
                 }
             }
         ]);
