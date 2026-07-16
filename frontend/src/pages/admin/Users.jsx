@@ -47,7 +47,7 @@ const Users = () => {
         return (
             <div className="w-full h-96 flex items-center justify-center gap-2 text-gray-400 font-semibold text-sm bg-white/40 backdrop-blur-sm rounded-2xl border border-gray-100">
                 <Loader2 className="animate-spin text-[#00B56A]" size={20} />
-                <span>Loading Najikai user records directory...</span>
+                <span>Loading Najikai C records directory...</span>
             </div>
         );
     }
@@ -56,8 +56,8 @@ const Users = () => {
         <div className="w-full space-y-6 animate-fadeIn px-1">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Manage User</h2>
-                    <p className="text-xs text-gray-400 font-medium mt-0.5">Najikai Admin Dashboard User Directory Management</p>
+                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Manage Customers</h2>
+                    <p className="text-xs text-gray-400 font-medium mt-0.5">Najikai Admin Dashboard Customer Directory Management</p>
                 </div>
 
                 {/* Search Panel field matching UI mockup standards */}
@@ -108,7 +108,6 @@ const Users = () => {
                                         
                                         <td className="py-4 px-6 text-gray-500">{user.email || "user@gmail.com"}</td>
                                         
-                                        {/* FIXED SCHEMA CASE SENSITIVITY: PhoneNumber match structure */}
                                         <td className="py-4 px-6 text-gray-500 font-mono">
                                             {user.PhoneNumber || "98XXXXXXXX"}
                                         </td>

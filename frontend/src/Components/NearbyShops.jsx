@@ -50,7 +50,6 @@ const NearbyShops = ({ coords }) => {
     if (imagePath === 'default_shop_placeholder.jpg') {
       return 'https://via.placeholder.com/150';
     }
-    // Converts backslashes to forward slashes and ensures full URL
     const cleanPath = imagePath.replace(/\\/g, '/');
     return `http://localhost:5000/${cleanPath}`;
   };
@@ -90,9 +89,8 @@ const NearbyShops = ({ coords }) => {
                     alt={shop.shopName}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // This stops the loop: replace with a simple colored box (SVG)
                       e.target.src = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e5e7eb%22%2F%3E%3C%2Fsvg%3E";
-                      e.target.onerror = null; // IMPORTANT: This kills the infinite loop
+                      e.target.onerror = null;
                     }}
                   />
                 ) : (

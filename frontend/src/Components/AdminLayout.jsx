@@ -13,7 +13,7 @@ const AdminLayout = () => {
 
     const menuItems = [
         { name: 'Overview', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
-        { name: 'Users', path: '/admin/users', icon: <Users size={20} /> },
+        { name: 'Customers', path: '/admin/Customers', icon: <Users size={20} /> },
         { name: 'Vendors', path: '/admin/vendors', icon: <Store size={20} />, badge: 2 },
         { name: 'Products', path: '/admin/products', icon: <ShoppingBag size={20} /> },
         { name: 'Orders', path: '/admin/orders', icon: <ClipboardList size={20} /> },

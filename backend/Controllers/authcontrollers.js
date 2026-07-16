@@ -1,8 +1,8 @@
-const user=require('../models/UserModels');
+const user = require('../models/UserModels');
 const jwt = require('jsonwebtoken');
-const bcryptjs= require('bcryptjs');
+const bcryptjs = require('bcryptjs');
 const crypto = require('crypto');
-const sendEmail= require('../utils/sendEmail');
+const sendEmail = require('../utils/sendEmail');
 const { find } = require('../models/ProductModels');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -66,82 +66,80 @@ exports.register = async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 };
-exports.login= async (req,res)=>{
-    try{
-        const {email,password}=req.body;
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
         //find user
-        const founduser = await user.findOne({email});
-        if(!founduser){
+        const founduser = await user.findOne({ email });
+        if (!founduser) {
             return res.status(404).json({
-                message:"user is not register"
+                message: "user is not register"
             })
         }
 
         //check password 
-        const ismatch = await bcryptjs.compare(password,founduser.password);
-        if(!ismatch){
+        const ismatch = await bcryptjs.compare(password, founduser.password);
+        if (!ismatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        if(!founduser.isVerified) {
-                return res.status(401).json({ 
-                message: "Please verify your email before logging in." 
-                });
+        if (!founduser.isVerified) {
+            return res.status(401).json({
+                message: "Please verify your email before logging in."
+            });
         }
-
-        
 
         //admin approval for vendor
         if (founduser.role === 'Vendor') {
-        if (founduser.status === 'Pending') {
-            return res.status(403).json({ 
-                success: false, 
-                message: "Tapai ko account Admin approval ko lagi 'Pending' ma chha." 
-            });
+            if (founduser.status === 'Pending') {
+                return res.status(403).json({
+                    success: false,
+                    message: "Tapai ko account Admin approval ko lagi 'Pending' ma chha."
+                });
+            }
+            if (founduser.status === 'Rejected') {
+                return res.status(403).json({
+                    success: false,
+                    message: "Tapai ko account Admin le 'Rejected' gareko chha. Kripaya support ma contact garnus."
+                });
+            }
         }
-        if (founduser.status === 'Rejected') {
-            return res.status(403).json({ 
-                success: false, 
-                message: "Tapai ko account Admin le 'Rejected' gareko chha. Kripaya support ma contact garnus." 
-            });
-        }
-    }
-    
+
 
         //create jwt token
-        const token=jwt.sign({
-            id:founduser._id,
-            role:founduser.role
+        const token = jwt.sign({
+            id: founduser._id,
+            role: founduser.role
         },
-        process.env.JWT_SECRET,
-        {expiresIn:'1d'})
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' })
 
-       //send email if successfull login 
-       try {
+        //send email if successfull login 
+        try {
             await sendEmail({
-                email: founduser.email, 
+                email: founduser.email,
                 subject: 'Najikai App - Login Success',
-                message: `Namaste, you logged in as ${founduser.name}` 
+                message: `Namaste, you logged in as ${founduser.name}`
             });
         } catch (mailError) {
             console.log("Email pathauna sakiyena, tara login success bhayo.");
         }
         res.status(200).json({
             success: true,
-            token: token, 
+            token: token,
             user: {
                 id: founduser._id,
                 name: founduser.name,
-                email:founduser.email,
-                phonenumber:founduser.PhoneNumber,
-                address:founduser.Address,
+                email: founduser.email,
+                phonenumber: founduser.PhoneNumber,
+                address: founduser.Address,
                 role: founduser.role,
                 shopName: founduser.shopName,
                 shopImage: founduser.shopImage
             }
         });
-    }catch(e){
+    } catch (e) {
         res.status(500).json({ message: e.message });
     }
 }
@@ -150,7 +148,7 @@ exports.login= async (req,res)=>{
 exports.updateProfile = async (req, res) => {
     try {
         const { name, PhoneNumber, Address, location, shopName, shopImage } = req.body;
-        
+
         if (!req.user) {
             return res.status(401).json({ message: "Unauthorized: No user found" });
         }
@@ -162,7 +160,14 @@ exports.updateProfile = async (req, res) => {
         if (name) updateData.name = name;
         if (PhoneNumber) updateData.PhoneNumber = PhoneNumber;
         if (Address) updateData.Address = Address;
-        if (location) updateData.location = location;
+        if (location) {
+            try {
+                updateData.location = typeof location === 'string' ? JSON.parse(location) : location;
+            } catch (err) {
+                console.error("Error parsing location in updateProfile:", err);
+                updateData.location = location;
+            }
+        }
         if (shopName) updateData.shopName = shopName;
         if (req.file) {
             updateData.shopImage = req.file.path.replace(/\\/g, '/');
@@ -193,8 +198,8 @@ exports.updateProfile = async (req, res) => {
 
 exports.deleteuser = async (req, res) => {
     try {
-        const targetUserId = req.params.id; 
-        const loggedInUser = req.user;    
+        const targetUserId = req.params.id;
+        const loggedInUser = req.user;
 
         if (loggedInUser.role !== 'Admin' && loggedInUser.id !== targetUserId) {
             return res.status(403).json({
@@ -206,15 +211,15 @@ exports.deleteuser = async (req, res) => {
         const userToDelete = await user.findById(targetUserId);
 
         if (!userToDelete) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: "User bhetiyena!" 
+                message: "User bhetiyena!"
             });
         }
 
         const deleteToken = jwt.sign(
-            { id: userToDelete._id }, 
-            process.env.JWT_SECRET, 
+            { id: userToDelete._id },
+            process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
 
@@ -242,7 +247,7 @@ exports.deleteuser = async (req, res) => {
                 email: userToDelete.email,
                 subject: 'Najikai App - Delete Your Account',
                 message: `Namaste ${userToDelete.name}, Account delete garna yo link copy garnus: ${confirmationUrl}`,
-                html: htmlTemplate 
+                html: htmlTemplate
             });
 
             res.status(200).json({
@@ -281,7 +286,7 @@ exports.confirmDeleteUser = async (req, res) => {
         }
 
         const targetUserId = decoded.id;
-        const userToDelete = await user.findById(targetUserId); 
+        const userToDelete = await user.findById(targetUserId);
 
         if (!userToDelete) {
             return res.status(404).send(`
@@ -304,10 +309,10 @@ exports.confirmDeleteUser = async (req, res) => {
 };
 
 //display logedin user info
-exports.GetMyProfileInfo= async (req,res)=>{
-    try{
-        const userid=req.user.id
-        const userInfo= await user.findById(userid);
+exports.GetMyProfileInfo = async (req, res) => {
+    try {
+        const userid = req.user.id
+        const userInfo = await user.findById(userid);
 
         if (!userInfo) {
             return res.status(404).json({
@@ -317,15 +322,15 @@ exports.GetMyProfileInfo= async (req,res)=>{
         }
 
         res.status(200).json({
-            success:true,
-            message:"success in fetching logedin user info",
-            userInfo  
+            success: true,
+            message: "success in fetching logedin user info",
+            userInfo
         })
 
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
-            success:false,
-            message:error.message
+            success: false,
+            message: error.message
         })
     }
 }
@@ -346,8 +351,8 @@ exports.getAllUserInfo = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "orders",        
-                    localField: "_id",  
+                    from: "orders",
+                    localField: "_id",
                     foreignField: "customer",
                     as: "customerOrders"
                 }
@@ -388,15 +393,15 @@ exports.updateVendorStatus = async (req, res) => {
         }
 
         const updatedVendor = await user.findByIdAndUpdate(
-            id, 
-            { status: status }, 
+            id,
+            { status: status },
             { new: true }
         );
 
         if (!updatedVendor) {
-            return res.status(404).json({ 
-            success: false, 
-            message: "Yo ID vaye ko user bhetiye na!" 
+            return res.status(404).json({
+                success: false,
+                message: "Yo ID vaye ko user bhetiye na!"
             });
         }
 
@@ -431,12 +436,12 @@ exports.updateVendorStatus = async (req, res) => {
 
 exports.getNearbyShops = async (req, res) => {
     try {
-        const { lng, lat, distance = 5 } = req.query; 
+        const { lng, lat, distance = 5 } = req.query;
 
         if (!lng || !lat) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Location (longitude ra latitude) pathaunu hos!" 
+            return res.status(400).json({
+                success: false,
+                message: "Location (longitude ra latitude) pathaunu hos!"
             });
         }
 
@@ -503,8 +508,8 @@ exports.socialLogin = async (req, res) => {
                     id: existingUser._id,
                     name: existingUser.name,
                     email: existingUser.email,
-                    phonenumber: existingUser.PhoneNumber, 
-                    address: existingUser.Address,        
+                    phonenumber: existingUser.PhoneNumber,
+                    address: existingUser.Address,
                     role: existingUser.role
                 }
             });
@@ -537,8 +542,8 @@ exports.socialLogin = async (req, res) => {
                 id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
-                phonenumber: newUser.PhoneNumber, 
-                address: newUser.Address,        
+                phonenumber: newUser.PhoneNumber,
+                address: newUser.Address,
                 role: newUser.role
             }
         });
@@ -567,10 +572,10 @@ exports.googleLogin = async (req, res) => {
                 email,
                 googleId,
                 avatar: picture,
-                isVerified: true, 
+                isVerified: true,
                 role: 'Customer',
                 status: 'Approved',
-                password: crypto.randomBytes(16).toString('hex') 
+                password: crypto.randomBytes(16).toString('hex')
             });
             await foundUser.save();
         }
@@ -586,9 +591,9 @@ exports.googleLogin = async (req, res) => {
             user: {
                 id: foundUser._id,
                 name: foundUser.name,
-                email: foundUser.email,              
-                
-                phonenumber: foundUser.PhoneNumber || foundUser.phoneNumber, 
+                email: foundUser.email,
+
+                phonenumber: foundUser.PhoneNumber || foundUser.phoneNumber,
                 address: foundUser.Address || foundUser.address,
 
                 role: foundUser.role
@@ -646,28 +651,28 @@ exports.getUserCount = async (req, res) => {
     try {
         const [total, customers, vendors, pendingVendors] = await Promise.all([
             user.countDocuments({}),
-            user.countDocuments({ role: 'Customer' }), 
-            user.countDocuments({ role: 'Vendor' }),   
-            user.countDocuments({ role: 'Vendor', status: 'pending' }) 
+            user.countDocuments({ role: 'Customer' }),
+            user.countDocuments({ role: 'Vendor' }),
+            user.countDocuments({ role: 'Vendor', status: 'pending' })
         ]);
 
         console.log("DB RE-SYNC LIVE:", { total, customers, vendors, pendingVendors });
 
         res.status(200).json({
             success: true,
-            data: { 
-                total, 
-                customers, 
+            data: {
+                total,
+                customers,
                 vendors,
                 pendingVendors
             }
         });
     } catch (error) {
         console.error("Dashboard backend filter stream block failed:", error);
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             message: "Error counting multi-vendor platform elements layout data",
-            error: error.message 
+            error: error.message
         });
     }
 };
