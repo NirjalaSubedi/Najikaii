@@ -67,7 +67,6 @@ const ProductGrid = ({ coords, selectedCategory }) => {
     fetchAllMarketplaceProducts();
   }, [lat, lng, activeSort]);
 
-  // Robust Filtering Engine: Cleans strings and checks for plural/singular matches
   const filteredProducts = !selectedCategory || selectedCategory === "All"
     ? products
     : products.filter(product => {
@@ -136,7 +135,7 @@ const ProductGrid = ({ coords, selectedCategory }) => {
         </div>
       ) : (
         <div className="text-center py-20 text-xs font-bold text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm">
-          यो क्याटेगरीमा प्रडक्टहरू उपलब्ध छैनन्!
+        No product avaliable in this category
         </div>
       )}
 
