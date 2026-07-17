@@ -49,7 +49,7 @@ function App() {
           <Route path="/signup" element={<Signup/>}/>
           <Route path="/verify-otp" element={<VerifyOtp/>}/>
           
-          {/* Decoupled Payment State Routes */}
+          {/*Payment State Routes */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-failed" element={<PaymentFailed />} />
 

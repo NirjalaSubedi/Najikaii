@@ -32,18 +32,28 @@ const Signup = () => {
     const handleFileChange = (e) => {
         setFormData({ ...formData, shopImage: e.target.files[0] });
     };
-
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    e.preventDefault();
+    setError('');
+    if (formData.password !== formData.confirmPassword) {
+        setError("Password ra Confirm Password match bhayena!");
+        return;
+    }
+    setLoading(true);
+    //Geolocation fetch garne
+    const getCoords = () => {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                (err) => reject(err)
+            );
+        });
+    };
 
-        if (formData.password !== formData.confirmPassword) {
-            setError("Password ra Confirm Password match bhayena!");
-            return;
-        }
-
-        setLoading(true);
-
+    try {
+        // Location get garne
+        const coords = await getCoords().catch(() => null); 
+        
         const data = new FormData();
         data.append('name', formData.name);
         data.append('email', formData.email);
@@ -52,27 +62,31 @@ const Signup = () => {
         data.append('password', formData.password);
         data.append('role', activeTab);
         
+        if (coords) {
+            data.append('location', JSON.stringify({
+                type: "Point",
+                coordinates: [coords.lng, coords.lat] 
+            }));
+        }
+        
         if (activeTab === 'Vendor') {
             data.append('shopName', formData.shopName);
-            if (formData.shopImage) {
-                data.append('shopImage', formData.shopImage);
-            }
+            if (formData.shopImage) data.append('shopImage', formData.shopImage);
         }
 
-        try {
-            const res = await axios.post('http://localhost:5000/api/auth/register', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            
-            if (res.data.success) {
-                navigate('/verify-otp', { state: { email: formData.email } });
-            }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Something went wrong!');
-        } finally {
-            setLoading(false);
+        const res = await axios.post('http://localhost:5000/api/auth/register', data, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            navigate('/verify-otp', { state: { email: formData.email } });
         }
-    };
+    } catch (err) {
+        setError(err.response?.data?.message || 'Something went wrong!');
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
