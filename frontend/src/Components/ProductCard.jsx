@@ -129,12 +129,7 @@ const ProductCard = ({ product, onClick }) => {
           </h3>
 
           <div className="flex items-center gap-1 mt-1">
-            <div className="flex items-center text-amber-400">
-              <Star size={12} className="fill-current" />
-            </div>
-            <span className="text-xs font-bold text-gray-700">4.5</span>
-            <span className="text-[10px] text-gray-400 font-semibold">(45)</span>
-            <span className="text-gray-300 text-[10px]">•</span>
+            
             <span className="text-[10px] font-bold text-gray-400">{unitType}</span>
           </div>
         </div>

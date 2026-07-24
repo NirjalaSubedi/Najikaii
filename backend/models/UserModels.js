@@ -37,8 +37,8 @@ const userSchema=new mongoose.Schema({
             default: 'Point'
         },
         coordinates: {
-            type: [Number], // [Longitude, Latitude]
-            default: [87.1685, 26.6500] // Default Jhumka ko coordinates
+            type: [Number],
+            default: [87.1685, 26.6500]
         }
     },
 
